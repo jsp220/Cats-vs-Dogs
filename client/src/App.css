@@ -90,18 +90,18 @@
 
 .header {
   border: 5px solid white;
-  width: 95%;
+  width: 98%;
   position: absolute;
   top: 2%;
 }
 
 .lobby{
   position: absolute;
-  left:5%;
+  left:2%;
 }
 
 .login{
   position: absolute;
-  right:5%;
+  right:2%;
   top: 0%;
 }
