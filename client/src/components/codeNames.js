@@ -269,11 +269,6 @@ class CodeNames extends React.Component {
       <div className="game">
         <div className="title col-12">Codenames</div>
         <div className="info row col-12">
-          <div className="scoreboard col-1">
-            <span className="blue-turn">{this.state.blueRemaining}</span>
-              &nbsp;–&nbsp; 
-            <span className="red-turn">{this.state.redRemaining}</span>
-          </div>
           <div className={"turn col " + this.state.status}>{statusMessage}</div>
           {/* display end turn and show winner based on state */}
           {this.state.showEndTurn ? this.renderEndTurn() : this.renderShowWinner()}
@@ -308,8 +303,16 @@ class CodeNames extends React.Component {
               New Game
           </button>
         </div>
-        <div className='teamDog'>Team Dog</div>
-        <div className='teamCat'>Team Cat</div>
+        <div className='teamDog'>
+          <h2>Team Dog</h2>
+          <h3>Card Remaining: <span className="blue-turn">{this.state.blueRemaining}</span></h3>
+          <h4>Team Member: </h4>
+          </div>
+        <div className='teamCat'>
+          <h2>Team Cat</h2>
+          <h3>Card Remaining: <span className="red-turn">{this.state.redRemaining}</span></h3>
+          <h4>Team Member: </h4>
+          </div>
         <div className='rules'>Rules</div>
         <div className='gameLog'>Game Log</div>
       </div>

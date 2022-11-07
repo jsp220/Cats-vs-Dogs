@@ -34,10 +34,10 @@ ol, ul {
   flex-wrap: wrap;
   flex-direction: row;
   margin-top: 0%;
-  margin-left: 20%;
-  margin-right: 20%;
-  width: min-content;
-  min-width: 850px;
+  margin-left: 23%;
+  margin-right: 23%;
+  /* width: 100%; */
+  /* min-width: 850px; */
   text-align: center;
   animation: rubberBand;
   animation-duration: 4s;
@@ -124,9 +124,9 @@ ol, ul {
   display: block;
   float: left;
   line-height: 70px;
-  height: 8%;
-  margin: 5px;
-  width: 16%;
+  height: 9%;
+  margin: 1%;
+  width: 18%;
 }
 
 .red {
@@ -178,51 +178,58 @@ ol, ul {
   animation-duration: 2s;
 }
 
-
 .spymaster-red {
   color: #d13030;
-  background: #F0F0F0;
+  background: #e8e8e8;
   font-weight: bold;
   border-radius: 5px;
   border: #d13030;
+  display: block;
   float: left;
-  height: 80px;
-  margin: 5px;
-  width: 160px;
+  line-height: 70px;
+  height: 9%;
+  margin: 1%;
+  width: 18%;
 }
 
 .spymaster-blue {
   color: #4183cc;
-  background: #F0F0F0;
+  background: #e8e8e8;
   font-weight: bold;
   border-radius: 5px;
   border: #4183cc;
+  display: block;
   float: left;
-  height: 80px;
-  margin: 5px;
-  width: 160px;
+  line-height: 70px;
+  height: 9%;
+  margin: 1%;
+  width: 18%;
 }
 
 .spymaster-bystander {
+  background: #e8e8e8;
   font-weight: bold;
-  background: #F0F0F0;
   border-radius: 5px;
   border: #EAE1AC;
+  display: block;
   float: left;
-  height: 80px;
-  margin: 5px;
-  width: 160px;
+  line-height: 70px;
+  height: 9%;
+  margin: 1%;
+  width: 18%;
 }
 
 .spymaster-assassin {
   background: #ccc;
-  border: #ccc;
   font-weight: bold;
   border-radius: 5px;
+  border: #ccc;
+  display: block;
   float: left;
-  height: 80px;
-  margin: 5px;
-  width: 160px;
+  line-height: 70px;
+  height: 9%;
+  margin: 1%;
+  width: 18%;
 }
 
 .game-over {
@@ -254,7 +261,6 @@ ol, ul {
 
 .new-game {
   margin-left: 10px;
-  max-width: 70% !important;
   border: 10px solid green !important;
 }
 
