@@ -33,16 +33,19 @@ ol, ul {
 .game {
   flex-wrap: wrap;
   flex-direction: row;
-  margin: 0 auto;
+  margin-top: 0%;
+  margin-left: 20%;
+  margin-right: 20%;
   width: min-content;
   min-width: 850px;
   text-align: center;
   animation: rubberBand;
   animation-duration: 4s;
+  justify-content: center;
 }
 
 .info {
-  justify-content: flex-end;
+  justify-content: center;
   padding-top: 3%;
   padding-bottom: 3%;
   text-align: left;
@@ -121,9 +124,9 @@ ol, ul {
   display: block;
   float: left;
   line-height: 70px;
-  height: 80px;
+  height: 8%;
   margin: 5px;
-  width: 160px;
+  width: 16%;
 }
 
 .red {
@@ -251,6 +254,8 @@ ol, ul {
 
 .new-game {
   margin-left: 10px;
+  max-width: 70% !important;
+  border: 10px solid green !important;
 }
 
 .gear {

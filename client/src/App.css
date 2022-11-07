@@ -1,0 +1,46 @@
+.teamDog{
+  border: 10px solid green;
+  width: 20%;
+  height: 30%;
+  position: absolute;
+  left: 1%;
+  top:10%;
+}
+
+.teamCat{
+  border: 10px solid green;
+  width: 20%;
+  height: 30%;
+  position: absolute;
+  right: 1%;
+  top:10%;
+}
+
+.rules{
+  border: 10px solid green;
+  width: 20%;
+  height: 40%;
+  position: absolute;
+  left: 1%;
+  top:45%;
+}
+
+.gameLog{
+  border: 10px solid green;
+  width: 20%;
+  height: 40%;
+  position: absolute;
+  right: 1%;
+  top:45%;
+}
+
+.cardContainer{
+  border:10px solid green;
+  justify-content: center;
+}
+
+/* .board-row{
+  justify-content: space-between !important;
+  display: flex;
+  min-width: 80px;
+} */
