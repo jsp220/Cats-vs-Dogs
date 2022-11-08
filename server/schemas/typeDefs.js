@@ -2,6 +2,7 @@ const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`
     type Word {
+        _id: ID!
         name: String
     }
 
@@ -18,7 +19,8 @@ const typeDefs = gql`
 
     type Team {
         _id: ID!
-        isTeamDog: Boolean
+        isTeamCat: Boolean
+        game: Game
         users: [User]
         words: [Word]
     }
@@ -26,13 +28,14 @@ const typeDefs = gql`
     type Game {
         _id: ID!
         name: String!
-        teams: [Team]
-        startTeam: Team
+        teamCat: Team
+        teamDog: Team
         moves: [Move]
         wordList: WordList
     }
 
     type Move {
+        _id: ID!
         user: User
         game: Game
         word: Word
@@ -40,6 +43,7 @@ const typeDefs = gql`
     }
 
     type WordList {
+        _id: ID!
         game: Game
         allWords: [Word]
         catWords: [Word]
@@ -61,6 +65,10 @@ const typeDefs = gql`
     type Mutation {
         addUser(username: String!, email: String!, password: String!): Auth
         login(email: String!, password: String!): Auth
+        addGame(name: String!): Game
+        addTeamCat: Team
+        addTeamDog: Team
+        updateGame( gameId: ID, teamCatId: ID, teamDogId: ID ): Game
     }
 
 `;

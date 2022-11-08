@@ -1,8 +1,12 @@
 const { Schema, model } = require('mongoose');
 
 const teamSchema = new Schema({
-    isTeamDog: {
+    isTeamCat: {
         type: Boolean
+    },
+    game: {
+        type: Schema.Types.ObjectId,
+        ref: 'Game'
     },
     users: [
         {

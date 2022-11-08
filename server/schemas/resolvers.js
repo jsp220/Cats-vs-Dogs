@@ -23,15 +23,8 @@ const resolvers = {
         addUser: async (parent, { username, email, password }) => {
             const user = await User.create({ username, email, password });
             const token = signToken(user);
-
             return { token, user };
         },
-
-        // addWordList: async (parent, data) => {
-        //     const wordList = await WordList.create(data);
-
-        //     // continue here
-        // },
 
         login: async (parent, { email, password }) => {
             const user = await User.findOne({ email });
@@ -49,6 +42,37 @@ const resolvers = {
             const token = signToken(user);
             return { token, user };
         },
+
+        addGame: async (parent, { name }) => {
+            return Game.create({ name });
+        },
+
+        addTeamCat: async () => {
+            return Team.create({ isTeamCat: true });
+        },
+
+        addTeamDog: async () => {
+            return Team.create({ isTeamCat: false });
+        },
+
+        updateGame: async (parent, { gameId, teamCatId, teamDogId }) => {
+            return Game.findOneAndUpdate(
+                { _id: gameId },
+                {
+                    teamCat: { _id: teamCatId },
+                    teamDog: { _id: teamDogId },
+                    // wordList: { _id: wordListId } 
+                },
+                { new: true }
+            );
+        },
+
+        // addWordList: async (parent, data) => {
+        //     const wordList = await WordList.create({allWords: data});
+
+        // },
+
+       
     }
 };
 

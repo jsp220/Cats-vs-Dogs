@@ -6,13 +6,11 @@ const gameSchema = new Schema({
         required: true,
         unique: true
     },
-    teams: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Team'
-        }
-    ],
-    startTeam: {
+    teamCat: {
+        type: Schema.Types.ObjectId,
+        ref: 'Team'
+    },
+    teamDog: {
         type: Schema.Types.ObjectId,
         ref: 'Team'
     },
@@ -26,7 +24,7 @@ const gameSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'WordList'
     }
-    
+
 });
 
 const Game = model('Game', gameSchema);
