@@ -134,10 +134,11 @@ ol, ul {
   border-radius: 5px;
   border: #d13030;
   color: white;
+  line-height: 70px;
   float: left;
-  height: 80px;
-  margin: 5px;
-  width: 160px;
+  height: 9%;
+  margin: 1%;
+  width: 18%;
   animation: tada;
   animation-duration: 2s;
 }
@@ -147,10 +148,12 @@ ol, ul {
   border-radius: 5px;
   border: #4183cc;
   color: white;
+  display: block;
+  line-height: 70px;
   float: left;
-  height: 80px;
-  margin: 5px;
-  width: 160px;
+  height: 9%;
+  margin: 1%;
+  width: 18%;
   animation: jello;
   animation-duration: 2s;
 }
@@ -159,10 +162,11 @@ ol, ul {
   background: #EAE1AC;
   border-radius: 5px;
   border: #EAE1AC;
+  line-height: 70px;
   float: left;
-  height: 80px;
-  margin: 5px;
-  width: 160px;
+  height: 9%;
+  margin: 1%;
+  width: 18%;
   animation: rubberBand;
   animation-duration: 2s;
 }
@@ -170,11 +174,12 @@ ol, ul {
 .assassin {
   border: 5px solid black;  
   border-radius: 5px;
+  line-height: 70px;
   float: left;
-  height: 80px;
-  margin: 5px;
-  width: 160px;
-  animation: headShake;
+  height: 9%;
+  margin: 1%;
+  width: 18%;
+  animation: hinge;
   animation-duration: 2s;
 }
 
