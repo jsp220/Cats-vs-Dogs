@@ -16,12 +16,6 @@ const gameSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Team'
     },
-    words: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'Word'
-        }
-    ],
     moves: [
         {
             type: Schema.Types.ObjectId,

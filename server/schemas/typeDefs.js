@@ -28,7 +28,6 @@ const typeDefs = gql`
         name: String!
         teams: [Team]
         startTeam: Team
-        words: [Word]
         moves: [Move]
         wordList: WordList
     }
@@ -56,7 +55,7 @@ const typeDefs = gql`
 
     type Query {
         user(userId: ID!): User
-        words: [Word]!
+        words: [Word]
     }
 
     type Mutation {
