@@ -7,8 +7,9 @@ const resolvers = {
         user: async (parent, { userId }) => {
             return User.findOne({ _id: userId });
         },
-        // words: 
-        //     return Word.findAll
+        words: async () => {
+            return Word.find();
+        }
     },
 
     Mutation: {

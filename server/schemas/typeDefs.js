@@ -6,10 +6,10 @@ const typeDefs = gql`
     }
 
     type User {
-        _id: ID
-        username: String
-        email: String
-        password: String
+        _id: ID!
+        username: String!
+        email: String!
+        password: String!
         wins: Int
         losses: Int
         team: Team
@@ -17,10 +17,36 @@ const typeDefs = gql`
     }
 
     type Team {
-        _id: ID
+        _id: ID!
         isTeamDog: Boolean
         users: [User]
         words: [Word]
+    }
+
+    type Game {
+        _id: ID!
+        name: String!
+        teams: [Team]
+        startTeam: Team
+        words: [Word]
+        moves: [Move]
+        wordList: WordList
+    }
+
+    type Move {
+        user: User
+        game: Game
+        word: Word
+        clue: String
+    }
+
+    type WordList {
+        game: Game
+        allWords: [Word]
+        catWords: [Word]
+        dogWords: [Word]
+        neutralWords: [Word]
+        deathWord: [Word]
     }
 
     type Auth {
@@ -30,6 +56,7 @@ const typeDefs = gql`
 
     type Query {
         user(userId: ID!): User
+        words: [Word]!
     }
 
     type Mutation {

@@ -28,14 +28,14 @@ const userSchema = new Schema({
         default: 0
     },
     team: {
-            type: Schema.Types.ObjectId,
-            ref: 'Team'
+        type: Schema.Types.ObjectId,
+        ref: 'Team'
     },
     isSpyMaster: {
         type: Boolean,
         default: false
     }
-})
+});
 
 // set up pre-save middleware to create password
 userSchema.pre('save', async function (next) {
