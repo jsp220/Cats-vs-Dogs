@@ -1,7 +1,9 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "../CodeNames.css";
+import { useQuery } from '@apollo/client';
+import { QUERY_WORDS } from '../utils/queries';
 
 //import { CSSTransitionGroup } from 'react-transition-group'
 import "animate.css";
@@ -37,412 +39,8 @@ const ZoomIn = styled.div`
   animation: 2s ${keyframes`${zoomIn}`};
 `;
 
-const CODENAMELIST = [
-  "Hollywood",
-  "Well",
-  "Foot",
-  "New",
-  "York",
-  "Spring",
-  "Court",
-  "Tube",
-  "Point",
-  "Tablet",
-  "Slip",
-  "Date",
-  "Drill",
-  "Lemon",
-  "Bell",
-  "Screen",
-  "Fair",
-  "Torch",
-  "State",
-  "Match",
-  "Iron",
-  "Block",
-  "France",
-  "Australia",
-  "Limousine",
-  "Stream",
-  "Glove",
-  "Nurse",
-  "Leprechaun",
-  "Play",
-  "Tooth",
-  "Arm",
-  "Bermuda",
-  "Diamond",
-  "Whale",
-  "Comic",
-  "Mammoth",
-  "Green",
-  "Pass",
-  "Missile",
-  "Paste",
-  "Drop",
-  "Pheonix",
-  "Marble",
-  "Staff",
-  "Figure",
-  "Park",
-  "Centaur",
-  "Shadow",
-  "Fish",
-  "Cotton",
-  "Egypt",
-  "Theater",
-  "Scale",
-  "Fall",
-  "Track",
-  "Force",
-  "Dinosaur",
-  "Bill",
-  "Mine",
-  "Turkey",
-  "March",
-  "Contract",
-  "Bridge",
-  "Robin",
-  "Line",
-  "Plate",
-  "Band",
-  "Fire",
-  "Bank",
-  "Boom",
-  "Cat",
-  "Shot",
-  "Suit",
-  "Chocolate",
-  "Roulette",
-  "Mercury",
-  "Moon",
-  "Net",
-  "Lawyer",
-  "Satellite",
-  "Angel",
-  "Spider",
-  "Germany",
-  "Fork",
-  "Pitch",
-  "King",
-  "Crane",
-  "Trip",
-  "Dog",
-  "Conductor",
-  "Part",
-  "Bugle",
-  "Witch",
-  "Ketchup",
-  "Press",
-  "Spine",
-  "Worm",
-  "Alps",
-  "Bond",
-  "Pan",
-  "Beijing",
-  "Racket",
-  "Cross",
-  "Seal",
-  "Aztec",
-  "Maple",
-  "Parachute",
-  "Hotel",
-  "Berry",
-  "Soldier",
-  "Ray",
-  "Post",
-  "Greece",
-  "Square",
-  "Mass",
-  "Bat",
-  "Wave",
-  "Car",
-  "Smuggler",
-  "England",
-  "Crash",
-  "Tail",
-  "Card",
-  "Horn",
-  "Capital",
-  "Fence",
-  "Deck",
-  "Buffalo",
-  "Microscope",
-  "Jet",
-  "Duck",
-  "Ring",
-  "Train",
-  "Field",
-  "Gold",
-  "Tick",
-  "Check",
-  "Queen",
-  "Strike",
-  "Kangaroo",
-  "Spike",
-  "Scientist",
-  "Engine",
-  "Shakespeare",
-  "Wind",
-  "Kid",
-  "Embassy",
-  "Robot",
-  "Note",
-  "Ground",
-  "Draft",
-  "Ham",
-  "War",
-  "Mouse",
-  "Center",
-  "Chick",
-  "China",
-  "Bolt",
-  "Spot",
-  "Piano",
-  "Pupil",
-  "Plot",
-  "Lion",
-  "Police",
-  "Head",
-  "Litter",
-  "Concert",
-  "Mug",
-  "Vacuum",
-  "Atlantis",
-  "Straw",
-  "Switch",
-  "Skyscraper",
-  "Laser",
-  "Scuba",
-  "Diver",
-  "Africa",
-  "Plastic",
-  "Dwarf",
-  "Lap",
-  "Life",
-  "Honey",
-  "Horseshoe",
-  "Unicorn",
-  "Spy",
-  "Pants",
-  "Wall",
-  "Paper",
-  "Sound",
-  "Ice",
-  "Tag",
-  "Web",
-  "Fan",
-  "Orange",
-  "Temple",
-  "Canada",
-  "Scorpion",
-  "Undertaker",
-  "Mail",
-  "Europe",
-  "Soul",
-  "Apple",
-  "Pole",
-  "Tap",
-  "Mouth",
-  "Ambulance",
-  "Dress",
-  "Ice",
-  "Cream",
-  "Rabbit",
-  "Buck",
-  "Agent",
-  "Sock",
-  "Nut",
-  "Boot",
-  "Ghost",
-  "Oil",
-  "Superhero",
-  "Code",
-  "Kiwi",
-  "Hospital",
-  "Saturn",
-  "Film",
-  "Button",
-  "Snowman",
-  "Helicopter",
-  "Loch",
-  "Ness",
-  "Log",
-  "Princess",
-  "Time",
-  "Cook",
-  "Revolution",
-  "Shoe",
-  "Mole",
-  "Spell",
-  "Grass",
-  "Washer",
-  "Game",
-  "Beat",
-  "Hole",
-  "Horse",
-  "Pirate",
-  "Link",
-  "Dance",
-  "Fly",
-  "Pit",
-  "Server",
-  "School",
-  "Lock",
-  "Brush",
-  "Pool",
-  "Star",
-  "Jam",
-  "Organ",
-  "Berlin",
-  "Face",
-  "Luck",
-  "Amazon",
-  "Cast",
-  "Gas",
-  "Club",
-  "Sink",
-  "Water",
-  "Chair",
-  "Shark",
-  "Jupiter",
-  "Copper",
-  "Jack",
-  "Platypus",
-  "Stick",
-  "Olive",
-  "Grace",
-  "Bear",
-  "Glass",
-  "Row",
-  "Pistol",
-  "London",
-  "Rock",
-  "Van",
-  "Vet",
-  "Beach",
-  "Charge",
-  "Port",
-  "Disease",
-  "Palm",
-  "Moscow",
-  "Pin",
-  "Washington",
-  "Pyramid",
-  "Opera",
-  "Casino",
-  "Pilot",
-  "String",
-  "Night",
-  "Chest",
-  "Yard",
-  "Teacher",
-  "Pumpkin",
-  "Thief",
-  "Bark",
-  "Bug",
-  "Mint",
-  "Cycle",
-  "Telescope",
-  "Calf",
-  "Air",
-  "Box",
-  "Mount",
-  "Thumb",
-  "Antarctica",
-  "Trunk",
-  "Snow",
-  "Penguin",
-  "Root",
-  "Bar",
-  "File",
-  "Hawk",
-  "Battery",
-  "Compound",
-  "Slug",
-  "Octopus",
-  "Whip",
-  "America",
-  "Ivory",
-  "Pound",
-  "Sub",
-  "Cliff",
-  "Lab",
-  "Eagle",
-  "Genius",
-  "Ship",
-  "Dice",
-  "Hood",
-  "Heart",
-  "Novel",
-  "Pipe",
-  "Himalayas",
-  "Crown",
-  "Round",
-  "India",
-  "Needle",
-  "Shop",
-  "Watch",
-  "Lead",
-  "Tie",
-  "Table",
-  "Cell",
-  "Cover",
-  "Czech",
-  "Back",
-  "Bomb",
-  "Ruler",
-  "Forest",
-  "Bottle",
-  "Space",
-  "Hook",
-  "Doctor",
-  "Ball",
-  "Bow",
-  "Degree",
-  "Rome",
-  "Plane",
-  "Giant",
-  "Nail",
-  "Dragon",
-  "Stadium",
-  "Flute",
-  "Carrot",
-  "Wake",
-  "Fighter",
-  "Model",
-  "Tokyo",
-  "Eye",
-  "Mexico",
-  "Hand",
-  "Swing",
-  "Key",
-  "Alien",
-  "Tower",
-  "Poison",
-  "Cricket",
-  "Cold",
-  "Knife",
-  "Church",
-  "Board",
-  "Cloak",
-  "Ninja",
-  "Olympus",
-  "Belt",
-  "Light",
-  "Death",
-  "Stock",
-  "Millionaire",
-  "Day",
-  "Knight",
-  "Pie",
-  "Bed",
-  "Circle",
-  "Rose",
-  "Change",
-  "Cap",
-  "Triangle",
-];
+const CODENAMELIST = ["Hollywood", "Well", "Foot", "New", "York", "Spring", "Court", "Tube", "Point", "Tablet", "Slip", "Date", "Drill", "Lemon", "Bell", "Screen", "Fair", "Torch", "State", "Match", "Iron", "Block", "France", "Australia", "Limousine", "Stream", "Glove", "Nurse", "Leprechaun", "Play", "Tooth", "Arm", "Bermuda", "Diamond", "Whale", "Comic", "Mammoth", "Green", "Pass", "Missile", "Paste", "Drop", "Pheonix", "Marble", "Staff", "Figure", "Park", "Centaur", "Shadow", "Fish", "Cotton", "Egypt", "Theater", "Scale", "Fall", "Track", "Force", "Dinosaur", "Bill", "Mine", "Turkey", "March", "Contract", "Bridge", "Robin", "Line", "Plate", "Band", "Fire", "Bank", "Boom", "Cat", "Shot", "Suit", "Chocolate", "Roulette", "Mercury", "Moon", "Net", "Lawyer", "Satellite", "Angel", "Spider", "Germany", "Fork", "Pitch", "King", "Crane", "Trip", "Dog", "Conductor", "Part", "Bugle", "Witch", "Ketchup", "Press", "Spine", "Worm", "Alps", "Bond", "Pan", "Beijing", "Racket", "Cross", "Seal", "Aztec", "Maple", "Parachute", "Hotel", "Berry", "Soldier", "Ray", "Post", "Greece", "Square", "Mass", "Bat", "Wave", "Car", "Smuggler", "England", "Crash", "Tail", "Card", "Horn", "Capital", "Fence", "Deck", "Buffalo", "Microscope", "Jet", "Duck", "Ring", "Train", "Field", "Gold", "Tick", "Check", "Queen", "Strike", "Kangaroo", "Spike", "Scientist", "Engine", "Shakespeare", "Wind", "Kid", "Embassy", "Robot", "Note", "Ground", "Draft", "Ham", "War", "Mouse", "Center", "Chick", "China", "Bolt", "Spot", "Piano", "Pupil", "Plot", "Lion", "Police", "Head", "Litter", "Concert", "Mug", "Vacuum", "Atlantis", "Straw", "Switch", "Skyscraper", "Laser", "Scuba", "Diver", "Africa", "Plastic", "Dwarf", "Lap", "Life", "Honey", "Horseshoe", "Unicorn", "Spy", "Pants", "Wall", "Paper", "Sound", "Ice", "Tag", "Web", "Fan", "Orange", "Temple", "Canada", "Scorpion", "Undertaker", "Mail", "Europe", "Soul", "Apple", "Pole", "Tap", "Mouth", "Ambulance", "Dress", "Ice", "Cream", "Rabbit", "Buck", "Agent", "Sock", "Nut", "Boot", "Ghost", "Oil", "Superhero", "Code", "Kiwi", "Hospital", "Saturn", "Film", "Button", "Snowman", "Helicopter", "Loch", "Ness", "Log", "Princess", "Time", "Cook", "Revolution", "Shoe", "Mole", "Spell", "Grass", "Washer", "Game", "Beat", "Hole", "Horse", "Pirate", "Link", "Dance", "Fly", "Pit", "Server", "School", "Lock", "Brush", "Pool", "Star", "Jam", "Organ", "Berlin", "Face", "Luck", "Amazon", "Cast", "Gas", "Club", "Sink", "Water", "Chair", "Shark", "Jupiter", "Copper", "Jack", "Platypus", "Stick", "Olive", "Grace", "Bear", "Glass", "Row", "Pistol", "London", "Rock", "Van", "Vet", "Beach", "Charge", "Port", "Disease", "Palm", "Moscow", "Pin", "Washington", "Pyramid", "Opera", "Casino", "Pilot", "String", "Night", "Chest", "Yard", "Teacher", "Pumpkin", "Thief", "Bark", "Bug", "Mint", "Cycle", "Telescope", "Calf", "Air", "Box", "Mount", "Thumb", "Antarctica", "Trunk", "Snow", "Penguin", "Root", "Bar", "File", "Hawk", "Battery", "Compound", "Slug", "Octopus", "Whip", "America", "Ivory", "Pound", "Sub", "Cliff", "Lab", "Eagle", "Genius", "Ship", "Dice", "Hood", "Heart", "Novel", "Pipe", "Himalayas", "Crown", "Round", "India", "Needle", "Shop", "Watch", "Lead", "Tie", "Table", "Cell", "Cover", "Czech", "Back", "Bomb", "Ruler", "Forest", "Bottle", "Space", "Hook", "Doctor", "Ball", "Bow", "Degree", "Rome", "Plane", "Giant", "Nail", "Dragon", "Stadium", "Flute", "Carrot", "Wake", "Fighter", "Model", "Tokyo", "Eye", "Mexico", "Hand", "Swing", "Key", "Alien", "Tower", "Poison", "Cricket", "Cold", "Knife", "Church", "Board", "Cloak", "Ninja", "Olympus", "Belt", "Light", "Death", "Stock", "Millionaire", "Day", "Knight", "Pie", "Bed", "Circle", "Rose", "Change", "Cap", "Triangle"];
+
 const HIDDEN_CLASSNAMES = new Array(25).fill("hidden-card");
 
 const ROWS = 5;
@@ -482,354 +80,319 @@ function Gear(props) {
   );
 }
 
-class Board extends React.Component {
-  renderCard(i) {
+function Board(props) {
+  function renderCard(i) {
     return (
       <Card
-        word={this.props.cardWords[i].toUpperCase()}
-        cardClass={this.props.cardClass[i]}
-        onClick={() => this.props.onClick(i)}
+        word={props.cardWords[i].toUpperCase()}
+        cardClass={props.cardClass[i]}
+        onClick={() => props.onClick(i)}
         className="card-body"
       />
     );
   }
 
-  renderColumns(rowPosition) {
+  function renderColumns(rowPosition) {
     const columns = [];
     for (let columnPosition = 0; columnPosition < COLUMNS; columnPosition++) {
-      columns.push(this.renderCard(columnPosition + rowPosition * ROWS));
+      columns.push(renderCard(columnPosition + rowPosition * ROWS));
     }
     return columns;
   }
 
-  renderRows() {
+  function renderRows() {
     const rows = [];
     for (let rowPosition = 0; rowPosition < ROWS; rowPosition++) {
       rows.push(
-        <div className="board-row">{this.renderColumns(rowPosition)}</div>
+        <div className="board-row">{renderColumns(rowPosition)}</div>
       );
     }
     return rows;
   }
 
-  render() {
-    return <div> {this.renderRows()} </div>;
-  }
+  return <div> {renderRows()} </div>
 }
 
-class CodeNames extends React.Component {
-  constructor(props) {
-    super(props);
-    const secondPlayer = pickRandomPlayer();
-    this.state = {
-      cardWords: initializeCardWords(),
-      cardColor: initializeCardRevealed(secondPlayer), // css class: hidden-card, red, blue
-      cardClass: HIDDEN_CLASSNAMES, // initial classNames are 'hidden-card'
-      clue: "",
-      isRedTurn: secondPlayer === REVEALED_CLASSNAMES.blue,
-      isClueTurn: true,
-      status:
-        secondPlayer === REVEALED_CLASSNAMES.blue ? "red-turn" : "blue-turn",
-      blueRemaining:
-        secondPlayer === REVEALED_CLASSNAMES.blue ? BASE_TURNS + 1 : BASE_TURNS,
-      redRemaining:
-        secondPlayer === REVEALED_CLASSNAMES.red ? BASE_TURNS + 1 : BASE_TURNS,
-      showEndTurn: true,
-      view: "agent",
-      winner: "",
-    };
-  }
+function CodeNames(props) {
+  const secondPlayer = pickRandomPlayer();
 
-  handleCardClick = (i) => {
+  const [cardWords, setCardWords] = useState("");
+  const [cardColor, setCardColor] = useState(initializeCardRevealed(secondPlayer)); // css class: hidden-card, red, blue
+  const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
+  const [clue, setClue] = useState("");
+  const [isRedTurn, setIsRedTurn] = useState(secondPlayer === REVEALED_CLASSNAMES.blue);
+  const [isClueTurn, setIsClueTurn] = useState(true);
+  const [status, setStatus] = useState(secondPlayer === REVEALED_CLASSNAMES.blue ? "red-turn" : "blue-turn");
+  const [blueRemaining, setBlueRemaining] = useState(secondPlayer === REVEALED_CLASSNAMES.blue ? BASE_TURNS + 1 : BASE_TURNS);
+  const [redRemaining, setRedRemaining] = useState(secondPlayer === REVEALED_CLASSNAMES.red ? BASE_TURNS + 1 : BASE_TURNS);
+  const [showEndTurn, setShowEndTurn] = useState(true);
+  const [view, setView] = useState("agent");
+  const [winner, setWinner] = useState("");
+  const [inputClue, setInputClue] = useState("");
+
+  const isGameOver = () => {
+    if (redRemaining === 0 || blueRemaining === 0) {
+      const status = "game-over-" + (isRedTurn ? "red" : "blue");
+      setStatus(status);
+      setShowEndTurn(false);
+      setWinner(isRedTurn ? "Red" : "Blue");
+    }
+  };
+
+  // check for game end every time either teams remaining cards changes 
+  useEffect(() => {
+    isGameOver();
+  }, [redRemaining, blueRemaining])
+
+  const { loading, data } = useQuery(QUERY_WORDS);
+  console.log(data, "abc");
+  const words = data?.words.map((entry) => entry.name.toUpperCase()) || [];
+  console.log(words);
+
+  useEffect(() => {
+    setCardWords(words);
+    console.log(words);
+  }, []);
+
+  const handleCardClick = (i) => {
     if (
-      this.state.status.includes("game-over") ||
-      this.state.view === "spymaster"
+      status.includes("game-over") ||
+      view === "spymaster"
     ) {
       return null; // disable clicking
     }
-    this.updateScore(i);
 
-    // TODO: Do not mutate state directly
-    // this.setState({
-    //   cardClass: this.update(this.state.cardClass, {i: {$set: this.state.cardColor[i]}})
-    // })
-    this.state.cardClass[i] = this.state.cardColor[i]; // switch css classNames
+    updateScore(i);
+    cardClass[i] = cardColor[i]; // switch css classNames
 
     if (
-      this.state.cardColor[i] === "bystander" ||
-      (this.state.isRedTurn === true && this.state.cardColor[i] === "blue") ||
-      (this.state.isRedTurn === false && this.state.cardColor[i] === "red")
+      cardColor[i] === "bystander" ||
+      (isRedTurn === true && cardColor[i] === "blue") ||
+      (isRedTurn === false && cardColor[i] === "red")
     ) {
-      this.setState({
-        isRedTurn: !this.state.isRedTurn,
-        status: !this.state.isRedTurn ? "red-turn" : "blue-turn",
-      });
-    } else if (this.state.cardColor[i] === "assassin") {
+      setIsRedTurn(!isRedTurn)
+      setStatus(!isRedTurn ? "red-turn" : "blue-turn");
+    } else if (cardColor[i] === "assassin") {
       alert("You have chosen the assassin. Game Over.");
-      const status = "game-over-" + (this.state.isRedTurn ? "blue" : "red");
-      this.setState({
-        status: status,
-        showEndTurn: false,
-        winner: this.state.isRedTurn ? "Blue" : "Red",
-      });
+      const status = "game-over-" + (isRedTurn ? "blue" : "red");
+      setStatus(status);
+      setShowEndTurn(false);
+      setWinner(isRedTurn ? "Blue" : "Red");
     }
 
-    this.setState({
-      cardWords: this.state.cardWords,
-      cardClass: this.state.cardClass,
-      isClueTurn: !this.state.isClueTurn,
-    });
+    setCardWords(cardWords);
+    setCardClass(cardClass);
+    setIsClueTurn(isClueTurn);
+
   };
 
-  updateScore(i) {
+  function updateScore(i) {
     // only update score if card has not been revealed already
-    if (this.state.cardClass[i] !== "hidden-card") {
+    if (cardClass[i] !== "hidden-card") {
       return null;
     }
 
     // update red or blue team's score
     // ensure game over is checked only after remaining
-    if (this.state.cardColor[i] === "red") {
-      this.setState(
-        {
-          redRemaining: this.state.redRemaining - 1,
-        },
-        function () {
-          this.isGameOver();
-        }
-      );
-    } else if (this.state.cardColor[i] === "blue") {
-      this.setState(
-        {
-          blueRemaining: this.state.blueRemaining - 1,
-        },
-        function () {
-          this.isGameOver();
-        }
-      );
+    if (cardColor[i] === "red") {
+      setRedRemaining(redRemaining - 1);
+    }
+    else if (cardColor[i] === "blue") {
+      setBlueRemaining(blueRemaining - 1);
     }
   }
 
-  isGameOver = () => {
-    if (this.state.redRemaining === 0 || this.state.blueRemaining === 0) {
-      const status = "game-over-" + (this.state.isRedTurn ? "red" : "blue");
-      this.setState({
-        status: status,
-        showEndTurn: false,
-        winner: this.state.isRedTurn ? "Red" : "Blue",
-      });
-    }
+
+
+  const handleEndTurnClick = () => {
+    setIsRedTurn = (!isRedTurn);
+    setStatus = (!isRedTurn ? "red-turn" : "blue-turn");
   };
 
-  handleEndTurnClick = () => {
-    this.setState({
-      isRedTurn: !this.state.isRedTurn,
-      status: !this.state.isRedTurn ? "red-turn" : "blue-turn",
-    });
-  };
-
-  handleSpymasterClick = () => {
+  const handleSpymasterClick = () => {
     // do not map cards that aren't "hiddencard" for class
-    const spymasterCardNames = this.state.cardClass.map((card, i) => {
+    const spymasterCardNames = cardClass.map((card, i) => {
       if (card === "hidden-card") {
-        return "spymaster-" + this.state.cardColor[i];
+        return "spymaster-" + cardColor[i];
       } else {
         return card;
       }
     });
-    this.setState({
-      cardClass: spymasterCardNames,
-      view: "spymaster",
-    });
+
+    setCardClass(spymasterCardNames);
+    setView("spymaster");
     // when clicked, all text should bold and 'status' is used as font-color
   };
 
-  handleAgentClick = () => {
-    this.setState({
-      cardClass: HIDDEN_CLASSNAMES,
-      view: "agent",
-    });
+  const handleAgentClick = () => {
+    setCardClass(HIDDEN_CLASSNAMES);
+    setView("agent");
     // when clicked, all text should bold and 'status' is used as font-color
   };
 
-  handleGearClick = () => {
+  const handleGearClick = () => {
     alert("How to play codenames: https://www.youtube.com/watch?v=zQVHkl8oQEU");
   };
 
-  newGame(i) {
+  function newGame(i) {
     window.location.reload(false);
   }
 
   // toggle only clue/guess on Change
-  handleSubmit(e) {
+  function handleSubmit(e) {
     // prevent refresh of game on each submit
     e.preventDefault();
-    this.setState({
-      inputClue: "",
-      clue: e.target[0].value,
-      isClueTurn: !this.state.isClueTurn,
-    });
+
+    setInputClue("");
+    setClue(e.target[0].value);
+    setIsClueTurn(!isClueTurn);
     // clear input box after setting state with clue
     e.target[0].value = "";
   }
 
-  renderEndTurn() {
+  function renderEndTurn() {
     return (
       <button
         className="btn btn-info btn-light"
-        onClick={this.handleEndTurnClick}
+        onClick={handleEndTurnClick}
       >
         End Turn
       </button>
     );
   }
 
-  renderShowWinner() {
-    const message = this.state.winner.toUpperCase() + " TEAM WINS!";
-    return <div className={"turn col " + this.state.status}>{message}</div>;
+  function renderShowWinner() {
+    const message = winner.toUpperCase() + " TEAM WINS!";
+    return <div className={"turn col " + status}>{message}</div>;
   }
 
-  render() {
-    let statusMessage;
-    if (this.state.status.includes("-turn")) {
-      statusMessage = (this.state.isRedTurn ? "Red" : "Blue") + "'s Turn";
-    } else {
-      statusMessage = null;
-    }
 
-    let agentView;
-    let spyView;
-    if (this.state.view === "agent") {
-      agentView = "gray-click";
-    } else {
-      spyView = "gray-click";
-    }
+  let statusMessage;
+  if (status.includes("-turn")) {
+    statusMessage = (isRedTurn ? "Red" : "Blue") + "'s Turn";
+  } else {
+    statusMessage = null;
+  }
 
-    return (
-      <div className="game">
-        <div className="title col-12">Codenames</div>
-        <div className="info row col-12">
-          <div className={"turn col " + this.state.status}>{statusMessage}</div>
-          {/* display end turn and show winner based on state */}
-          {this.state.showEndTurn
-            ? this.renderEndTurn()
-            : this.renderShowWinner()}
-        </div>
+  let agentView;
+  let spyView;
+  if (view === "agent") {
+    agentView = "gray-click";
+  } else {
+    spyView = "gray-click";
+  }
 
-        <Board
-          cardWords={this.state.cardWords}
-          cardClass={this.state.cardClass}
-          onClick={this.handleCardClick}
-        />
-
-        <div className="info row col-12">
-          <form>
-            <label className="clueInput">
-              Clue:
-              <input type="text" name="clue" className="formInput" />
-            </label>
-            <input type="submit" value="Submit" />
-          </form>
-          <button
-            className="btn btn-info btn-light new-game"
-            onClick={(i) => this.newGame(i)}
-          >
-            New Game
-          </button>
-        </div>
-        <div className="teamDog">
-          <h2>Team Dog</h2>
-          <h3>
-            Card Remaining:{" "}
-            <span className="blue-turn">{this.state.blueRemaining}</span>
-          </h3>
-          <h4>Team Member: </h4>
-          <div roleChoice>
-            <div className="dogAgent">
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={this.handleAgentClick}
-              >
-                Agent1
-              </label>
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={this.handleAgentClick}
-              >
-                Agent2
-              </label>
-            </div>
-            <div className="catSpy">
-              <label
-                className={"btn btn-info btn-light " + spyView}
-                onClick={this.handleSpymasterClick}
-              >
-                Spymasters
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="teamCat">
-          <h2>Team Cat</h2>
-          <h3>
-            Card Remaining:{" "}
-            <span className="red-turn">{this.state.redRemaining}</span>
-          </h3>
-          <h4>Team Member: </h4>
-          <div roleChoice>
-            <div className="catAgent">
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={this.handleAgentClick}
-              >
-                Agent1
-              </label>
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={this.handleAgentClick}
-              >
-                Agent2
-              </label>
-            </div>
-            <div className="catSpy">
-              <label
-                className={"btn btn-info btn-light " + spyView}
-                onClick={this.handleSpymasterClick}
-              >
-                Spymasters
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="rules">
-          Rules
-          <Gear onClick={this.handleGearClick} />
-          <div
-            className="btn-group btn-group-toggle"
-            data-toggle="buttons"
-          ></div>
-        </div>
-        <div className="gameLog">Game Log</div>
+  return (
+    <div className="game">
+      <div className="title col-12">Codenames</div>
+      <div className="info row col-12">
+        <div className={"turn col " + status}>{statusMessage}</div>
+        {/* display end turn and show winner based on state */}
+        {showEndTurn
+          ? renderEndTurn()
+          : renderShowWinner()}
       </div>
-    );
-  }
-}
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <Board
+          cardWords={words}
+          cardClass={cardClass}
+          onClick={handleCardClick}
+        />
+      )}
+      <div className="info row col-12">
+        {/* {JSON.stringify(words)} */}
+        <form>
+          <label className="clueInput">
+            Clue:
+            <input type="text" name="clue" className="formInput" />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
+        <button
+          className="btn btn-info btn-light new-game"
+          onClick={(i) => newGame(i)}
+        >
+          New Game
+        </button>
+      </div>
+      <div className="teamDog">
+        <h2>Team Dog</h2>
+        <h3>
+          Card Remaining:{" "}
+          <span className="blue-turn">{blueRemaining}</span>
+        </h3>
+        <h4>Team Member: </h4>
+        <div roleChoice>
+          <div className="dogAgent">
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={handleAgentClick}
+            >
+              Agent1
+            </label>
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={handleAgentClick}
+            >
+              Agent2
+            </label>
+          </div>
+          <div className="catSpy">
+            <label
+              className={"btn btn-info btn-light " + spyView}
+              onClick={handleSpymasterClick}
+            >
+              Spymasters
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="teamCat">
+        <h2>Team Cat</h2>
+        <h3>
+          Card Remaining:{" "}
+          <span className="red-turn">{redRemaining}</span>
+        </h3>
+        <h4>Team Member: </h4>
+        <div roleChoice>
+          <div className="catAgent">
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={handleAgentClick}
+            >
+              Agent1
+            </label>
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={handleAgentClick}
+            >
+              Agent2
+            </label>
+          </div>
+          <div className="catSpy">
+            <label
+              className={"btn btn-info btn-light " + spyView}
+              onClick={handleSpymasterClick}
+            >
+              Spymasters
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="rules">
+        Rules
+        <Gear onClick={handleGearClick} />
+        <div
+          className="btn-group btn-group-toggle"
+          data-toggle="buttons"
+        ></div>
+      </div>
+      <div className="gameLog">Game Log</div>
+    </div>
+  );
 
-// ========================================
-
-function initializeCardWords() {
-  // Returns a list of 25 unique word strings
-  // Index indicates hidden-card position on board
-  var word = "";
-  var dict = {};
-
-  // dedupe using dict
-  while (Object.keys(dict).length < 25) {
-    word = CODENAMELIST[Math.floor(Math.random() * CODENAMELIST.length)];
-    dict[word.toUpperCase()] = 0;
-  }
-
-  return Object.keys(dict);
 }
 
 export default CodeNames;

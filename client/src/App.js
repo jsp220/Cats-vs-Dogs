@@ -5,7 +5,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import Game from './pages/game'
 
 const client = new ApolloClient({
-  uri: "/graphql",
+  uri: "http://localhost:3001/graphql",
   cache: new InMemoryCache(),
 });
  
