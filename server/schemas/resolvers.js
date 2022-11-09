@@ -99,6 +99,9 @@ const resolvers = {
         // ["636aec484933eeb2c7a668c3", "636aec484933eeb2c7a668c4", etc.]
         addWordList: async (parent, { wordIds }) => {
             const allWords = wordIds.map((wordId) => new Object({ _id: wordId }));
+            
+            // this part may need to be moved to front end and
+            // just send catWords, dogWords, etc as IDs
             const neutralWords = [...allWords];
             const catWords = [];
             while (catWords.length < 9) {
