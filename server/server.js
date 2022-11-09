@@ -32,7 +32,8 @@ const startApolloServer = async (typeDefs, resolvers) => {
   server.applyMiddleware({ app });
   
   db.once('open', async () => {
-    if (!Word.find({})) {
+    const words = await Word.find({});
+    if (words.length ===0) {
       const words = await Word.insertMany(seedWords);
     }
 
