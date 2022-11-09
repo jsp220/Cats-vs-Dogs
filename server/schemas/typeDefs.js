@@ -49,7 +49,7 @@ const typeDefs = gql`
         catWords: [Word]
         dogWords: [Word]
         neutralWords: [Word]
-        deathWord: [Word]
+        deathWord: Word
     }
 
     type Auth {
@@ -60,17 +60,19 @@ const typeDefs = gql`
     type Query {
         user(userId: ID!): User
         words: [Word]
+        game(gameId: ID!): Game
     }
 
     type Mutation {
         addUser(username: String!, email: String!, password: String!): Auth
         login(email: String!, password: String!): Auth
         addGame(name: String!): Game
-        addTeamCat: Team
-        addTeamDog: Team
-        updateGame( gameId: ID, teamCatId: ID, teamDogId: ID ): Game
+        addWordList(wordIds: [ID]): WordList
+        addTeamCat(userIds: [ID]): Team
+        addTeamDog(userIds: [ID]): Team
+        updateGame(gameId: ID, teamCatId: ID, teamDogId: ID, wordListId: ID): Game
+        addClickMove(userId: ID, gameId: ID, wordId: ID): Move
     }
-
 `;
 
 module.exports = typeDefs;

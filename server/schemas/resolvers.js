@@ -11,11 +11,59 @@ const resolvers = {
             const allWords = await Word.find();
             let chosenWords = [];
             while (chosenWords.length < 25) {
-                const word = allWords[Math.floor(Math.random()*allWords.length)];
+                const word = allWords[Math.floor(Math.random() * allWords.length)];
                 if (!chosenWords.includes(word)) chosenWords.push(word);
             }
-            console.log(chosenWords)
+            // console.log(chosenWords)
             return chosenWords;
+        },
+        game: async (parent, { gameId }) => {
+            return Game.findOne({ _id: gameId })
+                .populate(
+                    {
+                        path: 'teamCat',
+                        populate: {
+                            path: 'users',
+                            model: 'User'
+                        }
+                    })
+                .populate({
+                    path: 'teamDog',
+                    populate: {
+                        path: 'users',
+                        model: 'User'
+                    }
+                })
+                .populate({
+                    path: 'wordList',
+                    model: 'WordList',
+                    populate: [
+                        {
+                            path: 'allWords',
+                            model: 'Word'
+                        },
+                        {
+                            path: 'catWords',
+                            model: 'Word'
+                        },
+                        {
+                            path: 'dogWords',
+                            model: 'Word'
+                        },
+                        {
+                            path: 'neutralWords',
+                            model: 'Word'
+                        },
+                        {
+                            path: 'deathWord',
+                            model: 'Word'
+                        }
+                    ]
+                })
+                .populate({
+                    path: 'moves',
+                    model: 'Move'
+                });
         }
     },
 
@@ -47,32 +95,93 @@ const resolvers = {
             return Game.create({ name });
         },
 
-        addTeamCat: async () => {
-            return Team.create({ isTeamCat: true });
+        // wordIds should be an array of 25 word IDs, like 
+        // ["636aec484933eeb2c7a668c3", "636aec484933eeb2c7a668c4", etc.]
+        addWordList: async (parent, { wordIds }) => {
+            const allWords = wordIds.map((wordId) => new Object({ _id: wordId }));
+            
+            // this part may need to be moved to front end and
+            // just send catWords, dogWords, etc as IDs
+            const neutralWords = [...allWords];
+            const catWords = [];
+            while (catWords.length < 9) {
+                const randIndex = Math.floor(Math.random() * neutralWords.length);
+                const word = neutralWords[randIndex];
+                catWords.push(word);
+                neutralWords.splice(randIndex, 1);
+            }
+            const dogWords = [];
+            while (dogWords.length < 8) {
+                const randIndex = Math.floor(Math.random() * neutralWords.length);
+                const word = neutralWords[randIndex];
+                dogWords.push(word);
+                neutralWords.splice(randIndex, 1);
+            }
+            const randIndex = Math.floor(Math.random() * neutralWords.length);
+            const deathWord = neutralWords[randIndex];
+            neutralWords.splice(randIndex, 1);
+            const wordList = await WordList.create({
+                allWords: allWords,
+                catWords: catWords,
+                dogWords: dogWords,
+                neutralWords: neutralWords,
+                deathWord: deathWord
+            });
+            return wordList;
         },
 
-        addTeamDog: async () => {
-            return Team.create({ isTeamCat: false });
+        addTeamCat: async (parent, { userIds }) => {
+            const users = userIds.map((userId) => new Object({ _id: userId }));
+            return Team.create(
+                {
+                    isTeamCat: true,
+                    users: users
+                });
         },
 
-        updateGame: async (parent, { gameId, teamCatId, teamDogId }) => {
+        addTeamDog: async (parent, { userIds }) => {
+            const users = userIds.map((userId) => new Object({ _id: userId }));
+            return Team.create(
+                {
+                    isTeamCat: false,
+                    users: users
+                });
+        },
+
+        updateGame: async (parent, { gameId, teamCatId, teamDogId, wordListId }) => {
             return Game.findOneAndUpdate(
                 { _id: gameId },
                 {
                     teamCat: { _id: teamCatId },
                     teamDog: { _id: teamDogId },
-                    // wordList: { _id: wordListId } 
+                    wordList: { _id: wordListId }
                 },
                 { new: true }
             );
         },
 
-        // addWordList: async (parent, data) => {
-        //     const wordList = await WordList.create({allWords: data});
+        addClickMove: async (parent, { userId, gameId, wordId }) => {
+            const move = await Move.create({
+                user: { _id: userId },
+                game: { _id: gameId },
+                word: { _id: wordId }
+            })
+            // console.log(move);
+            
+            // this part may need to be a separate mutation and have front end
+            // call the mutation immediately after adding the move
+            const game = await Game.findOneAndUpdate(
+                { _id: gameId },
+                {
+                    $push: {
+                        moves: { "_id": move._id }
+                    }
+                },
+                { new: true }
+            )
+            return move;
+        },
 
-        // },
-
-       
     }
 };
 
