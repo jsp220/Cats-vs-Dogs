@@ -2,6 +2,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import React from "react";
 import ReactDOM from "react-dom";
 import "../CodeNames.css";
+import { useQuery } from '@apollo/client';
+import { QUERY_WORDS } from '../utils/queries';
 
 //import { CSSTransitionGroup } from 'react-transition-group'
 import "animate.css";
@@ -37,412 +39,8 @@ const ZoomIn = styled.div`
   animation: 2s ${keyframes`${zoomIn}`};
 `;
 
-const CODENAMELIST = [
-  "Hollywood",
-  "Well",
-  "Foot",
-  "New",
-  "York",
-  "Spring",
-  "Court",
-  "Tube",
-  "Point",
-  "Tablet",
-  "Slip",
-  "Date",
-  "Drill",
-  "Lemon",
-  "Bell",
-  "Screen",
-  "Fair",
-  "Torch",
-  "State",
-  "Match",
-  "Iron",
-  "Block",
-  "France",
-  "Australia",
-  "Limousine",
-  "Stream",
-  "Glove",
-  "Nurse",
-  "Leprechaun",
-  "Play",
-  "Tooth",
-  "Arm",
-  "Bermuda",
-  "Diamond",
-  "Whale",
-  "Comic",
-  "Mammoth",
-  "Green",
-  "Pass",
-  "Missile",
-  "Paste",
-  "Drop",
-  "Pheonix",
-  "Marble",
-  "Staff",
-  "Figure",
-  "Park",
-  "Centaur",
-  "Shadow",
-  "Fish",
-  "Cotton",
-  "Egypt",
-  "Theater",
-  "Scale",
-  "Fall",
-  "Track",
-  "Force",
-  "Dinosaur",
-  "Bill",
-  "Mine",
-  "Turkey",
-  "March",
-  "Contract",
-  "Bridge",
-  "Robin",
-  "Line",
-  "Plate",
-  "Band",
-  "Fire",
-  "Bank",
-  "Boom",
-  "Cat",
-  "Shot",
-  "Suit",
-  "Chocolate",
-  "Roulette",
-  "Mercury",
-  "Moon",
-  "Net",
-  "Lawyer",
-  "Satellite",
-  "Angel",
-  "Spider",
-  "Germany",
-  "Fork",
-  "Pitch",
-  "King",
-  "Crane",
-  "Trip",
-  "Dog",
-  "Conductor",
-  "Part",
-  "Bugle",
-  "Witch",
-  "Ketchup",
-  "Press",
-  "Spine",
-  "Worm",
-  "Alps",
-  "Bond",
-  "Pan",
-  "Beijing",
-  "Racket",
-  "Cross",
-  "Seal",
-  "Aztec",
-  "Maple",
-  "Parachute",
-  "Hotel",
-  "Berry",
-  "Soldier",
-  "Ray",
-  "Post",
-  "Greece",
-  "Square",
-  "Mass",
-  "Bat",
-  "Wave",
-  "Car",
-  "Smuggler",
-  "England",
-  "Crash",
-  "Tail",
-  "Card",
-  "Horn",
-  "Capital",
-  "Fence",
-  "Deck",
-  "Buffalo",
-  "Microscope",
-  "Jet",
-  "Duck",
-  "Ring",
-  "Train",
-  "Field",
-  "Gold",
-  "Tick",
-  "Check",
-  "Queen",
-  "Strike",
-  "Kangaroo",
-  "Spike",
-  "Scientist",
-  "Engine",
-  "Shakespeare",
-  "Wind",
-  "Kid",
-  "Embassy",
-  "Robot",
-  "Note",
-  "Ground",
-  "Draft",
-  "Ham",
-  "War",
-  "Mouse",
-  "Center",
-  "Chick",
-  "China",
-  "Bolt",
-  "Spot",
-  "Piano",
-  "Pupil",
-  "Plot",
-  "Lion",
-  "Police",
-  "Head",
-  "Litter",
-  "Concert",
-  "Mug",
-  "Vacuum",
-  "Atlantis",
-  "Straw",
-  "Switch",
-  "Skyscraper",
-  "Laser",
-  "Scuba",
-  "Diver",
-  "Africa",
-  "Plastic",
-  "Dwarf",
-  "Lap",
-  "Life",
-  "Honey",
-  "Horseshoe",
-  "Unicorn",
-  "Spy",
-  "Pants",
-  "Wall",
-  "Paper",
-  "Sound",
-  "Ice",
-  "Tag",
-  "Web",
-  "Fan",
-  "Orange",
-  "Temple",
-  "Canada",
-  "Scorpion",
-  "Undertaker",
-  "Mail",
-  "Europe",
-  "Soul",
-  "Apple",
-  "Pole",
-  "Tap",
-  "Mouth",
-  "Ambulance",
-  "Dress",
-  "Ice",
-  "Cream",
-  "Rabbit",
-  "Buck",
-  "Agent",
-  "Sock",
-  "Nut",
-  "Boot",
-  "Ghost",
-  "Oil",
-  "Superhero",
-  "Code",
-  "Kiwi",
-  "Hospital",
-  "Saturn",
-  "Film",
-  "Button",
-  "Snowman",
-  "Helicopter",
-  "Loch",
-  "Ness",
-  "Log",
-  "Princess",
-  "Time",
-  "Cook",
-  "Revolution",
-  "Shoe",
-  "Mole",
-  "Spell",
-  "Grass",
-  "Washer",
-  "Game",
-  "Beat",
-  "Hole",
-  "Horse",
-  "Pirate",
-  "Link",
-  "Dance",
-  "Fly",
-  "Pit",
-  "Server",
-  "School",
-  "Lock",
-  "Brush",
-  "Pool",
-  "Star",
-  "Jam",
-  "Organ",
-  "Berlin",
-  "Face",
-  "Luck",
-  "Amazon",
-  "Cast",
-  "Gas",
-  "Club",
-  "Sink",
-  "Water",
-  "Chair",
-  "Shark",
-  "Jupiter",
-  "Copper",
-  "Jack",
-  "Platypus",
-  "Stick",
-  "Olive",
-  "Grace",
-  "Bear",
-  "Glass",
-  "Row",
-  "Pistol",
-  "London",
-  "Rock",
-  "Van",
-  "Vet",
-  "Beach",
-  "Charge",
-  "Port",
-  "Disease",
-  "Palm",
-  "Moscow",
-  "Pin",
-  "Washington",
-  "Pyramid",
-  "Opera",
-  "Casino",
-  "Pilot",
-  "String",
-  "Night",
-  "Chest",
-  "Yard",
-  "Teacher",
-  "Pumpkin",
-  "Thief",
-  "Bark",
-  "Bug",
-  "Mint",
-  "Cycle",
-  "Telescope",
-  "Calf",
-  "Air",
-  "Box",
-  "Mount",
-  "Thumb",
-  "Antarctica",
-  "Trunk",
-  "Snow",
-  "Penguin",
-  "Root",
-  "Bar",
-  "File",
-  "Hawk",
-  "Battery",
-  "Compound",
-  "Slug",
-  "Octopus",
-  "Whip",
-  "America",
-  "Ivory",
-  "Pound",
-  "Sub",
-  "Cliff",
-  "Lab",
-  "Eagle",
-  "Genius",
-  "Ship",
-  "Dice",
-  "Hood",
-  "Heart",
-  "Novel",
-  "Pipe",
-  "Himalayas",
-  "Crown",
-  "Round",
-  "India",
-  "Needle",
-  "Shop",
-  "Watch",
-  "Lead",
-  "Tie",
-  "Table",
-  "Cell",
-  "Cover",
-  "Czech",
-  "Back",
-  "Bomb",
-  "Ruler",
-  "Forest",
-  "Bottle",
-  "Space",
-  "Hook",
-  "Doctor",
-  "Ball",
-  "Bow",
-  "Degree",
-  "Rome",
-  "Plane",
-  "Giant",
-  "Nail",
-  "Dragon",
-  "Stadium",
-  "Flute",
-  "Carrot",
-  "Wake",
-  "Fighter",
-  "Model",
-  "Tokyo",
-  "Eye",
-  "Mexico",
-  "Hand",
-  "Swing",
-  "Key",
-  "Alien",
-  "Tower",
-  "Poison",
-  "Cricket",
-  "Cold",
-  "Knife",
-  "Church",
-  "Board",
-  "Cloak",
-  "Ninja",
-  "Olympus",
-  "Belt",
-  "Light",
-  "Death",
-  "Stock",
-  "Millionaire",
-  "Day",
-  "Knight",
-  "Pie",
-  "Bed",
-  "Circle",
-  "Rose",
-  "Change",
-  "Cap",
-  "Triangle",
-];
+const CODENAMELIST = ["Hollywood", "Well", "Foot", "New", "York", "Spring", "Court", "Tube", "Point", "Tablet", "Slip", "Date", "Drill", "Lemon", "Bell", "Screen", "Fair", "Torch", "State", "Match", "Iron", "Block", "France", "Australia", "Limousine", "Stream", "Glove", "Nurse", "Leprechaun", "Play", "Tooth", "Arm", "Bermuda", "Diamond", "Whale", "Comic", "Mammoth", "Green", "Pass", "Missile", "Paste", "Drop", "Pheonix", "Marble", "Staff", "Figure", "Park", "Centaur", "Shadow", "Fish", "Cotton", "Egypt", "Theater", "Scale", "Fall", "Track", "Force", "Dinosaur", "Bill", "Mine", "Turkey", "March", "Contract", "Bridge", "Robin", "Line", "Plate", "Band", "Fire", "Bank", "Boom", "Cat", "Shot", "Suit", "Chocolate", "Roulette", "Mercury", "Moon", "Net", "Lawyer", "Satellite", "Angel", "Spider", "Germany", "Fork", "Pitch", "King", "Crane", "Trip", "Dog", "Conductor", "Part", "Bugle", "Witch", "Ketchup", "Press", "Spine", "Worm", "Alps", "Bond", "Pan", "Beijing", "Racket", "Cross", "Seal", "Aztec", "Maple", "Parachute", "Hotel", "Berry", "Soldier", "Ray", "Post", "Greece", "Square", "Mass", "Bat", "Wave", "Car", "Smuggler", "England", "Crash", "Tail", "Card", "Horn", "Capital", "Fence", "Deck", "Buffalo", "Microscope", "Jet", "Duck", "Ring", "Train", "Field", "Gold", "Tick", "Check", "Queen", "Strike", "Kangaroo", "Spike", "Scientist", "Engine", "Shakespeare", "Wind", "Kid", "Embassy", "Robot", "Note", "Ground", "Draft", "Ham", "War", "Mouse", "Center", "Chick", "China", "Bolt", "Spot", "Piano", "Pupil", "Plot", "Lion", "Police", "Head", "Litter", "Concert", "Mug", "Vacuum", "Atlantis", "Straw", "Switch", "Skyscraper", "Laser", "Scuba", "Diver", "Africa", "Plastic", "Dwarf", "Lap", "Life", "Honey", "Horseshoe", "Unicorn", "Spy", "Pants", "Wall", "Paper", "Sound", "Ice", "Tag", "Web", "Fan", "Orange", "Temple", "Canada", "Scorpion", "Undertaker", "Mail", "Europe", "Soul", "Apple", "Pole", "Tap", "Mouth", "Ambulance", "Dress", "Ice", "Cream", "Rabbit", "Buck", "Agent", "Sock", "Nut", "Boot", "Ghost", "Oil", "Superhero", "Code", "Kiwi", "Hospital", "Saturn", "Film", "Button", "Snowman", "Helicopter", "Loch", "Ness", "Log", "Princess", "Time", "Cook", "Revolution", "Shoe", "Mole", "Spell", "Grass", "Washer", "Game", "Beat", "Hole", "Horse", "Pirate", "Link", "Dance", "Fly", "Pit", "Server", "School", "Lock", "Brush", "Pool", "Star", "Jam", "Organ", "Berlin", "Face", "Luck", "Amazon", "Cast", "Gas", "Club", "Sink", "Water", "Chair", "Shark", "Jupiter", "Copper", "Jack", "Platypus", "Stick", "Olive", "Grace", "Bear", "Glass", "Row", "Pistol", "London", "Rock", "Van", "Vet", "Beach", "Charge", "Port", "Disease", "Palm", "Moscow", "Pin", "Washington", "Pyramid", "Opera", "Casino", "Pilot", "String", "Night", "Chest", "Yard", "Teacher", "Pumpkin", "Thief", "Bark", "Bug", "Mint", "Cycle", "Telescope", "Calf", "Air", "Box", "Mount", "Thumb", "Antarctica", "Trunk", "Snow", "Penguin", "Root", "Bar", "File", "Hawk", "Battery", "Compound", "Slug", "Octopus", "Whip", "America", "Ivory", "Pound", "Sub", "Cliff", "Lab", "Eagle", "Genius", "Ship", "Dice", "Hood", "Heart", "Novel", "Pipe", "Himalayas", "Crown", "Round", "India", "Needle", "Shop", "Watch", "Lead", "Tie", "Table", "Cell", "Cover", "Czech", "Back", "Bomb", "Ruler", "Forest", "Bottle", "Space", "Hook", "Doctor", "Ball", "Bow", "Degree", "Rome", "Plane", "Giant", "Nail", "Dragon", "Stadium", "Flute", "Carrot", "Wake", "Fighter", "Model", "Tokyo", "Eye", "Mexico", "Hand", "Swing", "Key", "Alien", "Tower", "Poison", "Cricket", "Cold", "Knife", "Church", "Board", "Cloak", "Ninja", "Olympus", "Belt", "Light", "Death", "Stock", "Millionaire", "Day", "Knight", "Pie", "Bed", "Circle", "Rose", "Change", "Cap", "Triangle"];
+
 const HIDDEN_CLASSNAMES = new Array(25).fill("hidden-card");
 
 const ROWS = 5;
@@ -482,39 +80,81 @@ function Gear(props) {
   );
 }
 
-class Board extends React.Component {
-  renderCard(i) {
+function Board(props) {
+  function renderCard(i) {
     return (
       <Card
-        word={this.props.cardWords[i].toUpperCase()}
-        cardClass={this.props.cardClass[i]}
-        onClick={() => this.props.onClick(i)}
+        word={props.cardWords[i].toUpperCase()}
+        cardClass={props.cardClass[i]}
+        onClick={() => props.onClick(i)}
         className="card-body"
       />
     );
   }
 
-  renderColumns(rowPosition) {
+  function renderColumns(rowPosition) {
     const columns = [];
     for (let columnPosition = 0; columnPosition < COLUMNS; columnPosition++) {
-      columns.push(this.renderCard(columnPosition + rowPosition * ROWS));
+      columns.push(renderCard(columnPosition + rowPosition * ROWS));
     }
     return columns;
   }
 
-  renderRows() {
+  function renderRows() {
     const rows = [];
     for (let rowPosition = 0; rowPosition < ROWS; rowPosition++) {
       rows.push(
-        <div className="board-row">{this.renderColumns(rowPosition)}</div>
+        <div className="board-row">{renderColumns(rowPosition)}</div>
       );
     }
     return rows;
   }
 
-  render() {
-    return <div> {this.renderRows()} </div>;
-  }
+  return <div> {renderRows()} </div>
+}
+
+// class Board extends React.Component {
+//   renderCard(i) {
+//     return (
+//       <Card
+//         word={this.props.cardWords[i].toUpperCase()}
+//         cardClass={this.props.cardClass[i]}
+//         onClick={() => this.props.onClick(i)}
+//         className="card-body"
+//       />
+//     );
+//   }
+
+//   renderColumns(rowPosition) {
+//     const columns = [];
+//     for (let columnPosition = 0; columnPosition < COLUMNS; columnPosition++) {
+//       columns.push(this.renderCard(columnPosition + rowPosition * ROWS));
+//     }
+//     return columns;
+//   }
+
+//   renderRows() {
+//     const rows = [];
+//     for (let rowPosition = 0; rowPosition < ROWS; rowPosition++) {
+//       rows.push(
+//         <div className="board-row">{this.renderColumns(rowPosition)}</div>
+//       );
+//     }
+//     return rows;
+//   }
+
+//   render() {
+//     return <div> {this.renderRows()} </div>;
+//   }
+// }
+
+function CodeNames (props) {
+  const { loading, data } = useQuery(QUERY_WORDS);
+  const words = data.data.words.map((entry) => entry.name.toUpperCase());
+
+  const [cardWords, setCardWords] = useState(words);
+  const [cardColor, setCardColor] = useState(initializeCardRevealed(secondPlayer));
+  const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES);
 }
 
 class CodeNames extends React.Component {
@@ -522,7 +162,7 @@ class CodeNames extends React.Component {
     super(props);
     const secondPlayer = pickRandomPlayer();
     this.state = {
-      cardWords: initializeCardWords(),
+      cardWords: initializeCardWords(props.client),
       cardColor: initializeCardRevealed(secondPlayer), // css class: hidden-card, red, blue
       cardClass: HIDDEN_CLASSNAMES, // initial classNames are 'hidden-card'
       clue: "",
@@ -538,6 +178,13 @@ class CodeNames extends React.Component {
       view: "agent",
       winner: "",
     };
+  }
+
+  componentDidMount = async (props) => {
+    const words = await initializeCardWords(props.client);
+    this.setState({
+      cardWords: words
+    });
   }
 
   handleCardClick = (i) => {
@@ -715,7 +362,6 @@ class CodeNames extends React.Component {
             ? this.renderEndTurn()
             : this.renderShowWinner()}
         </div>
-
         <Board
           cardWords={this.state.cardWords}
           cardClass={this.state.cardClass}
@@ -817,19 +463,25 @@ class CodeNames extends React.Component {
 
 // ========================================
 
-function initializeCardWords() {
+async function initializeCardWords(client) {
   // Returns a list of 25 unique word strings
   // Index indicates hidden-card position on board
-  var word = "";
-  var dict = {};
+  const data = await client.query({query: QUERY_WORDS});
+  const words = data.data.words.map((entry) => entry.name.toUpperCase());
+  console.log(words);
+  // var word = "";
+  // var dict = {};
 
   // dedupe using dict
-  while (Object.keys(dict).length < 25) {
-    word = CODENAMELIST[Math.floor(Math.random() * CODENAMELIST.length)];
-    dict[word.toUpperCase()] = 0;
-  }
+  // while (Object.keys(dict).length < 25) {
+  //   word = CODENAMELIST[Math.floor(Math.random() * CODENAMELIST.length)];
+  //   dict[word.toUpperCase()] = 0;
+  // }
 
-  return Object.keys(dict);
+  // console.log(Object.keys(dict));
+  // return Object.keys(dict);
+
+  return words;
 }
 
 export default CodeNames;
