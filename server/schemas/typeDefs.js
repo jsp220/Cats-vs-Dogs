@@ -67,10 +67,11 @@ const typeDefs = gql`
         addUser(username: String!, email: String!, password: String!): Auth
         login(email: String!, password: String!): Auth
         addGame(name: String!): Game
+        addWordList(wordIds: [ID]): WordList
         addTeamCat(userIds: [ID]): Team
         addTeamDog: Team
         updateGame(gameId: ID, teamCatId: ID, teamDogId: ID, wordListId: ID): Game
-        addWordList(wordIds: [ID]): WordList
+        addClickMove(userId: ID, gameId: ID, wordId: ID): Move
     }
 `;
 

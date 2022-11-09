@@ -59,6 +59,10 @@ const resolvers = {
                             model: 'Word'
                         }
                     ]
+                })
+                .populate({
+                    path: 'moves',
+                    model: 'Move'
                 });
         }
     },
@@ -123,8 +127,6 @@ const resolvers = {
             return wordList;
         },
 
-
-
         addTeamCat: async (parent, { userIds }) => {
             const users = userIds.map((userId) => new Object({ _id: userId }));
             return Team.create(
@@ -154,6 +156,29 @@ const resolvers = {
                 { new: true }
             );
         },
+
+        addClickMove: async (parent, { userId, gameId, wordId }) => {
+            const move = await Move.create({
+                user: { _id: userId },
+                game: { _id: gameId },
+                word: { _id: wordId }
+            })
+            // console.log(move);
+            
+            // this part may need to be a separate mutation and have front end
+            // call the mutation immediately after adding the move
+            const game = await Game.findOneAndUpdate(
+                { _id: gameId },
+                {
+                    $push: {
+                        moves: { "_id": move._id }
+                    }
+                },
+                { new: true }
+            )
+            return move;
+        },
+
     }
 };
 
