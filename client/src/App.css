@@ -275,3 +275,20 @@
       scale: 50%;
     }
   }
+
+  .card{
+    margin-top: 30vh;
+    margin-left: 30%;
+    width: 60vw;
+    max-width: 2000px;
+  
+  }
+  
+  .formCard{
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .card-header{
+    text-align: center;
+  }
