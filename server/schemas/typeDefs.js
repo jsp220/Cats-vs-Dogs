@@ -69,7 +69,7 @@ const typeDefs = gql`
         addGame(name: String!): Game
         addWordList(wordIds: [ID]): WordList
         addTeamCat(userIds: [ID]): Team
-        addTeamDog: Team
+        addTeamDog(userIds: [ID]): Team
         updateGame(gameId: ID, teamCatId: ID, teamDogId: ID, wordListId: ID): Game
         addClickMove(userId: ID, gameId: ID, wordId: ID): Move
     }
