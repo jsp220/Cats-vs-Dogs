@@ -148,325 +148,588 @@ function Board(props) {
 //   }
 // }
 
-function CodeNames (props) {
+function CodeNames(props) {
   const { loading, data } = useQuery(QUERY_WORDS);
   const words = data.data.words.map((entry) => entry.name.toUpperCase());
 
   const [cardWords, setCardWords] = useState(words);
-  const [cardColor, setCardColor] = useState(initializeCardRevealed(secondPlayer));
-  const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES);
-}
+  const [cardColor, setCardColor] = useState(initializeCardRevealed(secondPlayer)); // css class: hidden-card, red, blue
+  const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
+  const [clue, setClue] = useState("");
+  const [isRedTurn, setisRedTurn] = useState(secondPlayer === REVEALED_CLASSNAMES.blue);
+  const [isClueTurn, setisClueTurn] = useState(true);
+  const [status, setStatus] = useState(secondPlayer === REVEALED_CLASSNAMES.blue ? "red-turn" : "blue-turn");
+  const [blueRemaining, setBlueRemaining] = useState(secondPlayer === REVEALED_CLASSNAMES.blue ? BASE_TURNS + 1 : BASE_TURNS);
+  const [redRemaining, setRedRemaining] = useState(secondPlayer === REVEALED_CLASSNAMES.red ? BASE_TURNS + 1 : BASE_TURNS);
+  const [showEndTurn, setShowEndTurn] = useState(true);
+  const [view, setView] = useState("agent");
+  const [winner, setWinner] = useState("");
 
-class CodeNames extends React.Component {
-  constructor(props) {
-    super(props);
-    const secondPlayer = pickRandomPlayer();
-    this.state = {
-      cardWords: initializeCardWords(props.client),
-      cardColor: initializeCardRevealed(secondPlayer), // css class: hidden-card, red, blue
-      cardClass: HIDDEN_CLASSNAMES, // initial classNames are 'hidden-card'
-      clue: "",
-      isRedTurn: secondPlayer === REVEALED_CLASSNAMES.blue,
-      isClueTurn: true,
-      status:
-        secondPlayer === REVEALED_CLASSNAMES.blue ? "red-turn" : "blue-turn",
-      blueRemaining:
-        secondPlayer === REVEALED_CLASSNAMES.blue ? BASE_TURNS + 1 : BASE_TURNS,
-      redRemaining:
-        secondPlayer === REVEALED_CLASSNAMES.red ? BASE_TURNS + 1 : BASE_TURNS,
-      showEndTurn: true,
-      view: "agent",
-      winner: "",
-    };
-  }
 
-  componentDidMount = async (props) => {
-    const words = await initializeCardWords(props.client);
-    this.setState({
-      cardWords: words
-    });
-  }
+  // check for game end every time either teams remaining cards changes 
+  useEffect(() => {
+    isGameOver();
+  }, [redRemaining, blueRemaining])
+
 
   handleCardClick = (i) => {
     if (
-      this.state.status.includes("game-over") ||
-      this.state.view === "spymaster"
+      status.includes("game-over") ||
+      view === "spymaster"
     ) {
       return null; // disable clicking
     }
-    this.updateScore(i);
+
+    updateScore(i);
 
     // TODO: Do not mutate state directly
     // this.setState({
-    //   cardClass: this.update(this.state.cardClass, {i: {$set: this.state.cardColor[i]}})
+    //   cardClass: this.update(cardClass, {i: {$set: cardColor[i]}})
     // })
-    this.state.cardClass[i] = this.state.cardColor[i]; // switch css classNames
+    cardClass[i] = cardColor[i]; // switch css classNames
 
     if (
-      this.state.cardColor[i] === "bystander" ||
-      (this.state.isRedTurn === true && this.state.cardColor[i] === "blue") ||
-      (this.state.isRedTurn === false && this.state.cardColor[i] === "red")
+      cardColor[i] === "bystander" ||
+      (isRedTurn === true && cardColor[i] === "blue") ||
+      (isRedTurn === false && cardColor[i] === "red")
     ) {
-      this.setState({
-        isRedTurn: !this.state.isRedTurn,
-        status: !this.state.isRedTurn ? "red-turn" : "blue-turn",
-      });
-    } else if (this.state.cardColor[i] === "assassin") {
+      setIsRedTurn(!isRedTurn)
+      setStatus(!isRedTurn ? "red-turn" : "blue-turn");
+    } else if (cardColor[i] === "assassin") {
       alert("You have chosen the assassin. Game Over.");
-      const status = "game-over-" + (this.state.isRedTurn ? "blue" : "red");
-      this.setState({
-        status: status,
-        showEndTurn: false,
-        winner: this.state.isRedTurn ? "Blue" : "Red",
-      });
+      const status = "game-over-" + (isRedTurn ? "blue" : "red");
+      setStatus(status);
+      setShowEndTurn(false);
+      setWinner(isRedTurn ? "Blue" : "Red");
     }
 
-    this.setState({
-      cardWords: this.state.cardWords,
-      cardClass: this.state.cardClass,
-      isClueTurn: !this.state.isClueTurn,
-    });
+    setCardWords(cardWords);
+    setCardClass(cardClass);
+    setIsClueTurn(isClueTurn);
+
   };
 
   updateScore(i) {
     // only update score if card has not been revealed already
-    if (this.state.cardClass[i] !== "hidden-card") {
+    if (cardClass[i] !== "hidden-card") {
       return null;
     }
 
     // update red or blue team's score
     // ensure game over is checked only after remaining
-    if (this.state.cardColor[i] === "red") {
-      this.setState(
-        {
-          redRemaining: this.state.redRemaining - 1,
-        },
-        function () {
-          this.isGameOver();
-        }
-      );
-    } else if (this.state.cardColor[i] === "blue") {
-      this.setState(
-        {
-          blueRemaining: this.state.blueRemaining - 1,
-        },
-        function () {
-          this.isGameOver();
-        }
-      );
+    if (cardColor[i] === "red") {
+      setRedRemaining(redRemaining - 1);
     }
-  }
-
-  isGameOver = () => {
-    if (this.state.redRemaining === 0 || this.state.blueRemaining === 0) {
-      const status = "game-over-" + (this.state.isRedTurn ? "red" : "blue");
-      this.setState({
-        status: status,
-        showEndTurn: false,
-        winner: this.state.isRedTurn ? "Red" : "Blue",
-      });
+    else if (cardColor[i] === "blue") {
+      setBlueRemaining(blueRemaining - 1);
     }
-  };
-
-  handleEndTurnClick = () => {
-    this.setState({
-      isRedTurn: !this.state.isRedTurn,
-      status: !this.state.isRedTurn ? "red-turn" : "blue-turn",
-    });
-  };
-
-  handleSpymasterClick = () => {
-    // do not map cards that aren't "hiddencard" for class
-    const spymasterCardNames = this.state.cardClass.map((card, i) => {
-      if (card === "hidden-card") {
-        return "spymaster-" + this.state.cardColor[i];
-      } else {
-        return card;
-      }
-    });
-    this.setState({
-      cardClass: spymasterCardNames,
-      view: "spymaster",
-    });
-    // when clicked, all text should bold and 'status' is used as font-color
-  };
-
-  handleAgentClick = () => {
-    this.setState({
-      cardClass: HIDDEN_CLASSNAMES,
-      view: "agent",
-    });
-    // when clicked, all text should bold and 'status' is used as font-color
-  };
-
-  handleGearClick = () => {
-    alert("How to play codenames: https://www.youtube.com/watch?v=zQVHkl8oQEU");
-  };
-
-  newGame(i) {
-    window.location.reload(false);
-  }
-
-  // toggle only clue/guess on Change
-  handleSubmit(e) {
-    // prevent refresh of game on each submit
-    e.preventDefault();
-    this.setState({
-      inputClue: "",
-      clue: e.target[0].value,
-      isClueTurn: !this.state.isClueTurn,
-    });
-    // clear input box after setting state with clue
-    e.target[0].value = "";
-  }
-
-  renderEndTurn() {
-    return (
-      <button
-        className="btn btn-info btn-light"
-        onClick={this.handleEndTurnClick}
-      >
-        End Turn
-      </button>
-    );
-  }
-
-  renderShowWinner() {
-    const message = this.state.winner.toUpperCase() + " TEAM WINS!";
-    return <div className={"turn col " + this.state.status}>{message}</div>;
-  }
-
-  render() {
-    let statusMessage;
-    if (this.state.status.includes("-turn")) {
-      statusMessage = (this.state.isRedTurn ? "Red" : "Blue") + "'s Turn";
-    } else {
-      statusMessage = null;
-    }
-
-    let agentView;
-    let spyView;
-    if (this.state.view === "agent") {
-      agentView = "gray-click";
-    } else {
-      spyView = "gray-click";
-    }
-
-    return (
-      <div className="game">
-        <div className="title col-12">Codenames</div>
-        <div className="info row col-12">
-          <div className={"turn col " + this.state.status}>{statusMessage}</div>
-          {/* display end turn and show winner based on state */}
-          {this.state.showEndTurn
-            ? this.renderEndTurn()
-            : this.renderShowWinner()}
-        </div>
-        <Board
-          cardWords={this.state.cardWords}
-          cardClass={this.state.cardClass}
-          onClick={this.handleCardClick}
-        />
-
-        <div className="info row col-12">
-          <form>
-            <label className="clueInput">
-              Clue:
-              <input type="text" name="clue" className="formInput" />
-            </label>
-            <input type="submit" value="Submit" />
-          </form>
-          <button
-            className="btn btn-info btn-light new-game"
-            onClick={(i) => this.newGame(i)}
-          >
-            New Game
-          </button>
-        </div>
-        <div className="teamDog">
-          <h2>Team Dog</h2>
-          <h3>
-            Card Remaining:{" "}
-            <span className="blue-turn">{this.state.blueRemaining}</span>
-          </h3>
-          <h4>Team Member: </h4>
-          <div roleChoice>
-            <div className="dogAgent">
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={this.handleAgentClick}
-              >
-                Agent1
-              </label>
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={this.handleAgentClick}
-              >
-                Agent2
-              </label>
-            </div>
-            <div className="catSpy">
-              <label
-                className={"btn btn-info btn-light " + spyView}
-                onClick={this.handleSpymasterClick}
-              >
-                Spymasters
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="teamCat">
-          <h2>Team Cat</h2>
-          <h3>
-            Card Remaining:{" "}
-            <span className="red-turn">{this.state.redRemaining}</span>
-          </h3>
-          <h4>Team Member: </h4>
-          <div roleChoice>
-            <div className="catAgent">
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={this.handleAgentClick}
-              >
-                Agent1
-              </label>
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={this.handleAgentClick}
-              >
-                Agent2
-              </label>
-            </div>
-            <div className="catSpy">
-              <label
-                className={"btn btn-info btn-light " + spyView}
-                onClick={this.handleSpymasterClick}
-              >
-                Spymasters
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="rules">
-          Rules
-          <Gear onClick={this.handleGearClick} />
-          <div
-            className="btn-group btn-group-toggle"
-            data-toggle="buttons"
-          ></div>
-        </div>
-        <div className="gameLog">Game Log</div>
-      </div>
-    );
   }
 }
+
+isGameOver = () => {
+  if (redRemaining === 0 || blueRemaining === 0) {
+    const status = "game-over-" + (isRedTurn ? "red" : "blue");
+    setStatus(status);
+    setShowEndTurn(false);
+    setWinner(isRedTurn ? "Red" : "Blue");
+  }
+};
+
+handleEndTurnClick = () => {
+  setIsRedTurn = (!isRedTurn);
+  setStatus = (!isRedTurn ? "red-turn" : "blue-turn");
+};
+
+handleSpymasterClick = () => {
+  // do not map cards that aren't "hiddencard" for class
+  const spymasterCardNames = cardClass.map((card, i) => {
+    if (card === "hidden-card") {
+      return "spymaster-" + cardColor[i];
+    } else {
+      return card;
+    }
+  });
+
+  setCardClass(spymasterCardNames);
+  setView("spymaster");
+  // when clicked, all text should bold and 'status' is used as font-color
+};
+
+handleAgentClick = () => {
+  setCardClass(HIDDEN_CLASSNAMES);
+  setView("agent");
+  // when clicked, all text should bold and 'status' is used as font-color
+};
+
+handleGearClick = () => {
+  alert("How to play codenames: https://www.youtube.com/watch?v=zQVHkl8oQEU");
+};
+
+newGame(i) {
+  window.location.reload(false);
+}
+
+// toggle only clue/guess on Change
+handleSubmit(e) {
+  // prevent refresh of game on each submit
+  e.preventDefault();
+
+  setInputClue("");
+  setClue(e.target[0].value);
+  setIsClueTurn(!isClueTurn);
+  // clear input box after setting state with clue
+  e.target[0].value = "";
+}
+
+renderEndTurn() {
+  return (
+    <button
+      className="btn btn-info btn-light"
+      onClick={handleEndTurnClick}
+    >
+      End Turn
+    </button>
+  );
+}
+
+renderShowWinner() {
+  const message = winner.toUpperCase() + " TEAM WINS!";
+  return <div className={"turn col " + status}>{message}</div>;
+}
+
+render() {
+  let statusMessage;
+  if (status.includes("-turn")) {
+    statusMessage = (isRedTurn ? "Red" : "Blue") + "'s Turn";
+  } else {
+    statusMessage = null;
+  }
+
+  let agentView;
+  let spyView;
+  if (view === "agent") {
+    agentView = "gray-click";
+  } else {
+    spyView = "gray-click";
+  }
+
+  return (
+    <div className="game">
+      <div className="title col-12">Codenames</div>
+      <div className="info row col-12">
+        <div className={"turn col " + status}>{statusMessage}</div>
+        {/* display end turn and show winner based on state */}
+        {showEndTurn
+          ? this.renderEndTurn()
+          : this.renderShowWinner()}
+      </div>
+      <Board
+        cardWords={cardWords}
+        cardClass={cardClass}
+        onClick={this.handleCardClick}
+      />
+
+      <div className="info row col-12">
+        <form>
+          <label className="clueInput">
+            Clue:
+            <input type="text" name="clue" className="formInput" />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
+        <button
+          className="btn btn-info btn-light new-game"
+          onClick={(i) => this.newGame(i)}
+        >
+          New Game
+        </button>
+      </div>
+      <div className="teamDog">
+        <h2>Team Dog</h2>
+        <h3>
+          Card Remaining:{" "}
+          <span className="blue-turn">{blueRemaining}</span>
+        </h3>
+        <h4>Team Member: </h4>
+        <div roleChoice>
+          <div className="dogAgent">
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={this.handleAgentClick}
+            >
+              Agent1
+            </label>
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={this.handleAgentClick}
+            >
+              Agent2
+            </label>
+          </div>
+          <div className="catSpy">
+            <label
+              className={"btn btn-info btn-light " + spyView}
+              onClick={this.handleSpymasterClick}
+            >
+              Spymasters
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="teamCat">
+        <h2>Team Cat</h2>
+        <h3>
+          Card Remaining:{" "}
+          <span className="red-turn">{redRemaining}</span>
+        </h3>
+        <h4>Team Member: </h4>
+        <div roleChoice>
+          <div className="catAgent">
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={this.handleAgentClick}
+            >
+              Agent1
+            </label>
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={this.handleAgentClick}
+            >
+              Agent2
+            </label>
+          </div>
+          <div className="catSpy">
+            <label
+              className={"btn btn-info btn-light " + spyView}
+              onClick={this.handleSpymasterClick}
+            >
+              Spymasters
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="rules">
+        Rules
+        <Gear onClick={this.handleGearClick} />
+        <div
+          className="btn-group btn-group-toggle"
+          data-toggle="buttons"
+        ></div>
+      </div>
+      <div className="gameLog">Game Log</div>
+    </div>
+  );
+}
+
+}
+
+// class CodeNames extends React.Component {
+//   constructor(props) {
+//     super(props);
+//     const secondPlayer = pickRandomPlayer();
+//     = {
+//       cardWords: initializeCardWords(props.client),
+//       cardColor: initializeCardRevealed(secondPlayer), // css class: hidden-card, red, blue
+//       cardClass: HIDDEN_CLASSNAMES, // initial classNames are 'hidden-card'
+//       clue: "",
+//       isRedTurn: secondPlayer === REVEALED_CLASSNAMES.blue,
+//       isClueTurn: true,
+//       status: secondPlayer === REVEALED_CLASSNAMES.blue ? "red-turn" : "blue-turn",
+//       blueRemaining: secondPlayer === REVEALED_CLASSNAMES.blue ? BASE_TURNS + 1 : BASE_TURNS,
+//       redRemaining: secondPlayer === REVEALED_CLASSNAMES.red ? BASE_TURNS + 1 : BASE_TURNS,
+//       showEndTurn: true,
+//       view: "agent",
+//       winner: "",
+//     };
+//   }
+
+//   componentDidMount = async (props) => {
+//     const words = await initializeCardWords(props.client);
+//     this.setState({
+//       cardWords: words
+//     });
+//   }
+
+//   handleCardClick = (i) => {
+//     if (
+//       status.includes("game-over") ||
+//       view === "spymaster"
+//     ) {
+//       return null; // disable clicking
+//     }
+//     this.updateScore(i);
+
+//     // TODO: Do not mutate state directly
+//     // this.setState({
+//     //   cardClass: this.update(cardClass, {i: {$set: cardColor[i]}})
+//     // })
+//     cardClass[i] = cardColor[i]; // switch css classNames
+
+//     if (
+//       cardColor[i] === "bystander" ||
+//       (isRedTurn === true && cardColor[i] === "blue") ||
+//       (isRedTurn === false && cardColor[i] === "red")
+//     ) {
+//       this.setState({
+//         isRedTurn: !isRedTurn,
+//         status: !isRedTurn ? "red-turn" : "blue-turn",
+//       });
+//     } else if (cardColor[i] === "assassin") {
+//       alert("You have chosen the assassin. Game Over.");
+//       const status = "game-over-" + (isRedTurn ? "blue" : "red");
+//       this.setState({
+//         status: status,
+//         showEndTurn: false,
+//         winner: isRedTurn ? "Blue" : "Red",
+//       });
+//     }
+
+//     this.setState({
+//       cardWords: cardWords,
+//       cardClass: cardClass,
+//       isClueTurn: !isClueTurn,
+//     });
+//   };
+
+//   updateScore(i) {
+//     // only update score if card has not been revealed already
+//     if (cardClass[i] !== "hidden-card") {
+//       return null;
+//     }
+
+//     // update red or blue team's score
+//     // ensure game over is checked only after remaining
+//     if (cardColor[i] === "red") {
+//       this.setState(
+//         {
+//           redRemaining: redRemaining - 1,
+//         },
+//         function () {
+//           this.isGameOver();
+//         }
+//       );
+//     } else if (cardColor[i] === "blue") {
+//       this.setState(
+//         {
+//           blueRemaining: blueRemaining - 1,
+//         },
+//         function () {
+//           this.isGameOver();
+//         }
+//       );
+//     }
+//   }
+
+//   isGameOver = () => {
+//     if (redRemaining === 0 || blueRemaining === 0) {
+//       const status = "game-over-" + (isRedTurn ? "red" : "blue");
+//       this.setState({
+//         status: status,
+//         showEndTurn: false,
+//         winner: isRedTurn ? "Red" : "Blue",
+//       });
+//     }
+//   };
+
+//   handleEndTurnClick = () => {
+//     this.setState({
+//       isRedTurn: !isRedTurn,
+//       status: !isRedTurn ? "red-turn" : "blue-turn",
+//     });
+//   };
+
+//   handleSpymasterClick = () => {
+//     // do not map cards that aren't "hiddencard" for class
+//     const spymasterCardNames = cardClass.map((card, i) => {
+//       if (card === "hidden-card") {
+//         return "spymaster-" + cardColor[i];
+//       } else {
+//         return card;
+//       }
+//     });
+//     this.setState({
+//       cardClass: spymasterCardNames,
+//       view: "spymaster",
+//     });
+//     // when clicked, all text should bold and 'status' is used as font-color
+//   };
+
+//   handleAgentClick = () => {
+//     this.setState({
+//       cardClass: HIDDEN_CLASSNAMES,
+//       view: "agent",
+//     });
+//     // when clicked, all text should bold and 'status' is used as font-color
+//   };
+
+//   handleGearClick = () => {
+//     alert("How to play codenames: https://www.youtube.com/watch?v=zQVHkl8oQEU");
+//   };
+
+//   newGame(i) {
+//     window.location.reload(false);
+//   }
+
+//   // toggle only clue/guess on Change
+//   handleSubmit(e) {
+//     // prevent refresh of game on each submit
+//     e.preventDefault();
+//     this.setState({
+//       inputClue: "",
+//       clue: e.target[0].value,
+//       isClueTurn: !isClueTurn,
+//     });
+//     // clear input box after setting state with clue
+//     e.target[0].value = "";
+//   }
+
+//   renderEndTurn() {
+//     return (
+//       <button
+//         className="btn btn-info btn-light"
+//         onClick={this.handleEndTurnClick}
+//       >
+//         End Turn
+//       </button>
+//     );
+//   }
+
+//   renderShowWinner() {
+//     const message = winner.toUpperCase() + " TEAM WINS!";
+//     return <div className={"turn col " + status}>{message}</div>;
+//   }
+
+//   render() {
+//     let statusMessage;
+//     if (status.includes("-turn")) {
+//       statusMessage = (isRedTurn ? "Red" : "Blue") + "'s Turn";
+//     } else {
+//       statusMessage = null;
+//     }
+
+//     let agentView;
+//     let spyView;
+//     if (view === "agent") {
+//       agentView = "gray-click";
+//     } else {
+//       spyView = "gray-click";
+//     }
+
+//     return (
+//       <div className="game">
+//         <div className="title col-12">Codenames</div>
+//         <div className="info row col-12">
+//           <div className={"turn col " + status}>{statusMessage}</div>
+//           {/* display end turn and show winner based on state */}
+//           {showEndTurn
+//             ? this.renderEndTurn()
+//             : this.renderShowWinner()}
+//         </div>
+//         <Board
+//           cardWords={cardWords}
+//           cardClass={cardClass}
+//           onClick={this.handleCardClick}
+//         />
+
+//         <div className="info row col-12">
+//           <form>
+//             <label className="clueInput">
+//               Clue:
+//               <input type="text" name="clue" className="formInput" />
+//             </label>
+//             <input type="submit" value="Submit" />
+//           </form>
+//           <button
+//             className="btn btn-info btn-light new-game"
+//             onClick={(i) => this.newGame(i)}
+//           >
+//             New Game
+//           </button>
+//         </div>
+//         <div className="teamDog">
+//           <h2>Team Dog</h2>
+//           <h3>
+//             Card Remaining:{" "}
+//             <span className="blue-turn">{blueRemaining}</span>
+//           </h3>
+//           <h4>Team Member: </h4>
+//           <div roleChoice>
+//             <div className="dogAgent">
+//               <label
+//                 className={"btn btn-info btn-light " + agentView}
+//                 onClick={this.handleAgentClick}
+//               >
+//                 Agent1
+//               </label>
+//               <label
+//                 className={"btn btn-info btn-light " + agentView}
+//                 onClick={this.handleAgentClick}
+//               >
+//                 Agent2
+//               </label>
+//             </div>
+//             <div className="catSpy">
+//               <label
+//                 className={"btn btn-info btn-light " + spyView}
+//                 onClick={this.handleSpymasterClick}
+//               >
+//                 Spymasters
+//               </label>
+//             </div>
+//           </div>
+//         </div>
+//         <div className="teamCat">
+//           <h2>Team Cat</h2>
+//           <h3>
+//             Card Remaining:{" "}
+//             <span className="red-turn">{redRemaining}</span>
+//           </h3>
+//           <h4>Team Member: </h4>
+//           <div roleChoice>
+//             <div className="catAgent">
+//               <label
+//                 className={"btn btn-info btn-light " + agentView}
+//                 onClick={this.handleAgentClick}
+//               >
+//                 Agent1
+//               </label>
+//               <label
+//                 className={"btn btn-info btn-light " + agentView}
+//                 onClick={this.handleAgentClick}
+//               >
+//                 Agent2
+//               </label>
+//             </div>
+//             <div className="catSpy">
+//               <label
+//                 className={"btn btn-info btn-light " + spyView}
+//                 onClick={this.handleSpymasterClick}
+//               >
+//                 Spymasters
+//               </label>
+//             </div>
+//           </div>
+//         </div>
+//         <div className="rules">
+//           Rules
+//           <Gear onClick={this.handleGearClick} />
+//           <div
+//             className="btn-group btn-group-toggle"
+//             data-toggle="buttons"
+//           ></div>
+//         </div>
+//         <div className="gameLog">Game Log</div>
+//       </div>
+//     );
+//   }
+// }
 
 // ========================================
 
 async function initializeCardWords(client) {
   // Returns a list of 25 unique word strings
   // Index indicates hidden-card position on board
-  const data = await client.query({query: QUERY_WORDS});
+  const data = await client.query({ query: QUERY_WORDS });
   const words = data.data.words.map((entry) => entry.name.toUpperCase());
   console.log(words);
   // var word = "";
