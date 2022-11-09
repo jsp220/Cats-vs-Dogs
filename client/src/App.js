@@ -15,7 +15,7 @@ export const App = () => (
       <Routes>
         <Route
           path = "/game"
-          element={<Game client={client}/>}
+          element={<Game />}
         />
       </Routes>
     </Router>

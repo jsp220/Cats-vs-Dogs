@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "../CodeNames.css";
 import { useQuery } from '@apollo/client';
@@ -114,30 +114,47 @@ function Board(props) {
 }
 
 function CodeNames(props) {
-  const { loading, data } = useQuery(QUERY_WORDS);
-  const words = data.data.words.map((entry) => entry.name.toUpperCase());
+  const secondPlayer = pickRandomPlayer();
 
-  const [cardWords, setCardWords] = useState(words);
+  const [cardWords, setCardWords] = useState("");
   const [cardColor, setCardColor] = useState(initializeCardRevealed(secondPlayer)); // css class: hidden-card, red, blue
   const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
   const [clue, setClue] = useState("");
-  const [isRedTurn, setisRedTurn] = useState(secondPlayer === REVEALED_CLASSNAMES.blue);
-  const [isClueTurn, setisClueTurn] = useState(true);
+  const [isRedTurn, setIsRedTurn] = useState(secondPlayer === REVEALED_CLASSNAMES.blue);
+  const [isClueTurn, setIsClueTurn] = useState(true);
   const [status, setStatus] = useState(secondPlayer === REVEALED_CLASSNAMES.blue ? "red-turn" : "blue-turn");
   const [blueRemaining, setBlueRemaining] = useState(secondPlayer === REVEALED_CLASSNAMES.blue ? BASE_TURNS + 1 : BASE_TURNS);
   const [redRemaining, setRedRemaining] = useState(secondPlayer === REVEALED_CLASSNAMES.red ? BASE_TURNS + 1 : BASE_TURNS);
   const [showEndTurn, setShowEndTurn] = useState(true);
   const [view, setView] = useState("agent");
   const [winner, setWinner] = useState("");
+  const [inputClue, setInputClue] = useState("");
 
+  const isGameOver = () => {
+    if (redRemaining === 0 || blueRemaining === 0) {
+      const status = "game-over-" + (isRedTurn ? "red" : "blue");
+      setStatus(status);
+      setShowEndTurn(false);
+      setWinner(isRedTurn ? "Red" : "Blue");
+    }
+  };
 
   // check for game end every time either teams remaining cards changes 
   useEffect(() => {
     isGameOver();
   }, [redRemaining, blueRemaining])
 
+  const { loading, data } = useQuery(QUERY_WORDS);
+  console.log(data, "abc");
+  const words = data?.words.map((entry) => entry.name.toUpperCase()) || [];
+  console.log(words);
 
-  handleCardClick = (i) => {
+  useEffect(() => {
+    setCardWords(words);
+    console.log(words);
+  }, []);
+
+  const handleCardClick = (i) => {
     if (
       status.includes("game-over") ||
       view === "spymaster"
@@ -185,21 +202,14 @@ function CodeNames(props) {
     }
   }
 
-  isGameOver = () => {
-    if (redRemaining === 0 || blueRemaining === 0) {
-      const status = "game-over-" + (isRedTurn ? "red" : "blue");
-      setStatus(status);
-      setShowEndTurn(false);
-      setWinner(isRedTurn ? "Red" : "Blue");
-    }
-  };
 
-  handleEndTurnClick = () => {
+
+  const handleEndTurnClick = () => {
     setIsRedTurn = (!isRedTurn);
     setStatus = (!isRedTurn ? "red-turn" : "blue-turn");
   };
 
-  handleSpymasterClick = () => {
+  const handleSpymasterClick = () => {
     // do not map cards that aren't "hiddencard" for class
     const spymasterCardNames = cardClass.map((card, i) => {
       if (card === "hidden-card") {
@@ -214,13 +224,13 @@ function CodeNames(props) {
     // when clicked, all text should bold and 'status' is used as font-color
   };
 
-  handleAgentClick = () => {
+  const handleAgentClick = () => {
     setCardClass(HIDDEN_CLASSNAMES);
     setView("agent");
     // when clicked, all text should bold and 'status' is used as font-color
   };
 
-  handleGearClick = () => {
+  const handleGearClick = () => {
     alert("How to play codenames: https://www.youtube.com/watch?v=zQVHkl8oQEU");
   };
 
@@ -256,129 +266,132 @@ function CodeNames(props) {
     return <div className={"turn col " + status}>{message}</div>;
   }
 
-  return render() {
-    let statusMessage;
-    if (status.includes("-turn")) {
-      statusMessage = (isRedTurn ? "Red" : "Blue") + "'s Turn";
-    } else {
-      statusMessage = null;
-    }
 
-    let agentView;
-    let spyView;
-    if (view === "agent") {
-      agentView = "gray-click";
-    } else {
-      spyView = "gray-click";
-    }
+  let statusMessage;
+  if (status.includes("-turn")) {
+    statusMessage = (isRedTurn ? "Red" : "Blue") + "'s Turn";
+  } else {
+    statusMessage = null;
+  }
 
-    return (
-      <div className="game">
-        <div className="title col-12">Codenames</div>
-        <div className="info row col-12">
-          <div className={"turn col " + status}>{statusMessage}</div>
-          {/* display end turn and show winner based on state */}
-          {showEndTurn
-            ? renderEndTurn()
-            : renderShowWinner()}
-        </div>
+  let agentView;
+  let spyView;
+  if (view === "agent") {
+    agentView = "gray-click";
+  } else {
+    spyView = "gray-click";
+  }
+
+  return (
+    <div className="game">
+      <div className="title col-12">Codenames</div>
+      <div className="info row col-12">
+        <div className={"turn col " + status}>{statusMessage}</div>
+        {/* display end turn and show winner based on state */}
+        {showEndTurn
+          ? renderEndTurn()
+          : renderShowWinner()}
+      </div>
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
         <Board
-          cardWords={cardWords}
+          cardWords={words}
           cardClass={cardClass}
           onClick={handleCardClick}
         />
-
-        <div className="info row col-12">
-          <form>
-            <label className="clueInput">
-              Clue:
-              <input type="text" name="clue" className="formInput" />
-            </label>
-            <input type="submit" value="Submit" />
-          </form>
-          <button
-            className="btn btn-info btn-light new-game"
-            onClick={(i) => newGame(i)}
-          >
-            New Game
-          </button>
-        </div>
-        <div className="teamDog">
-          <h2>Team Dog</h2>
-          <h3>
-            Card Remaining:{" "}
-            <span className="blue-turn">{blueRemaining}</span>
-          </h3>
-          <h4>Team Member: </h4>
-          <div roleChoice>
-            <div className="dogAgent">
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={handleAgentClick}
-              >
-                Agent1
-              </label>
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={handleAgentClick}
-              >
-                Agent2
-              </label>
-            </div>
-            <div className="catSpy">
-              <label
-                className={"btn btn-info btn-light " + spyView}
-                onClick={handleSpymasterClick}
-              >
-                Spymasters
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="teamCat">
-          <h2>Team Cat</h2>
-          <h3>
-            Card Remaining:{" "}
-            <span className="red-turn">{redRemaining}</span>
-          </h3>
-          <h4>Team Member: </h4>
-          <div roleChoice>
-            <div className="catAgent">
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={handleAgentClick}
-              >
-                Agent1
-              </label>
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={handleAgentClick}
-              >
-                Agent2
-              </label>
-            </div>
-            <div className="catSpy">
-              <label
-                className={"btn btn-info btn-light " + spyView}
-                onClick={handleSpymasterClick}
-              >
-                Spymasters
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="rules">
-          Rules
-          <Gear onClick={handleGearClick} />
-          <div
-            className="btn-group btn-group-toggle"
-            data-toggle="buttons"
-          ></div>
-        </div>
-        <div className="gameLog">Game Log</div>
+      )}
+      <div className="info row col-12">
+        {/* {JSON.stringify(words)} */}
+        <form>
+          <label className="clueInput">
+            Clue:
+            <input type="text" name="clue" className="formInput" />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
+        <button
+          className="btn btn-info btn-light new-game"
+          onClick={(i) => newGame(i)}
+        >
+          New Game
+        </button>
       </div>
-    );
-  }
+      <div className="teamDog">
+        <h2>Team Dog</h2>
+        <h3>
+          Card Remaining:{" "}
+          <span className="blue-turn">{blueRemaining}</span>
+        </h3>
+        <h4>Team Member: </h4>
+        <div roleChoice>
+          <div className="dogAgent">
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={handleAgentClick}
+            >
+              Agent1
+            </label>
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={handleAgentClick}
+            >
+              Agent2
+            </label>
+          </div>
+          <div className="catSpy">
+            <label
+              className={"btn btn-info btn-light " + spyView}
+              onClick={handleSpymasterClick}
+            >
+              Spymasters
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="teamCat">
+        <h2>Team Cat</h2>
+        <h3>
+          Card Remaining:{" "}
+          <span className="red-turn">{redRemaining}</span>
+        </h3>
+        <h4>Team Member: </h4>
+        <div roleChoice>
+          <div className="catAgent">
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={handleAgentClick}
+            >
+              Agent1
+            </label>
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={handleAgentClick}
+            >
+              Agent2
+            </label>
+          </div>
+          <div className="catSpy">
+            <label
+              className={"btn btn-info btn-light " + spyView}
+              onClick={handleSpymasterClick}
+            >
+              Spymasters
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="rules">
+        Rules
+        <Gear onClick={handleGearClick} />
+        <div
+          className="btn-group btn-group-toggle"
+          data-toggle="buttons"
+        ></div>
+      </div>
+      <div className="gameLog">Game Log</div>
+    </div>
+  );
 
 }
 

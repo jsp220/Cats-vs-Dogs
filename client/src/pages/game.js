@@ -2,11 +2,11 @@ import React from 'react';
 import CodeNames from '../components/codeNames'
 
 
-function Game({client}) {
+function Game() {
   return (
     <div className="App">
       <header className="App-header">
-        <CodeNames client={client}/>
+        <CodeNames/>
       </header>
     </div>
   );
