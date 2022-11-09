@@ -14,7 +14,7 @@ const resolvers = {
                 const word = allWords[Math.floor(Math.random() * allWords.length)];
                 if (!chosenWords.includes(word)) chosenWords.push(word);
             }
-            console.log(chosenWords)
+            // console.log(chosenWords)
             return chosenWords;
         },
         game: async (parent, { gameId }) => {
@@ -37,10 +37,28 @@ const resolvers = {
                 .populate({
                     path: 'wordList',
                     model: 'WordList',
-                    populate: {
-                        path: 'allWords',
-                        model: 'Word'
-                    }
+                    populate: [
+                        {
+                            path: 'allWords',
+                            model: 'Word'
+                        },
+                        {
+                            path: 'catWords',
+                            model: 'Word'
+                        },
+                        {
+                            path: 'dogWords',
+                            model: 'Word'
+                        },
+                        {
+                            path: 'neutralWords',
+                            model: 'Word'
+                        },
+                        {
+                            path: 'deathWord',
+                            model: 'Word'
+                        }
+                    ]
                 });
         }
     },
@@ -76,17 +94,42 @@ const resolvers = {
         // wordIds should be an array of 25 word IDs, like 
         // ["636aec484933eeb2c7a668c3", "636aec484933eeb2c7a668c4", etc.]
         addWordList: async (parent, { wordIds }) => {
-            const words = wordIds.map((wordId) => new Object({ _id: wordId }));
-            return WordList.create({
-                allWords: words
+            const allWords = wordIds.map((wordId) => new Object({ _id: wordId }));
+            const neutralWords = [...allWords];
+            const catWords = [];
+            while (catWords.length < 9) {
+                const randIndex = Math.floor(Math.random() * neutralWords.length);
+                const word = neutralWords[randIndex];
+                catWords.push(word);
+                neutralWords.splice(randIndex, 1);
+            }
+            const dogWords = [];
+            while (dogWords.length < 8) {
+                const randIndex = Math.floor(Math.random() * neutralWords.length);
+                const word = neutralWords[randIndex];
+                dogWords.push(word);
+                neutralWords.splice(randIndex, 1);
+            }
+            const randIndex = Math.floor(Math.random() * neutralWords.length);
+            const deathWord = neutralWords[randIndex];
+            neutralWords.splice(randIndex, 1);
+            const wordList = await WordList.create({
+                allWords: allWords,
+                catWords: catWords,
+                dogWords: dogWords,
+                neutralWords: neutralWords,
+                deathWord: deathWord
             });
+            return wordList;
         },
+
+
 
         addTeamCat: async (parent, { userIds }) => {
             const users = userIds.map((userId) => new Object({ _id: userId }));
             return Team.create(
-                { 
-                    isTeamCat: true, 
+                {
+                    isTeamCat: true,
                     users: users
                 });
         },
@@ -94,8 +137,8 @@ const resolvers = {
         addTeamDog: async (parent, { userIds }) => {
             const users = userIds.map((userId) => new Object({ _id: userId }));
             return Team.create(
-                { 
-                    isTeamCat: false, 
+                {
+                    isTeamCat: false,
                     users: users
                 });
         },

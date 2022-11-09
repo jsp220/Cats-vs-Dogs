@@ -49,7 +49,7 @@ const typeDefs = gql`
         catWords: [Word]
         dogWords: [Word]
         neutralWords: [Word]
-        deathWord: [Word]
+        deathWord: Word
     }
 
     type Auth {
@@ -72,7 +72,6 @@ const typeDefs = gql`
         updateGame(gameId: ID, teamCatId: ID, teamDogId: ID, wordListId: ID): Game
         addWordList(wordIds: [ID]): WordList
     }
-
 `;
 
 module.exports = typeDefs;
