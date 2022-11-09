@@ -224,12 +224,12 @@ function CodeNames(props) {
     alert("How to play codenames: https://www.youtube.com/watch?v=zQVHkl8oQEU");
   };
 
-  newGame(i) {
+  function newGame(i) {
     window.location.reload(false);
   }
 
   // toggle only clue/guess on Change
-  handleSubmit(e) {
+  function handleSubmit(e) {
     // prevent refresh of game on each submit
     e.preventDefault();
 
@@ -256,7 +256,7 @@ function CodeNames(props) {
     return <div className={"turn col " + status}>{message}</div>;
   }
 
-  re() {
+  return render() {
     let statusMessage;
     if (status.includes("-turn")) {
       statusMessage = (isRedTurn ? "Red" : "Blue") + "'s Turn";
@@ -380,29 +380,6 @@ function CodeNames(props) {
     );
   }
 
-}
-
-// ========================================
-
-async function initializeCardWords(client) {
-  // Returns a list of 25 unique word strings
-  // Index indicates hidden-card position on board
-  const data = await client.query({ query: QUERY_WORDS });
-  const words = data.data.words.map((entry) => entry.name.toUpperCase());
-  console.log(words);
-  // var word = "";
-  // var dict = {};
-
-  // dedupe using dict
-  // while (Object.keys(dict).length < 25) {
-  //   word = CODENAMELIST[Math.floor(Math.random() * CODENAMELIST.length)];
-  //   dict[word.toUpperCase()] = 0;
-  // }
-
-  // console.log(Object.keys(dict));
-  // return Object.keys(dict);
-
-  return words;
 }
 
 export default CodeNames;
