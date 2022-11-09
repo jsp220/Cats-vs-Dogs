@@ -60,15 +60,17 @@ const typeDefs = gql`
     type Query {
         user(userId: ID!): User
         words: [Word]
+        game(gameId: ID!): Game
     }
 
     type Mutation {
         addUser(username: String!, email: String!, password: String!): Auth
         login(email: String!, password: String!): Auth
         addGame(name: String!): Game
-        addTeamCat: Team
+        addTeamCat(userIds: [ID]): Team
         addTeamDog: Team
-        updateGame( gameId: ID, teamCatId: ID, teamDogId: ID ): Game
+        updateGame(gameId: ID, teamCatId: ID, teamDogId: ID, wordListId: ID): Game
+        addWordList(wordIds: [ID]): WordList
     }
 
 `;

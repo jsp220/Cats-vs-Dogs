@@ -11,11 +11,37 @@ const resolvers = {
             const allWords = await Word.find();
             let chosenWords = [];
             while (chosenWords.length < 25) {
-                const word = allWords[Math.floor(Math.random()*allWords.length)];
+                const word = allWords[Math.floor(Math.random() * allWords.length)];
                 if (!chosenWords.includes(word)) chosenWords.push(word);
             }
             console.log(chosenWords)
             return chosenWords;
+        },
+        game: async (parent, { gameId }) => {
+            return Game.findOne({ _id: gameId })
+                .populate(
+                    {
+                        path: 'teamCat',
+                        populate: {
+                            path: 'users',
+                            model: 'User'
+                        }
+                    })
+                .populate({
+                    path: 'teamDog',
+                    populate: {
+                        path: 'users',
+                        model: 'User'
+                    }
+                })
+                .populate({
+                    path: 'wordList',
+                    model: 'WordList',
+                    populate: {
+                        path: 'allWords',
+                        model: 'Word'
+                    }
+                });
         }
     },
 
@@ -47,32 +73,44 @@ const resolvers = {
             return Game.create({ name });
         },
 
-        addTeamCat: async () => {
-            return Team.create({ isTeamCat: true });
+        // wordIds should be an array of 25 word IDs, like 
+        // ["636aec484933eeb2c7a668c3", "636aec484933eeb2c7a668c4", etc.]
+        addWordList: async (parent, { wordIds }) => {
+            const words = wordIds.map((wordId) => new Object({ _id: wordId }));
+            return WordList.create({
+                allWords: words
+            });
         },
 
-        addTeamDog: async () => {
-            return Team.create({ isTeamCat: false });
+        addTeamCat: async (parent, { userIds }) => {
+            const users = userIds.map((userId) => new Object({ _id: userId }));
+            return Team.create(
+                { 
+                    isTeamCat: true, 
+                    users: users
+                });
         },
 
-        updateGame: async (parent, { gameId, teamCatId, teamDogId }) => {
+        addTeamDog: async (parent, { userIds }) => {
+            const users = userIds.map((userId) => new Object({ _id: userId }));
+            return Team.create(
+                { 
+                    isTeamCat: false, 
+                    users: users
+                });
+        },
+
+        updateGame: async (parent, { gameId, teamCatId, teamDogId, wordListId }) => {
             return Game.findOneAndUpdate(
                 { _id: gameId },
                 {
                     teamCat: { _id: teamCatId },
                     teamDog: { _id: teamDogId },
-                    // wordList: { _id: wordListId } 
+                    wordList: { _id: wordListId }
                 },
                 { new: true }
             );
         },
-
-        // addWordList: async (parent, data) => {
-        //     const wordList = await WordList.create({allWords: data});
-
-        // },
-
-       
     }
 };
 
