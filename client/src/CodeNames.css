@@ -140,7 +140,7 @@ ol, ul {
 }
 
 .red {
-  background-image: url('./images/cat1.jpg');
+  /* background-image: url('./images/cat1.jpg'); */
   border: #d13030;
   color: white;
   animation: tada;
@@ -148,7 +148,7 @@ ol, ul {
 }
 
 .blue {
-  background-image: url('./images/dog1.jpg');
+  /* background-image: url('./images/dog1.jpg'); */
   border: #4183cc;
   color: white;
   display: block;
@@ -157,7 +157,7 @@ ol, ul {
 }
 
 .bystander {
-  background-image: url('./images/neutral1.jpg');
+  /* background-image: url('./images/neutral1.jpg'); */
   border: #EAE1AC;
   animation: rubberBand;
   animation-duration: 2s;

@@ -22,7 +22,7 @@ export const App = () => (
           <Route exact path="/game" element={<PrivateRoute />}>
             <Route exact path="/game" element={<Game />} />
           </Route>
-          <Route exact path="/" element={ <Home />}>
+          <Route exact path="/" element={ <PrivateRoute />}>
             <Route exact path="/" element={<Home />} />
           </Route>
           <Route path="/login" element={<Login />} />
