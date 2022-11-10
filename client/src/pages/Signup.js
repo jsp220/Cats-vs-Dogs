@@ -87,6 +87,7 @@ const Signup = () => {
               </form>
             )}
             <a href='/login' rel='login'>Login Instead?</a>
+            <a href='/' rel='home' className='backHome'>Go back to homepage?</a>
             {error && (
               <div className="my-3 p-3 bg-danger text-white">
                 {error.message}

@@ -79,6 +79,7 @@ const Login = (props) => {
               </form>
             )}
             <a href='/signup' rel='signup'>Sign Up Instead?</a>
+            <a href='/' rel='home' className='backHome'>Go back to homepage?</a>
             {error && (
               <div className="my-3 p-3 bg-danger text-white">
                 {error.message}
