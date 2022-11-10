@@ -74,6 +74,11 @@ io.on('connection', (socket) => {
     console.log(`end turn received, turn: ${data.turn}`);
     io.emit("receive_end_turn", data);
   })
+
+  socket.on("send_card_click", (data) => {
+    console.log(`card clicked on position ${data.i}`);
+    io.emit("receive_card_click", data);
+  })
 });
 
 startApolloServer(typeDefs, resolvers);
