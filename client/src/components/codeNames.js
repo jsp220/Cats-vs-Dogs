@@ -183,6 +183,7 @@ function CodeNames() {
     ) {
       setIsRedTurn(!isRedTurn)
       setStatus(!isRedTurn ? "red-turn" : "blue-turn");
+      setStatusMessage(!isRedTurn ? "Team Cat's Turn" : "Team Dog's Turn");
     } else if (cardColor[i] === "assassin") {
       alert("You have chosen the assassin. Game Over.");
       const status = "game-over-" + (isRedTurn ? "blue" : "red");
@@ -339,7 +340,7 @@ function CodeNames() {
           <span className="blue-turn">{blueRemaining}</span>
         </h3>
         <h4>Team Member: </h4>
-        <div roleChoice>
+        <div>
           <div className="dogAgent">
             <label
               className={"btn btn-info btn-light " + agentView}
@@ -365,7 +366,7 @@ function CodeNames() {
           <span className="red-turn">{redRemaining}</span>
         </h3>
         <h4>Team Member: </h4>
-        <div roleChoice>
+        <div>
           <div className="catAgent">
             <label
               className={"btn btn-info btn-light " + agentView}
