@@ -20,6 +20,9 @@ import {
 import { REVEALED_CLASSNAMES, BASE_TURNS } from "../constants";
 import { pickRandomPlayer, initializeCardRevealed } from "../util_functions";
 
+import io from "socket.io-client";
+const socket = io.connect("http://localhost:3000");
+
 const FlipInX = styled.div`
   animation: 2s ${keyframes`${flipInX}`};
 `;
@@ -118,7 +121,7 @@ function Board(props) {
 function CodeNames() {
   const firstPlayer = pickRandomPlayer();
 
-  const [cardWords, setCardWords] = useState("");
+  // const [cardWords, setCardWords] = useState("");
   const [cardColor, setCardColor] = useState(initializeCardRevealed(firstPlayer)); // css class: hidden-card, red, blue
   const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
   const [clue, setClue] = useState("");
@@ -145,7 +148,7 @@ function CodeNames() {
   };
 
   const renderLog = () => {
-    if (clue) return <div>Team {isRedTurn ? "Red" : "Blue"}'s spymaster gives a clue: {clue}.</div>
+    if (clue) return <div>Team {isRedTurn ? "Cat" : "Dog"}'s spymaster gives a clue: {clue}.</div>
   }
 
   // check for game end every time either teams remaining cards changes 
@@ -158,10 +161,10 @@ function CodeNames() {
   const words = data?.words.map((entry) => entry.name.toUpperCase()) || [];
   // console.log(words);
 
-  useEffect(() => {
-    setCardWords(words);
-    // console.log(words);
-  }, []);
+  // useEffect(() => {
+  //   setCardWords(words);
+  //   // console.log(words);
+  // }, []);
 
   const handleCardClick = (i) => {
     if (
@@ -171,7 +174,7 @@ function CodeNames() {
       return null; // disable clicking
     }
 
-    console.log(i)
+    console.log(i);
 
     updateScore(i);
     cardClass[i] = cardColor[i]; // switch css classNames
@@ -193,7 +196,7 @@ function CodeNames() {
       setStatusMessage(isRedTurn ? "TEAM DOG WINS!" : "TEAM CAT WINS!")
     }
 
-    setCardWords(cardWords);
+    // setCardWords(cardWords);
     setCardClass(cardClass);
     setIsClueTurn(true);
 
@@ -218,10 +221,13 @@ function CodeNames() {
 
 
   const handleEndTurnClick = () => {
-    setIsRedTurn(!isRedTurn);
-    setStatus(!isRedTurn ? "red-turn" : "blue-turn");
-    setStatusMessage(!isRedTurn ? "Team Cat's Turn" : "Team Dog's Turn")
-    setIsClueTurn(true);
+    console.log("end turn");
+    socket.emit("send_end_turn", {turn: isRedTurn});
+    console.log(isRedTurn, "sending end")
+    // setIsRedTurn(!isRedTurn);
+    // setStatus(!isRedTurn ? "red-turn" : "blue-turn");
+    // setStatusMessage(!isRedTurn ? "Team Cat's Turn" : "Team Dog's Turn")
+    // setIsClueTurn(true);
   };
 
   const handleSpymasterClick = () => {
@@ -260,14 +266,18 @@ function CodeNames() {
 
     if (!isClueTurn) alert("You can only give one clue at at time.")
     else {
-      setInputClue("");
-      setClue(e.target[0].value);
-      setIsClueTurn(false);
-
+      // console.log("hi");
+      socket.emit("send_clue", { clue: e.target[0].value });
       // clear input box after setting state with clue
       e.target[0].value = "";
     }
   }
+
+  // const sendMessage = () => {
+  //   socket.emit("send_message", { message: "Hello" })
+  // };
+
+
 
   function renderEndTurn() {
     return (
@@ -286,6 +296,22 @@ function CodeNames() {
   // } else {
   //   statusMessage = null;
   // }
+
+  useEffect(() => {
+    socket.on("receive_clue", (data) => {
+      setInputClue("");
+      setClue(data.clue);
+      setIsClueTurn(false);
+      console.log(data.clue);
+    })
+    socket.on("receive_end_turn", (data) => {
+      console.log(isRedTurn, "is not changing");
+      setIsRedTurn(!data.turn);
+      setStatus(!data.turn ? "red-turn" : "blue-turn");
+      setStatusMessage(!data.turn ? "Team Cat's Turn" : "Team Dog's Turn")
+      setIsClueTurn(true);
+    })
+  }, [])
 
   let agentView;
   let spyView;

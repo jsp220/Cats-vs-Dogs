@@ -14,6 +14,9 @@ const server = new ApolloServer({
   resolvers,
 });
 
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -30,7 +33,7 @@ app.get('/', (req, res) => {
 const startApolloServer = async (typeDefs, resolvers) => {
   await server.start();
   server.applyMiddleware({ app });
-  
+
   db.once('open', () => {
     Word.find({})
       .then((words) => {
@@ -39,14 +42,38 @@ const startApolloServer = async (typeDefs, resolvers) => {
           console.log("Words seeded");
         }
       })
-    
-    app.listen(PORT, () => {
-      console.log(`API server running on port ${PORT}!`);
-      console.log(`Use GraphQL at http://localhost:${PORT}${server.graphqlPath}`);
-    })
+
+    // app.listen(PORT, () => {
+    //   console.log(`API server running on port ${PORT}!`);
+    //   console.log(`Use GraphQL at http://localhost:${PORT}${server.graphqlPath}`);
+    // })
+
+    http.listen(PORT, () => {
+      console.log(`Socket.IO server running at http://localhost:${PORT}/`);
+
+    });
   })
-  };
-  
+};
+
 // Call the async function to start the server
-  startApolloServer(typeDefs, resolvers);
- 
+io.on('connection', (socket) => {
+  // Every time localhost:PORT connection is made
+  // show message on console.
+  console.log(":electric_plug: User connected!");
+  socket.on('send_message', (message) => {
+    console.log("message detected")
+    io.emit('receive_message', message); 
+  });
+
+  socket.on("send_clue", (data) => {
+    console.log(`clue: ${data.clue} submitted`);
+    io.emit("receive_clue", data);
+  })
+
+  socket.on("send_end_turn", (data) => {
+    console.log(`end turn received, turn: ${data.turn}`);
+    io.emit("receive_end_turn", data);
+  })
+});
+
+startApolloServer(typeDefs, resolvers);
