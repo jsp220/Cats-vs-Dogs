@@ -80,6 +80,8 @@ function Gear(props) {
   );
 }
 
+
+
 function Board(props) {
   function renderCard(i) {
     return (
@@ -113,22 +115,23 @@ function Board(props) {
   return <div> {renderRows()} </div>
 }
 
-function CodeNames(props) {
-  const secondPlayer = pickRandomPlayer();
+function CodeNames() {
+  const firstPlayer = pickRandomPlayer();
 
   const [cardWords, setCardWords] = useState("");
-  const [cardColor, setCardColor] = useState(initializeCardRevealed(secondPlayer)); // css class: hidden-card, red, blue
+  const [cardColor, setCardColor] = useState(initializeCardRevealed(firstPlayer)); // css class: hidden-card, red, blue
   const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
   const [clue, setClue] = useState("");
-  const [isRedTurn, setIsRedTurn] = useState(secondPlayer === REVEALED_CLASSNAMES.blue);
+  const [isRedTurn, setIsRedTurn] = useState(firstPlayer === REVEALED_CLASSNAMES.red);
   const [isClueTurn, setIsClueTurn] = useState(true);
-  const [status, setStatus] = useState(secondPlayer === REVEALED_CLASSNAMES.blue ? "red-turn" : "blue-turn");
-  const [blueRemaining, setBlueRemaining] = useState(secondPlayer === REVEALED_CLASSNAMES.blue ? BASE_TURNS + 1 : BASE_TURNS);
-  const [redRemaining, setRedRemaining] = useState(secondPlayer === REVEALED_CLASSNAMES.red ? BASE_TURNS + 1 : BASE_TURNS);
+  const [status, setStatus] = useState(firstPlayer === REVEALED_CLASSNAMES.red ? "red-turn" : "blue-turn");
+  const [blueRemaining, setBlueRemaining] = useState(firstPlayer === REVEALED_CLASSNAMES.blue ? BASE_TURNS + 1 : BASE_TURNS);
+  const [redRemaining, setRedRemaining] = useState(firstPlayer === REVEALED_CLASSNAMES.red ? BASE_TURNS + 1 : BASE_TURNS);
   const [showEndTurn, setShowEndTurn] = useState(true);
   const [view, setView] = useState("agent");
   const [winner, setWinner] = useState("");
   const [inputClue, setInputClue] = useState("");
+  const [statusMessage, setStatusMessage] = useState(firstPlayer === REVEALED_CLASSNAMES.red ? "Team Cat's Turn" : "Team Dog's Turn")
 
   const isGameOver = () => {
     if (redRemaining === 0 || blueRemaining === 0) {
@@ -136,8 +139,14 @@ function CodeNames(props) {
       setStatus(status);
       setShowEndTurn(false);
       setWinner(isRedTurn ? "Red" : "Blue");
+      setStatusMessage(isRedTurn ? "TEAM CAT WINS!" : "TEAM DOG WINS!")
+
     }
   };
+
+  const renderLog = () => {
+    if (clue) return <div>Team {isRedTurn ? "Red" : "Blue"}'s spymaster gives a clue: {clue}.</div>
+  }
 
   // check for game end every time either teams remaining cards changes 
   useEffect(() => {
@@ -145,13 +154,13 @@ function CodeNames(props) {
   }, [redRemaining, blueRemaining])
 
   const { loading, data } = useQuery(QUERY_WORDS);
-  console.log(data, "abc");
+  // console.log(data, "abc");
   const words = data?.words.map((entry) => entry.name.toUpperCase()) || [];
-  console.log(words);
+  // console.log(words);
 
   useEffect(() => {
     setCardWords(words);
-    console.log(words);
+    // console.log(words);
   }, []);
 
   const handleCardClick = (i) => {
@@ -161,6 +170,8 @@ function CodeNames(props) {
     ) {
       return null; // disable clicking
     }
+
+    console.log(i)
 
     updateScore(i);
     cardClass[i] = cardColor[i]; // switch css classNames
@@ -177,12 +188,13 @@ function CodeNames(props) {
       const status = "game-over-" + (isRedTurn ? "blue" : "red");
       setStatus(status);
       setShowEndTurn(false);
-      setWinner(isRedTurn ? "Blue" : "Red");
+      setWinner(isRedTurn ? "TEAM DOG" : "TEAM CAT");
+      setStatusMessage(isRedTurn ? "TEAM DOG WINS!" : "TEAM CAT WINS!")
     }
 
     setCardWords(cardWords);
     setCardClass(cardClass);
-    setIsClueTurn(isClueTurn);
+    setIsClueTurn(true);
 
   };
 
@@ -205,8 +217,10 @@ function CodeNames(props) {
 
 
   const handleEndTurnClick = () => {
-    setIsRedTurn = (!isRedTurn);
-    setStatus = (!isRedTurn ? "red-turn" : "blue-turn");
+    setIsRedTurn(!isRedTurn);
+    setStatus(!isRedTurn ? "red-turn" : "blue-turn");
+    setStatusMessage(!isRedTurn ? "Team Cat's Turn" : "Team Dog's Turn")
+    setIsClueTurn(true);
   };
 
   const handleSpymasterClick = () => {
@@ -243,11 +257,15 @@ function CodeNames(props) {
     // prevent refresh of game on each submit
     e.preventDefault();
 
-    setInputClue("");
-    setClue(e.target[0].value);
-    setIsClueTurn(!isClueTurn);
-    // clear input box after setting state with clue
-    e.target[0].value = "";
+    if (!isClueTurn) alert("You can only give one clue at at time.")
+    else {
+      setInputClue("");
+      setClue(e.target[0].value);
+      setIsClueTurn(false);
+
+      // clear input box after setting state with clue
+      e.target[0].value = "";
+    }
   }
 
   function renderEndTurn() {
@@ -261,18 +279,12 @@ function CodeNames(props) {
     );
   }
 
-  function renderShowWinner() {
-    const message = winner.toUpperCase() + " TEAM WINS!";
-    return <div className={"turn col " + status}>{message}</div>;
-  }
-
-
-  let statusMessage;
-  if (status.includes("-turn")) {
-    statusMessage = (isRedTurn ? "Red" : "Blue") + "'s Turn";
-  } else {
-    statusMessage = null;
-  }
+  // let statusMessage;
+  // if (status.includes("-turn")) {
+  //   statusMessage = (isRedTurn ? "Red" : "Blue") + "'s Turn";
+  // } else {
+  //   statusMessage = null;
+  // }
 
   let agentView;
   let spyView;
@@ -284,13 +296,13 @@ function CodeNames(props) {
 
   return (
     <div className="game">
-      <div className="title col-12">Codenames</div>
+      <div className="title col-12">CATS VS. DOGS</div>
       <div className="info row col-12">
-        <div className={"turn col " + status}>{statusMessage}</div>
+        <h3 className={"turn col " + status}>{statusMessage}</h3>
         {/* display end turn and show winner based on state */}
         {showEndTurn
           ? renderEndTurn()
-          : renderShowWinner()}
+          : null}
       </div>
       {loading ? (
         <div>Loading...</div>
@@ -302,14 +314,17 @@ function CodeNames(props) {
         />
       )}
       <div className="info row col-12">
-        {/* {JSON.stringify(words)} */}
-        <form>
-          <label className="clueInput">
-            Clue:
-            <input type="text" name="clue" className="formInput" />
-          </label>
-          <input type="submit" value="Submit" />
-        </form>
+        {view == "agent"
+          ? null
+          : (
+            <form onSubmit={handleSubmit}>
+              <label className="clueInput">
+                Clue:
+                <input type="text" name="clue" className="formInput" />
+              </label>
+              <input type="submit" value="Submit" />
+            </form>
+          )}
         <button
           className="btn btn-info btn-light new-game"
           onClick={(i) => newGame(i)}
@@ -318,7 +333,7 @@ function CodeNames(props) {
         </button>
       </div>
       <div className="teamDog">
-        <h2>Team Dog</h2>
+        <h2 className="blue-turn">Team Dog</h2>
         <h3>
           Card Remaining:{" "}
           <span className="blue-turn">{blueRemaining}</span>
@@ -330,13 +345,7 @@ function CodeNames(props) {
               className={"btn btn-info btn-light " + agentView}
               onClick={handleAgentClick}
             >
-              Agent1
-            </label>
-            <label
-              className={"btn btn-info btn-light " + agentView}
-              onClick={handleAgentClick}
-            >
-              Agent2
+              Agent
             </label>
           </div>
           <div className="catSpy">
@@ -344,13 +353,13 @@ function CodeNames(props) {
               className={"btn btn-info btn-light " + spyView}
               onClick={handleSpymasterClick}
             >
-              Spymasters
+              Spymaster
             </label>
           </div>
         </div>
       </div>
       <div className="teamCat">
-        <h2>Team Cat</h2>
+        <h2 className="red-turn">Team Cat</h2>
         <h3>
           Card Remaining:{" "}
           <span className="red-turn">{redRemaining}</span>
@@ -362,13 +371,7 @@ function CodeNames(props) {
               className={"btn btn-info btn-light " + agentView}
               onClick={handleAgentClick}
             >
-              Agent1
-            </label>
-            <label
-              className={"btn btn-info btn-light " + agentView}
-              onClick={handleAgentClick}
-            >
-              Agent2
+              Agent
             </label>
           </div>
           <div className="catSpy">
@@ -376,20 +379,23 @@ function CodeNames(props) {
               className={"btn btn-info btn-light " + spyView}
               onClick={handleSpymasterClick}
             >
-              Spymasters
+              Spymaster
             </label>
           </div>
         </div>
       </div>
       <div className="rules">
-        Rules
+        <h4>Rules</h4>
         <Gear onClick={handleGearClick} />
         <div
           className="btn-group btn-group-toggle"
           data-toggle="buttons"
         ></div>
       </div>
-      <div className="gameLog">Game Log</div>
+      <div className="gameLog">
+        <h4>Game Log</h4>
+        {renderLog()}
+      </div>
     </div>
   );
 
