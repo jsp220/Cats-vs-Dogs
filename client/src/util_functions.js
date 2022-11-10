@@ -9,7 +9,7 @@ export function pickRandomPlayer() {
     }
 } 
 
-export function initializeCardRevealed(secondPlayer) {
+export function initializeCardRevealed(firstPlayer) {
     // Returns a list of 25 unique word types
     // Index indicates hidden-card position on board
   
@@ -20,7 +20,7 @@ export function initializeCardRevealed(secondPlayer) {
         revealedClassnames.push(REVEALED_CLASSNAMES.blue);
     }
 
-    revealedClassnames.push(REVEALED_CLASSNAMES[secondPlayer]);
+    revealedClassnames.push(REVEALED_CLASSNAMES[firstPlayer]);
 
     for (let i=0; i < (BYSTANDERS); i++) {
         revealedClassnames.push(REVEALED_CLASSNAMES.bystander)

@@ -31,12 +31,15 @@ const startApolloServer = async (typeDefs, resolvers) => {
   await server.start();
   server.applyMiddleware({ app });
   
-  db.once('open', async () => {
-    const words = await Word.find({});
-    if (words.length ===0) {
-      const words = await Word.insertMany(seedWords);
-    }
-
+  db.once('open', () => {
+    Word.find({})
+      .then((words) => {
+        if (words.length === 0) {
+          Word.insertMany(seedWords);
+          console.log("Words seeded");
+        }
+      })
+    
     app.listen(PORT, () => {
       console.log(`API server running on port ${PORT}!`);
       console.log(`Use GraphQL at http://localhost:${PORT}${server.graphqlPath}`);

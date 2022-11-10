@@ -200,17 +200,17 @@ ol, ul {
 }
 
 .game-over {
-  text-align: right;
+  text-align: center;
 }
 
 .game-over-red {
   color: #d13030;
-  text-align: right;
+  text-align: center;
 }
 
 .game-over-blue {
   color: #4183cc;
-  text-align: right;
+  text-align: center;
 }
 
 .btn-info {
