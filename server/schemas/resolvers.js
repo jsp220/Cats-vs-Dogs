@@ -27,13 +27,14 @@ const resolvers = {
                             model: 'User'
                         }
                     })
-                .populate({
-                    path: 'teamDog',
-                    populate: {
-                        path: 'users',
-                        model: 'User'
-                    }
-                })
+                .populate(
+                    {
+                        path: 'teamDog',
+                        populate: {
+                            path: 'users',
+                            model: 'User'
+                        }
+                    })
                 .populate({
                     path: 'wordList',
                     model: 'WordList',
@@ -173,10 +174,10 @@ const resolvers = {
             );
 
             return await Team.findOne({ _id: teamId })
-            .populate(
-                {
-                    path: 'users',
-                })
+                .populate(
+                    {
+                        path: 'users',
+                    })
         },
 
         addClickMove: async (parent, { userId, gameId, wordId }) => {
