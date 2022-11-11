@@ -12,7 +12,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { Link } from "react-router-dom";
 
-const Test = () => {
+const Test3 = () => {
   const [formState, setFormState] = useState({ email: "", password: "" });
   const [login, { error, data }] = useMutation(LOGIN_USER);
 
@@ -121,4 +121,4 @@ const Test = () => {
   );
 };
 
-export default Test;
+export default Test3;

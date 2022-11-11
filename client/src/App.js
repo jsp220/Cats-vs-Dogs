@@ -7,7 +7,7 @@ import Game from "./pages/game";
 import Home from "./pages/home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
-import Test from "./pages/test";
+import Test3 from "./pages/test3";
 import Test2 from "./pages/test2";
 
 
@@ -29,7 +29,7 @@ export const App = () => (
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/test" element={<Test />} />
+          <Route path="/test" element={<Test3 />} />
           <Route path="/test2" element={<Test2 />} />
         </Routes>
       </Fragment>
