@@ -53,31 +53,13 @@ import { REVEALED_CLASSNAMES, BASE_TURNS } from "../constants";
 import { pickRandomPlayer, initializeCardRevealed } from "../util_functions";
 import io from "socket.io-client";
 
-const ROOT_URL = 'https://myherokudomain.herokuapp.com';
-// const socket = io.connect(ROOT_URL);
+const ROOT_URL = 'https://mysterious-hollows-84029.herokuapp.com';
+const socket = io.connect(ROOT_URL);
 
-const socket = io.connect("http://localhost:3000");
+// const socket = io.connect("http://localhost:3000");
 
-// Removed, not used... (BZ)
-// const FlipInX = styled.div`
-//   animation: 2s ${keyframes`${flipInX}`};
-// `;
-// const Bounce = styled.div`
-//   animation: 2s ${keyframes`${bounce}`};
-// `;
 const RollIn = styled.div`
   animation: 2s ${keyframes`${rollIn}`};
-`;
-
-// Removed, not used... (BZ)
-// const RollOut = styled.div`
-//   animation: 2s ${keyframes`${rollOut}`};
-// `;
-// const Hinge = styled.div`
-//   animation: 2s ${keyframes`${hinge}`};
-// `;
-const ZoomIn = styled.div`
-  animation: 2s ${keyframes`${zoomIn}`};
 `;
 
 // declare variables for setting up the game
@@ -319,9 +301,6 @@ function CodeNames() {
       teamCat.push(teamDog.splice(Math.floor(Math.random() * teamDog.length), 1)[0]);
     }
 
-    // console.log(teamCat);
-    // console.log(teamDog);
-
     const catSpyMaster = teamCat[0];
     const dogSpyMaster = teamDog[0];
 
@@ -330,14 +309,6 @@ function CodeNames() {
   }
 
   // check for game end every time either teams remaining cards changes 
-
-  // let agentView;
-  // let spyView;
-  // if (view === "agent") {
-  //   agentView = "gray-click";
-  // } else {
-  //   spyView = "gray-click";
-  // }
 
   const init = async () => {
     const profile = await Auth.getProfile();
@@ -389,8 +360,6 @@ function CodeNames() {
           return 'assassin';
         }
       }))
-
-      // console.log(wordColors);
 
       setWords(allWords);
       setCardColor(wordColors);
@@ -468,11 +437,9 @@ function CodeNames() {
       setInputClue("");
       setClue(data.clue);
       setIsClueTurn(false);
-      // console.log(data.clue);
     })
 
     socket.on("receive_end_turn", (data) => {
-      // console.log(isRedTurn, "is not changing");
       setIsRedTurn(!data.turn);
       setStatus(!data.turn ? "red-turn" : "blue-turn");
       setStatusMessage(!data.turn ? "Team Cat's Turn" : "Team Dog's Turn")
