@@ -8,9 +8,6 @@ import Game from "./pages/game";
 import Home from "./pages/home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
-import Test from "./pages/Test (can delete)";
-
-
 
 const client = new ApolloClient({
   uri: "/graphql",

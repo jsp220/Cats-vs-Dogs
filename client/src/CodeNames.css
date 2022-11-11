@@ -189,6 +189,7 @@ ol, ul {
   border: 2px solid black;
   animation: hinge;
   animation-duration: 2s;
+  background-color: black;
 }
 
 .spymaster-red {

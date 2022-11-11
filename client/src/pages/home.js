@@ -17,8 +17,9 @@ import {
   ADD_GAME,
   ADD_TEAMCAT,
   ADD_TEAMDOG,
-  UPDATE_GAME,
-} from "../utils/mutations";
+  UPDATE_GAME
+} from '../utils/mutations';
+
 
 export const Home = () => {
   const [value, setValue] = React.useState(0);
