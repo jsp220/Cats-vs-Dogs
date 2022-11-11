@@ -53,11 +53,10 @@ import { REVEALED_CLASSNAMES, BASE_TURNS } from "../constants";
 import { pickRandomPlayer, initializeCardRevealed } from "../util_functions";
 import io from "socket.io-client";
 
-// const ROOT_URL = 'https://myherokudomain.herokuapp.com';
+const ROOT_URL = 'https://myherokudomain.herokuapp.com';
+const socket = io.connect(ROOT_URL);
 
-// const socket = io.connect(ROOT_URL);
-
-const socket = io.connect("http://localhost:3000");
+// const socket = io.connect("http://localhost:3000");
 
 // Removed, not used... (BZ)
 // const FlipInX = styled.div`
@@ -199,7 +198,7 @@ function CodeNames() {
   const [inputClue, setInputClue] = useState("");
   const [statusMessage, setStatusMessage] = useState("Team Cat's Turn");
   const [isSpyMaster, setIsSpyMaster] = useState(false);
-  const [myUsername, setMyUsername] = useState("brian");
+  const [myUsername, setMyUsername] = useState("");
   const [teamCat, setTeamCat] = useState([]);
   const [teamDog, setTeamDog] = useState([]);
   const [catSpyMaster, setCatSpyMaster] = useState([]);
