@@ -7,6 +7,7 @@ import Game from "./pages/game";
 import Home from "./pages/home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import Test from "./pages/Test";
 
 
 const client = new ApolloClient({
@@ -27,6 +28,7 @@ export const App = () => (
           </Route>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/test" element={<Test />} />
         </Routes>
       </Fragment>
     </Router>

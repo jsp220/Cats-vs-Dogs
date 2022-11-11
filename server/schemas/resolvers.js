@@ -149,7 +149,7 @@ const resolvers = {
         },
 
         updateGame: async (parent, { gameId, teamCatId, teamDogId, wordListId }) => {
-            return Game.findOneAndUpdate(
+            return await Game.findOneAndUpdate(
                 { _id: gameId },
                 {
                     teamCat: { _id: teamCatId },
