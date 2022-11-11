@@ -19,6 +19,7 @@ import {
   ADD_TEAMDOG,
   UPDATE_GAME
 } from '../utils/mutations';
+import {browserHistory} from "react-router";
 
 
 export const Home = () => {
@@ -114,7 +115,8 @@ export const Home = () => {
       console.error(err);
     }
 
-    window.location.replace(`/game/${gameName}`);
+    // window.location.replace(`/game/${gameName}`);
+    browserHistory.push(`/game/${gameName}`);
   };
 
   return (
