@@ -8,9 +8,6 @@ import Game from "./pages/game";
 import Home from "./pages/home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
-import Test from "./pages/Test";
-
-
 
 const client = new ApolloClient({
   uri: "/graphql",
@@ -22,8 +19,8 @@ export const App = () => (
     <Router>
       <Fragment>
         <Routes>
-          <Route exact path="/game" element={<PrivateRouteNoToken />}>
-            <Route exact path="/game" element={<Game />} />
+          <Route exact path="/game/:gameName" element={<PrivateRouteNoToken />}>
+            <Route exact path="/game/:gameName" element={<Game />} />
           </Route>
           <Route exact path="/" element={ <PrivateRouteNoToken />}>
             <Route exact path="/" element={<Home />} />

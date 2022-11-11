@@ -26,7 +26,7 @@ ol, ul {
   background-position: center;
   background-repeat: no-repeat;
   background-size: 600px;
-  animation: fadeIn;
+  /* animation: fadeIn; Commented BZ */
   animation-duration: 8s;
 }
 
@@ -46,7 +46,7 @@ ol, ul {
   text-align: center;
   animation: zoomInUp;
   animation-duration: 4s;
-  justify-content: center;
+  /* justify-content: center; Commented BZ */
 }
 
 .info {
@@ -60,14 +60,16 @@ ol, ul {
 
 .red-turn {
   color: red;
-  animation: tada;
-  animation-duration: 2s;
+  /* Commented for new Card Flip (BZ) */
+  /* animation: tada;
+  animation-duration: 2s; */
 }
 
 .blue-turn {
   color: blue;
-  animation: jello;
-  animation-duration: 2s;
+  /* Commented for new Card Flip (BZ) */
+  /* animation: jello;
+  animation-duration: 2s; */
 }
 
 .turn {
@@ -133,43 +135,58 @@ ol, ul {
   font-size-adjust: 0.5 !important;
 }
 
+/* Changed card design. (BZ) */
+/* Card BEFORE it's flipped. */
 .hidden-card {
-  background: #e8e8e8;
+  color: rgb(210, 210, 95);
+  background-color: #517fa4;
   border: none;
   display: block;
+  box-shadow: inset 0px 0px 12px rgb(91, 135, 211), 0 0 4px rgba(91, 135, 211);
 }
 
+/* Changed card design. (BZ) */
+/* Card AFTER it's flipped. */
 .red {
-  /* background-image: url('./images/cat1.jpg'); */
-  background-color: red;
+  /* background-image: url('./images/cat1.jpg'); (BZ) */
   border: #d13030;
-  color: white;
-  animation: tada;
-  animation-duration: 2s;
+  background-color: #945959;
+  box-shadow: inset 0px 0px 12px rgb(91, 135, 211), 0 0 4px rgba(91, 135, 211);
 }
 
+/* Changed card design. (BZ) */
+/* Card AFTER it's flipped. */
 .blue {
-  /* background-image: url('./images/dog1.jpg'); */
-  background-color: blue;
-  border: #4183cc;
-  color: white;
-  display: block;
-  animation: jello;
-  animation-duration: 2s;
+  /* background-image: url('./images/dog1.jpg'); (BZ) */
+  border: blue;
+  background-color: rgb(157, 209, 241);
+  box-shadow: inset 0px 0px 12px rgb(91, 135, 211), 0 0 4px rgba(91, 135, 211);
 }
 
+/* Changed card design. (BZ) */
+/* Card AFTER it's flipped. */
 .bystander {
-  /* background-image: url('./images/neutral1.jpg'); */
-  background-color: gray;
+  /* background-image: url('./images/neutral1.jpg'); (BZ) */
   border: #EAE1AC;
-  animation: rubberBand;
-  animation-duration: 2s;
+  box-shadow: inset 0px 0px 12px rgb(91, 135, 211), 0 0 4px rgba(91, 135, 211);
+  /* Commented for new CardFlip logic. (BZ) */
+  /* animation: rubberBand;
+  animation-duration: 2s; */
 }
 
+/* new Card Flip (BZ) */
+.blue,
+.red,
+.bystander {
+  position: relative;
+  transition: transform 1s;
+  transform-style: preserve-3d;
+  transform: rotateY(180deg);
+}
+
+/* Adjusted Card (BZ) */
 .assassin {
-  background-color: black;
-  color: white;
-  border: 5px solid black;
+  border: 2px solid black;
   animation: hinge;
   animation-duration: 2s;
 }
@@ -231,9 +248,10 @@ ol, ul {
   pointer-events: none;
 }
 
+/* Changed border width. (BZ) */
 .new-game {
-  margin-left: 10px;
-  border: 10px solid green !important;
+  margin-left: 10px;  
+  border: 3px solid green !important;
 }
 
 .gear {

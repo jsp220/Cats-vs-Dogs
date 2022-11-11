@@ -1,5 +1,6 @@
+/* Changed border width. (BZ) */
 .teamDog{
-  border: 10px solid green;
+  border: 3px solid green;
   width: 20%;
   height: 30%;
   position: absolute;
@@ -7,8 +8,9 @@
   top:10%;
 }
 
+/* Changed border width. (BZ) */
 .teamCat{
-  border: 10px solid green;
+  border: 3px solid green;
   width: 20%;
   height: 30%;
   position: absolute;
@@ -16,8 +18,9 @@
   top:10%;
 }
 
+/* Changed border width. (BZ) */
 .rules{
-  border: 10px solid green;
+  border: 3px solid green;
   width: 20%;
   height: 40%;
   position: absolute;
@@ -25,8 +28,9 @@
   top:45%;
 }
 
+/* Changed border width. (BZ) */
 .gameLog{
-  border: 10px solid green;
+  border: 3px solid green;
   width: 20%;
   height: 40%;
   position: absolute;
@@ -34,8 +38,9 @@
   top:45%;
 }
 
+/* Changed border width. (BZ) */
 .cardContainer{
-  border:10px solid green;
+  border: 3px solid green;
   justify-content: center;
 }
 
