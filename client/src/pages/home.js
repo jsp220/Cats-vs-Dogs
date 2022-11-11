@@ -4,12 +4,18 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
-import LoginIcon from "@mui/icons-material/Login";
-import SignupIcon from "@mui/icons-material/GroupAdd";
+import LogoutIcon from "@mui/icons-material/Logout";
 import GameIcon from "@mui/icons-material/SportsEsports";
+import Auth from "../utils/auth";
+
 
 export const Home = () => {
   const [value, setValue] = React.useState(0);
+  const logout = (event) => {
+    event.preventDefault();
+    Auth.logout();
+  };
+
   return (
     <div>
       <Grid container justifyContent="end">
@@ -24,20 +30,11 @@ export const Home = () => {
                 }}
               >
                 <BottomNavigationAction
-                  href="/login"
-                  label="login"
-                  icon={<LoginIcon />}
-                />
-                <BottomNavigationAction
-                  href="/signup"
-                  label="signup"
-                  icon={<SignupIcon />}
-                />
-                <BottomNavigationAction
                   href="/game"
                   label="game"
                   icon={<GameIcon />}
                 />
+                <BottomNavigationAction label="logout" icon={<LogoutIcon />} onClick={logout}/>
               </BottomNavigation>
             </Box>
           </Stack>
