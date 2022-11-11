@@ -122,33 +122,29 @@ function Board(props) {
 }
 
 function CodeNames() {
-  const firstPlayer = REVEALED_CLASSNAMES.red;
+  const firstPlayer = "red";
 
+  const [words, setWords] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [startGame, setStartGame] = useState(false);
-  const [cardColor, setCardColor] = useState(initializeCardRevealed(firstPlayer)); // css class: hidden-card, red, blue
+  const [cardColor, setCardColor] = useState([]); // css class: hidden-card, red, blue
   const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
   const [clue, setClue] = useState("");
-  const [isRedTurn, setIsRedTurn] = useState(firstPlayer === REVEALED_CLASSNAMES.red);
+  const [isRedTurn, setIsRedTurn] = useState(true);
   const [isClueTurn, setIsClueTurn] = useState(true);
-  const [status, setStatus] = useState(firstPlayer === REVEALED_CLASSNAMES.red ? "red-turn" : "blue-turn");
-  const [blueRemaining, setBlueRemaining] = useState(firstPlayer === REVEALED_CLASSNAMES.blue ? BASE_TURNS + 1 : BASE_TURNS);
-  const [redRemaining, setRedRemaining] = useState(firstPlayer === REVEALED_CLASSNAMES.red ? BASE_TURNS + 1 : BASE_TURNS);
+  const [status, setStatus] = useState("red-turn");
+  const [blueRemaining, setBlueRemaining] = useState(8);
+  const [redRemaining, setRedRemaining] = useState(9);
   const [showEndTurn, setShowEndTurn] = useState(true);
   const [view, setView] = useState("agent");
   const [winner, setWinner] = useState("");
   const [inputClue, setInputClue] = useState("");
-  const [statusMessage, setStatusMessage] = useState(firstPlayer === REVEALED_CLASSNAMES.red ? "Team Cat's Turn" : "Team Dog's Turn")
+  const [statusMessage, setStatusMessage] = useState("Team Cat's Turn")
 
   const [queryUser, { uLoading, uError, uData }] = useLazyQuery(QUERY_USER)
   const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME)
   const [updateGame, { gErr }] = useMutation(UPDATE_GAME);
   const [updateTeam, { uErr }] = useMutation(UPDATE_TEAM);
-
-  const { loading, data } = useQuery(QUERY_WORDS);
-  // console.log(data, "abc");
-  const words = data?.words.map((entry) => entry.name.toUpperCase()) || [];
-  // console.log(words);
 
   const isGameOver = () => {
     if (redRemaining === 0 || blueRemaining === 0) {
@@ -179,6 +175,7 @@ function CodeNames() {
       i: i,
       isRedTurn: isRedTurn,
       cardClass: cardClass,
+      cardColor: cardColor,
       blueRemaining: blueRemaining,
       redRemaining: redRemaining
     })
@@ -250,15 +247,8 @@ function CodeNames() {
     }
   }
 
-  function renderEndTurn() {
-    return (
-      <button
-        className="btn btn-info btn-light"
-        onClick={handleEndTurnClick}
-      >
-        End Turn
-      </button>
-    );
+  const gameStart = () => {
+    socket.emit("send_game_start");
   }
 
   // check for game end every time either teams remaining cards changes 
@@ -283,9 +273,30 @@ function CodeNames() {
 
     try {
       const { data } = await queryGame({ variables: { gameName } });
-      console.log(data);
+      // console.log(data);
       gameId = data.game._id;
       teamCatId = data.game.teamCat._id;
+
+      const wordList = data.game.wordList;
+
+      const allWords = wordList.allWords.map((word) => word.name);
+      const catWords = wordList.catWords.map((word) => word.name);
+      const dogWords = wordList.dogWords.map((word) => word.name);
+      const neutralWords = wordList.neutralWords.map((word) => word.name);
+      const deathWord = wordList.deathWord.name;
+
+      const wordColors = allWords.map((word => {
+        if (catWords.includes(word)) return 'red';
+        if (dogWords.includes(word)) return 'blue';
+        if (neutralWords.includes(word)) return 'bystander';
+        if (deathWord === word) return 'assassin';
+      }))
+
+      // console.log(wordColors);
+
+      setWords(allWords);
+      setCardColor(wordColors);
+
     } catch (err) {
       console.error(err);
     }
@@ -319,15 +330,19 @@ function CodeNames() {
       const uniqueUsers = [...new Set(data)];
       setOnlineUsers(uniqueUsers);
     })
+
+    socket.on("receive_game_start", () => {
+      setStartGame(true);
+    })
     socket.on("receive_clue", (data) => {
       setInputClue("");
       setClue(data.clue);
       setIsClueTurn(false);
-      console.log(data.clue);
+      // console.log(data.clue);
     })
 
     socket.on("receive_end_turn", (data) => {
-      console.log(isRedTurn, "is not changing");
+      // console.log(isRedTurn, "is not changing");
       setIsRedTurn(!data.turn);
       setStatus(!data.turn ? "red-turn" : "blue-turn");
       setStatusMessage(!data.turn ? "Team Cat's Turn" : "Team Dog's Turn")
@@ -338,17 +353,17 @@ function CodeNames() {
       const i = data.i;
       const classOfCards = data.cardClass;
       updateScore(data);
-      classOfCards[i] = cardColor[i]; // switch css classNames
+      classOfCards[i] = data.cardColor[i]; // switch css classNames
 
       if (
-        cardColor[i] === "bystander" ||
-        (data.isRedTurn === true && cardColor[i] === "blue") ||
-        (data.isRedTurn === false && cardColor[i] === "red")
+        data.cardColor[i] === "bystander" ||
+        (data.isRedTurn === true && data.cardColor[i] === "blue") ||
+        (data.isRedTurn === false && data.cardColor[i] === "red")
       ) {
         setIsRedTurn(!data.isRedTurn)
         setStatus(!data.isRedTurn ? "red-turn" : "blue-turn");
         setStatusMessage(!data.isRedTurn ? "Team Cat's Turn" : "Team Dog's Turn");
-      } else if (cardColor[i] === "assassin") {
+      } else if (data.cardColor[i] === "assassin") {
         alert("You have chosen the assassin. Game Over.");
         const status = "game-over-" + (data.isRedTurn ? "blue" : "red");
         setStatus(status);
@@ -362,6 +377,17 @@ function CodeNames() {
     })
   }, [])
 
+  function renderEndTurn() {
+    return (
+      <button
+        className="btn btn-info btn-light"
+        onClick={handleEndTurnClick}
+      >
+        End Turn
+      </button>
+    );
+  }
+
   const renderGame = () => {
     return (
       <div className="game" >
@@ -373,16 +399,11 @@ function CodeNames() {
             ? renderEndTurn()
             : null}
         </div>
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
           <Board
             cardWords={words}
             cardClass={cardClass}
             onClick={handleCardClick}
           />
-        )
-        }
         <div className="info row col-12">
           {view == "agent"
             ? null
@@ -481,7 +502,7 @@ function CodeNames() {
                 <li key={user}>{user}</li>
               ))}
           </ul>
-          <button onClick={() => setStartGame(true)}>Start Game!</button>
+          <button onClick={gameStart}>Start Game!</button>
         </div>
       </div>
     )

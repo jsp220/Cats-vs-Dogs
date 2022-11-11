@@ -9,28 +9,29 @@ export function pickRandomPlayer() {
     }
 } 
 
-export function initializeCardRevealed(firstPlayer) {
-    // Returns a list of 25 unique word types
-    // Index indicates hidden-card position on board
+// export function initializeCardRevealed(firstPlayer) {
+//     // Returns a list of 25 unique word types
+//     // Index indicates hidden-card position on board
   
-    const revealedClassnames = [];
+//     const revealedClassnames = [];
 
-    for (let i = 0; i < (BASE_TURNS); i++) {
-        revealedClassnames.push(REVEALED_CLASSNAMES.red);
-        revealedClassnames.push(REVEALED_CLASSNAMES.blue);
-    }
+//     for (let i = 0; i < (BASE_TURNS); i++) {
+//         revealedClassnames.push(REVEALED_CLASSNAMES.red);
+//         revealedClassnames.push(REVEALED_CLASSNAMES.blue);
+//     }
 
-    revealedClassnames.push(REVEALED_CLASSNAMES[firstPlayer]);
+//     revealedClassnames.push(REVEALED_CLASSNAMES[firstPlayer]);
 
-    for (let i=0; i < (BYSTANDERS); i++) {
-        revealedClassnames.push(REVEALED_CLASSNAMES.bystander)
-    }
-    for (let i=0; i < (ASSASSINS); i++) {
-        revealedClassnames.push(REVEALED_CLASSNAMES.assassin)
-    }
+//     for (let i=0; i < (BYSTANDERS); i++) {
+//         revealedClassnames.push(REVEALED_CLASSNAMES.bystander)
+//     }
+//     for (let i=0; i < (ASSASSINS); i++) {
+//         revealedClassnames.push(REVEALED_CLASSNAMES.assassin)
+//     }
 
-    return shuffle(revealedClassnames);
-  }
+//     // console.log(revealedClassnames);
+//     return shuffle(revealedClassnames);
+//   }
   
   
 export function shuffle(array) {

@@ -11,31 +11,6 @@ import {
     UPDATE_GAME
 } from '../utils/mutations';
 
-// const Game = () => {
-//     const {loading, err, data } = useQuery(QUERY_WORDS)
-//     const [addWordList, { error }] = useMutation(ADD_WORDLIST);
-
-//     if (loading) return null;
-//     if (err) return null;
-
-//     const words = data?.words.map((entry) => entry.name.toUpperCase()) || [];
-//     const wordIds = data?.words.map((entry) => entry._id) || [];
-
-//     // console.log(data, "abc");
-//     if (wordIds.length !== 0) {
-//         console.log(wordIds);
-//         addWordList({variables: wordIds })
-//             .then((data) => console.log(data))
-//             .catch((err) => {
-//             console.error(err);
-//         })
-
-//         return <div>hi</div>
-//     }
-
-//     ;
-// }
-
 const Test = () => {
     // const [gameStart, setGameStart] = useState(false);
 
