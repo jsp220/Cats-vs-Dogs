@@ -53,6 +53,10 @@ import { REVEALED_CLASSNAMES, BASE_TURNS } from "../constants";
 import { pickRandomPlayer, initializeCardRevealed } from "../util_functions";
 import io from "socket.io-client";
 
+// const ROOT_URL = 'https://myherokudomain.herokuapp.com';
+
+// const socket = io.connect(ROOT_URL);
+
 const socket = io.connect("http://localhost:3000");
 
 // Removed, not used... (BZ)
