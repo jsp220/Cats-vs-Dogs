@@ -2,23 +2,52 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "../CodeNames.css";
-import { useLazyQuery, useMutation } from '@apollo/client';
-import { QUERY_USER, QUERY_GAME } from '../utils/queries';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { QUERY_WORDS, QUERY_USER, QUERY_GAME } from '../utils/queries';
 import { UPDATE_GAME, UPDATE_TEAM } from "../utils/mutations";
 
 import Auth from '../utils/auth';
 
+// Added for card images... (BZ)
+import dog1 from "../images/dog1.png";
+import dog2 from "../images/dog2.png";
+import dog3 from "../images/dog3.png";
+import dog4 from "../images/dog4.png";
+import dog5 from "../images/dog5.png";
+import dog6 from "../images/dog6.png";
+import dog7 from "../images/dog7.png";
+import dog8 from "../images/dog8.png";
+import dog9 from "../images/dog9.png";
+import dog10 from "../images/dog10.png";
+import dog11 from "../images/dog11.png";
+import dog12 from "../images/dog12.png";
+import dog13 from "../images/dog13.png";
+import dog14 from "../images/dog14.png";
+import dog15 from "../images/dog15.png";
+import cat1 from "../images/cat1.png";
+import cat2 from "../images/cat2.png";
+import cat3 from "../images/cat3.png";
+import cat4 from "../images/cat4.png";
+import cat5 from "../images/cat5.png";
+import nut1 from "../images/neutral1.png";
+import nut2 from "../images/neutral1.png";
+import nut3 from "../images/neutral1.png";
+import assassin from "../images/corgiAssassin.png"
+
+
 //import { CSSTransitionGroup } from 'react-transition-group'
 import "animate.css";
 import styled, { keyframes } from "styled-components";
-import {
-  bounce,
-  flipInX,
-  rollIn,
-  rollOut,
-  hinge,
-  zoomIn,
-} from "react-animations";
+// import {
+//   bounce,
+//   flipInX,
+//   rollIn,
+//   rollOut,
+//   hinge,
+//   zoomIn,
+// } from "react-animations"; 
+// Adjusted for the used animation methods. (BZ)
+import { rollIn,  zoomIn } from "react-animations";
 
 import { REVEALED_CLASSNAMES, BASE_TURNS } from "../constants";
 import { pickRandomPlayer, initializeCardRevealed } from "../util_functions";
@@ -26,21 +55,24 @@ import io from "socket.io-client";
 
 const socket = io.connect("http://localhost:3000");
 
-const FlipInX = styled.div`
-  animation: 2s ${keyframes`${flipInX}`};
-`;
-const Bounce = styled.div`
-  animation: 2s ${keyframes`${bounce}`};
-`;
+// Removed, not used... (BZ)
+// const FlipInX = styled.div`
+//   animation: 2s ${keyframes`${flipInX}`};
+// `;
+// const Bounce = styled.div`
+//   animation: 2s ${keyframes`${bounce}`};
+// `;
 const RollIn = styled.div`
   animation: 2s ${keyframes`${rollIn}`};
 `;
-const RollOut = styled.div`
-  animation: 2s ${keyframes`${rollOut}`};
-`;
-const Hinge = styled.div`
-  animation: 2s ${keyframes`${hinge}`};
-`;
+
+// Removed, not used... (BZ)
+// const RollOut = styled.div`
+//   animation: 2s ${keyframes`${rollOut}`};
+// `;
+// const Hinge = styled.div`
+//   animation: 2s ${keyframes`${hinge}`};
+// `;
 const ZoomIn = styled.div`
   animation: 2s ${keyframes`${zoomIn}`};
 `;
@@ -52,9 +84,45 @@ const COLUMNS = 5;
 
 
 function Card(props) {
+
+    /* Added card Images. (BZ) */
+    let idx = props.backgroundImage;
+    let image = null;
+    if (!props.word) {
+      if (idx == 1) image = dog1;
+      if (idx == 2) image = dog2;
+      if (idx == 3) image = dog3;
+      if (idx == 4) image = dog4;
+      if (idx == 5) image = dog5;
+      if (idx == 6) image = dog6;
+      if (idx == 7) image = dog7;
+      if (idx == 8) image = dog8;
+      if (idx == 9) image = dog9;
+      if (idx == 10) image = dog10;
+      if (idx == 11) image = dog11;
+      if (idx == 12) image = dog12;
+      if (idx == 13) image = dog13;
+      if (idx == 14) image = dog14;
+      if (idx == 15) image = dog15;
+      if (idx == 16) image = cat1;
+      if (idx == 17) image = cat2;
+      if (idx == 18) image = cat3;
+      if (idx == 19) image = cat4;
+      if (idx == 20) image = cat5;
+      if (idx == 21) image = nut1;
+      if (idx == 22) image = nut2;
+      if (idx == 23) image = nut3;
+      if (image == null) image = assassin;
+    } else
+      image = "";
+  
   return (
     <ZoomIn key={props.word}>
-      <button className={props.cardClass} onClick={props.onClick}>
+      <button style={
+        { backgroundImage: `url(${image})`, 
+          backgroundSize: "100% 100%" }} 
+          className={props.cardClass} 
+          onClick={props.onClick}>
         {props.word}
       </button>
     </ZoomIn>
@@ -89,8 +157,13 @@ function Gear(props) {
 
 function Board(props) {
   function renderCard(i) {
+
+    // Clear word with card has been flipped. (BZ)
+    if (props.cardFlipped[i]) props.cardWords[i] = "";
+
     return (
       <Card
+        backgroundImage={i} // Added for card image. (BZ)
         word={props.cardWords[i].toUpperCase()}
         cardClass={props.cardClass[i]}
         onClick={() => props.onClick(i)}
@@ -123,6 +196,7 @@ function Board(props) {
 function CodeNames() {
   const firstPlayer = "red";
 
+  const [cardFlipped, setCardFlipped] = useState(new Array(25).fill(false)); // Added for card flip. (BZ)
   const [words, setWords] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [startGame, setStartGame] = useState(false);
@@ -175,10 +249,16 @@ function CodeNames() {
     }
 
     // console.log(i);
+    // Added for card flipping. (BZ)
+    if (!cardFlipped[i]) {
+      words[i] = "";
+      cardFlipped[i] = true;
+    }    
 
     socket.emit("send_card_click", {
       i: i,
       isRedTurn: isRedTurn,
+      cardFlipped: cardFlipped, // Added updated array to socket. (BZ)
       cardClass: cardClass,
       cardColor: cardColor,
       blueRemaining: blueRemaining,
@@ -190,16 +270,16 @@ function CodeNames() {
   function updateScore(data) {
 
     // only update score if card has not been revealed already
-    if (data.cardClass[data.i] !== "hidden-card") {
+    if (cardClass[data.i] !== "hidden-card") {
       return null;
     }
 
     // update red or blue team's score
     // ensure game over is checked only after remaining
-    if (data.cardColor[data.i] === "red") {
+    if (cardColor[data.i] === "red") {
       setRedRemaining(data.redRemaining - 1);
     }
-    else if (data.cardColor[data.i] === "blue") {
+    else if (cardColor[data.i] === "blue") {
       setBlueRemaining(data.blueRemaining - 1);
     }
   }
@@ -238,6 +318,7 @@ function CodeNames() {
   }
 
   const gameStart = () => {
+
     let teamDog = [...onlineUsers];
     let teamCat = [];
     const teamCatSize = Math.ceil(teamDog.length / 2);
@@ -256,6 +337,7 @@ function CodeNames() {
     const dogSpyMaster = teamDog[0];
 
     socket.emit("send_game_start", { catSpyMaster, dogSpyMaster, teamDog, teamCat, cardClass, cardColor });
+
   }
 
   // check for game end every time either teams remaining cards changes 
@@ -280,7 +362,7 @@ function CodeNames() {
 
     try {
       const { data } = await queryGame({ variables: { gameName } });
-      console.log(data);
+      // console.log(data);
       gameId = data.game._id;
       teamCatId = data.game.teamCat._id;
 
@@ -391,6 +473,7 @@ function CodeNames() {
 
     socket.on("receive_card_click", (data) => {
       const i = data.i;
+      const cardFlipped = data.cardFlipped; // Added for socket IO. (BZ)
       const classOfCards = data.cardClass;
       updateScore(data);
       classOfCards[i] = data.cardColor[i]; // switch css classNames
@@ -412,6 +495,7 @@ function CodeNames() {
         setStatusMessage(data.isRedTurn ? "TEAM DOG WINS!" : "TEAM CAT WINS!")
       }
 
+      setCardFlipped(cardFlipped); // Added for Socket IO. (BZ)
       setCardClass(classOfCards);
       setIsClueTurn(true);
     })
@@ -439,11 +523,12 @@ function CodeNames() {
             ? renderEndTurn()
             : null}
         </div>
-        <Board
-          cardWords={words}
-          cardClass={cardClass}
-          onClick={handleCardClick}
-        />
+          <Board
+            cardFlipped={cardFlipped} // Added for card flip. (BZ)
+            cardWords={words}
+            cardClass={cardClass}
+            onClick={handleCardClick}
+          />
         <div className="info row col-12">
           {!isSpyMaster
             ? null

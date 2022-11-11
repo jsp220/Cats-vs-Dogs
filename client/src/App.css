@@ -1,3 +1,6 @@
+main{
+  height: 100vh !important;
+}
 .teamDog{
   border: 10px solid green;
   width: 20%;
@@ -299,11 +302,39 @@
 
   .card-body{
     max-width: 50%;
-    margin-left: 30%;
-    margin-top: 30%;
+    margin-top: 40%;
+  }
+
+  .loginCard{
+    display: flex;
+    justify-content: center;
   }
 
   .MuiTypography-root{
     margin-bottom: 3% !important;
     margin-top: 3% !important;
+  }
+
+  .rulesBox{
+    display: flex;
+    justify-content: end;
+    margin-right: 1%;
+  }
+
+  .MuiCollapse-wrapperInner{
+    background-color:  #FAF9F6;
+  }
+
+  .MuiFormControlLabel-root{
+    display: flex !important;
+    justify-content: end !important;
+  }
+
+  .rulesTitle{
+    display: flex;
+    justify-content: center;
+  }
+
+  .MuiCollapse-wrapperInner{
+    border: 5px solid green;
   }
