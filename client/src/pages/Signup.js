@@ -47,7 +47,7 @@ const Test2 = () => {
         }
       };
   return (
-    <div>
+    <div className="loginCard">
       <Card sx={{ minWidth: 275 }} className="card-body">
         <CardContent>
           <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>

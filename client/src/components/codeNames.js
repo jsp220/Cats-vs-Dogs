@@ -2,8 +2,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "../CodeNames.css";
-import { useLazyQuery, useMutation } from '@apollo/client';
-import { QUERY_USER, QUERY_GAME } from '../utils/queries';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { QUERY_WORDS, QUERY_USER, QUERY_GAME } from '../utils/queries';
 import { UPDATE_GAME, UPDATE_TEAM } from "../utils/mutations";
 
 import Auth from '../utils/auth';
@@ -261,16 +261,16 @@ function CodeNames() {
   function updateScore(data) {
 
     // only update score if card has not been revealed already
-    if (data.cardClass[data.i] !== "hidden-card") {
+    if (cardClass[data.i] !== "hidden-card") {
       return null;
     }
 
     // update red or blue team's score
     // ensure game over is checked only after remaining
-    if (data.cardColor[data.i] === "red") {
+    if (cardColor[data.i] === "red") {
       setRedRemaining(data.redRemaining - 1);
     }
-    else if (data.cardColor[data.i] === "blue") {
+    else if (cardColor[data.i] === "blue") {
       setBlueRemaining(data.blueRemaining - 1);
     }
   }
@@ -309,6 +309,7 @@ function CodeNames() {
   }
 
   const gameStart = () => {
+
     let teamDog = [...onlineUsers];
     let teamCat = [];
     const teamCatSize = Math.ceil(teamDog.length / 2);
@@ -327,6 +328,7 @@ function CodeNames() {
     const dogSpyMaster = teamDog[0];
 
     socket.emit("send_game_start", { catSpyMaster, dogSpyMaster, teamDog, teamCat, cardClass, cardColor });
+
   }
 
   // check for game end every time either teams remaining cards changes 
@@ -351,7 +353,7 @@ function CodeNames() {
 
     try {
       const { data } = await queryGame({ variables: { gameName } });
-      console.log(data);
+      // console.log(data);
       gameId = data.game._id;
       teamCatId = data.game.teamCat._id;
 
