@@ -106,9 +106,9 @@ const Test3 = () => {
               </Typography>
             </form>
           )}
-          <a href="/signup" rel="signup">
+          <Link to="/signup">
             Sign Up Instead?
-          </a>
+          </Link>
           {error && (
             <div className="my-3 p-3 bg-danger text-white">{error.message}</div>
           )}

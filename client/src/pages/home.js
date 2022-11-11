@@ -115,8 +115,8 @@ export const Home = () => {
       console.error(err);
     }
 
-    // window.location.replace(`/game/${gameName}`);
-    browserHistory.push(`/game/${gameName}`);
+    window.location.replace(`/game/${gameName}`);
+    // browserHistory.push(`/game/${gameName}`);
   };
 
   return (
