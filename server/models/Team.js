@@ -11,13 +11,15 @@ const teamSchema = new Schema({
     users: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'User',
+            sparse: true
         }
     ],
     words: [
         {
             type: Schema.Types.ObjectId,
-            ref: 'Word'
+            ref: 'Word',
+            sparse: true
         }
     ]
 })
