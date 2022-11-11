@@ -60,7 +60,7 @@ const typeDefs = gql`
     type Query {
         user(userId: ID!): User
         words: [Word]
-        game(gameId: ID!): Game
+        game(gameName: String!): Game
     }
 
     type Mutation {
@@ -71,6 +71,7 @@ const typeDefs = gql`
         addTeamCat(userIds: [ID]): Team
         addTeamDog(userIds: [ID]): Team
         updateGame(gameId: ID, teamCatId: ID, teamDogId: ID, wordListId: ID): Game
+        updateTeam(teamId: ID, userId: ID): Team
         addClickMove(userId: ID, gameId: ID, wordId: ID): Move
     }
 `;

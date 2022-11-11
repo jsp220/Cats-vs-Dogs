@@ -2,11 +2,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "../CodeNames.css";
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { QUERY_WORDS, QUERY_USER, QUERY_GAME } from '../utils/queries';
-import { UPDATE_GAME, UPDATE_TEAM } from "../utils/mutations";
-
-import Auth from '../utils/auth';
+import { useQuery } from '@apollo/client';
+import { QUERY_WORDS } from '../utils/queries';
 
 //import { CSSTransitionGroup } from 'react-transition-group'
 import "animate.css";
@@ -22,8 +19,8 @@ import {
 
 import { REVEALED_CLASSNAMES, BASE_TURNS } from "../constants";
 import { pickRandomPlayer, initializeCardRevealed } from "../util_functions";
-import io from "socket.io-client";
 
+import io from "socket.io-client";
 const socket = io.connect("http://localhost:3000");
 
 const FlipInX = styled.div`
@@ -122,10 +119,9 @@ function Board(props) {
 }
 
 function CodeNames() {
-  const firstPlayer = REVEALED_CLASSNAMES.red;
+  const firstPlayer = pickRandomPlayer();
 
-  const [userJoined, setUserJoined] = useState(false);
-  const [startGame, setStartGame] = useState(false);
+  // const [cardWords, setCardWords] = useState("");
   const [cardColor, setCardColor] = useState(initializeCardRevealed(firstPlayer)); // css class: hidden-card, red, blue
   const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
   const [clue, setClue] = useState("");
@@ -139,55 +135,6 @@ function CodeNames() {
   const [winner, setWinner] = useState("");
   const [inputClue, setInputClue] = useState("");
   const [statusMessage, setStatusMessage] = useState(firstPlayer === REVEALED_CLASSNAMES.red ? "Team Cat's Turn" : "Team Dog's Turn")
-
-  const [queryUser, { uLoading, uError, uData }] = useLazyQuery(QUERY_USER)
-  const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME)
-  const [updateGame, { gErr }] = useMutation(UPDATE_GAME);
-  const [updateTeam, { uErr }] = useMutation(UPDATE_TEAM);
-
-  const { loading, data } = useQuery(QUERY_WORDS);
-  // console.log(data, "abc");
-  const words = data?.words.map((entry) => entry.name.toUpperCase()) || [];
-  // console.log(words);
-
-  let users = [];
-
-  const init = async () => {
-    const profile = await Auth.getProfile();
-    const userId = profile.data._id;
-    let gameId = "";
-    let teamCatId = "";
-
-    const URL = document.URL;
-    const gameName = URL.slice(URL.lastIndexOf('/') + 1)
-    console.log(gameName)
-
-    try {
-      const { data } = await queryGame({ variables: { gameName } });
-      gameId = data.game._id;
-      teamCatId = data.game.teamCat._id;
-      console.log(teamCatId);
-      // users.push(data.game.teamCat.users);      
-    } catch (err) {
-      console.error(err);
-    }
-
-    try {
-      console.log(userId)
-      const { data } = await updateTeam({
-        variables:
-        {
-          teamId: teamCatId,
-          userId
-        }
-      });
-      console.log(data);
-      const usersFromBackend = data.updateTeam.users.map((user) => user.username);
-      socket.emit("send_users", usersFromBackend);
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   const isGameOver = () => {
     if (redRemaining === 0 || blueRemaining === 0) {
@@ -204,6 +151,11 @@ function CodeNames() {
     if (clue) return <div>Team {isRedTurn ? "Cat" : "Dog"}'s spymaster gives a clue: {clue}.</div>
   }
 
+  const { loading, data } = useQuery(QUERY_WORDS);
+  // console.log(data, "abc");
+  const words = data?.words.map((entry) => entry.name.toUpperCase()) || [];
+  // console.log(words);
+
   const handleCardClick = (i) => {
     if (
       status.includes("game-over") ||
@@ -214,12 +166,12 @@ function CodeNames() {
 
     // console.log(i);
 
-    socket.emit("send_card_click", {
-      i: i,
-      isRedTurn: isRedTurn,
-      cardClass: cardClass,
-      blueRemaining: blueRemaining,
-      redRemaining: redRemaining
+    socket.emit("send_card_click", { 
+      i: i, 
+      isRedTurn: isRedTurn, 
+      cardClass: cardClass, 
+      blueRemaining: blueRemaining, 
+      redRemaining: redRemaining 
     })
 
   };
@@ -301,29 +253,12 @@ function CodeNames() {
   }
 
   // check for game end every time either teams remaining cards changes 
-
-  let agentView;
-  let spyView;
-  if (view === "agent") {
-    agentView = "gray-click";
-  } else {
-    spyView = "gray-click";
-  }
-
   useEffect(() => {
     isGameOver();
   }, [redRemaining, blueRemaining])
 
   // useEffect for all socket functions
   useEffect(() => {
-    init();
-
-    socket.on("receive_users", (data) => {
-      setUserJoined(true);
-      users = [];
-      users.push(data);
-      console.log(users)
-    })
     socket.on("receive_clue", (data) => {
       setInputClue("");
       setClue(data.clue);
@@ -367,139 +302,117 @@ function CodeNames() {
     })
   }, [])
 
-  const renderGame = () => {
-    return (
-      <div className="game" >
-        <div className="title col-12">CATS VS. DOGS</div>
-        <div className="info row col-12">
-          <h3 className={"turn col " + status}>{statusMessage}</h3>
-          {/* display end turn and show winner based on state */}
-          {showEndTurn
-            ? renderEndTurn()
-            : null}
-        </div>
-        {loading ? (
-          <div>Loading...</div>
-        ) : (
-          <Board
-            cardWords={words}
-            cardClass={cardClass}
-            onClick={handleCardClick}
-          />
-        )
-        }
-        <div className="info row col-12">
-          {view == "agent"
-            ? null
-            : (
-              <form onSubmit={handleSubmit}>
-                <label className="clueInput">
-                  Clue:
-                  <input type="text" name="clue" className="formInput" />
-                </label>
-                <input type="submit" value="Submit" />
-              </form>
-            )}
-          <button
-            className="btn btn-info btn-light new-game"
-            onClick={(i) => newGame(i)}
-          >
-            New Game
-          </button>
-        </div>
-        <div className="teamDog">
-          <h2 className="blue-turn">Team Dog</h2>
-          <h3>
-            Card Remaining:{" "}
-            <span className="blue-turn">{blueRemaining}</span>
-          </h3>
-          <h4>Team Member: </h4>
-          <div>
-            <div className="dogAgent">
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={handleAgentClick}
-              >
-                Agent
-              </label>
-            </div>
-            <div className="catSpy">
-              <label
-                className={"btn btn-info btn-light " + spyView}
-                onClick={handleSpymasterClick}
-              >
-                Spymaster
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="teamCat">
-          <h2 className="red-turn">Team Cat</h2>
-          <h3>
-            Card Remaining:{" "}
-            <span className="red-turn">{redRemaining}</span>
-          </h3>
-          <h4>Team Member: </h4>
-          <div>
-            <div className="catAgent">
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={handleAgentClick}
-              >
-                Agent
-              </label>
-            </div>
-            <div className="catSpy">
-              <label
-                className={"btn btn-info btn-light " + spyView}
-                onClick={handleSpymasterClick}
-              >
-                Spymaster
-              </label>
-            </div>
-          </div>
-        </div>
-        <div className="rules">
-          <h4>Rules</h4>
-          <Gear onClick={handleGearClick} />
-          <div
-            className="btn-group btn-group-toggle"
-            data-toggle="buttons"
-          ></div>
-        </div>
-        <div className="gameLog">
-          <h4>Game Log</h4>
-          {renderLog()}
-        </div>
-      </div>
-    )
-  }
-
-  const renderWaitingRoom = () => {
-    return (
-      <div className="game" >
-        <div className="title col-12">CATS VS. DOGS</div>
-        <div className="info row col-12">
-          <h3>Currently online:</h3>
-          <ul>
-            {/* {users.length &&
-              users.map((user) => (
-                <li key={user}>{user}</li>
-              ))} */}
-          </ul>
-          <button onClick={() => setStartGame(true)}>Start Game!</button>
-        </div>
-      </div>
-    )
+  let agentView;
+  let spyView;
+  if (view === "agent") {
+    agentView = "gray-click";
+  } else {
+    spyView = "gray-click";
   }
 
   return (
-    <>
-      {startGame
-        ? renderGame()
-        : renderWaitingRoom()
-      }
-    </>
+    <div className="game">
+      <div className="title col-12">CATS VS. DOGS</div>
+      <div className="info row col-12">
+        <h3 className={"turn col " + status}>{statusMessage}</h3>
+        {/* display end turn and show winner based on state */}
+        {showEndTurn
+          ? renderEndTurn()
+          : null}
+      </div>
+      {loading ? (
+        <div>Loading...</div>
+      ) : (
+        <Board
+          cardWords={words}
+          cardClass={cardClass}
+          onClick={handleCardClick}
+        />
+      )}
+      <div className="info row col-12">
+        {view == "agent"
+          ? null
+          : (
+            <form onSubmit={handleSubmit}>
+              <label className="clueInput">
+                Clue:
+                <input type="text" name="clue" className="formInput" />
+              </label>
+              <input type="submit" value="Submit" />
+            </form>
+          )}
+        <button
+          className="btn btn-info btn-light new-game"
+          onClick={(i) => newGame(i)}
+        >
+          New Game
+        </button>
+      </div>
+      <div className="teamDog">
+        <h2 className="blue-turn">Team Dog</h2>
+        <h3>
+          Card Remaining:{" "}
+          <span className="blue-turn">{blueRemaining}</span>
+        </h3>
+        <h4>Team Member: </h4>
+        <div>
+          <div className="dogAgent">
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={handleAgentClick}
+            >
+              Agent
+            </label>
+          </div>
+          <div className="catSpy">
+            <label
+              className={"btn btn-info btn-light " + spyView}
+              onClick={handleSpymasterClick}
+            >
+              Spymaster
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="teamCat">
+        <h2 className="red-turn">Team Cat</h2>
+        <h3>
+          Card Remaining:{" "}
+          <span className="red-turn">{redRemaining}</span>
+        </h3>
+        <h4>Team Member: </h4>
+        <div>
+          <div className="catAgent">
+            <label
+              className={"btn btn-info btn-light " + agentView}
+              onClick={handleAgentClick}
+            >
+              Agent
+            </label>
+          </div>
+          <div className="catSpy">
+            <label
+              className={"btn btn-info btn-light " + spyView}
+              onClick={handleSpymasterClick}
+            >
+              Spymaster
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="rules">
+        <h4>Rules</h4>
+        <Gear onClick={handleGearClick} />
+        <div
+          className="btn-group btn-group-toggle"
+          data-toggle="buttons"
+        ></div>
+      </div>
+      <div className="gameLog">
+        <h4>Game Log</h4>
+        {renderLog()}
+      </div>
+    </div>
   );
 
 }

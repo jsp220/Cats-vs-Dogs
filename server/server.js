@@ -60,8 +60,14 @@ io.on('connection', (socket) => {
   // Every time localhost:PORT connection is made
   // show message on console.
   console.log(":electric_plug: User connected!");
+  
+  socket.on("send_users", (data) => {
+    console.log(`new user detected`);
+    io.emit("receive_users", data);
+  })
+
   socket.on('send_message', (message) => {
-    console.log("message detected")
+    console.log("message detected");
     io.emit('receive_message', message); 
   });
 

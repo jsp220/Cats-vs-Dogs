@@ -17,8 +17,8 @@ const resolvers = {
             // console.log(chosenWords)
             return chosenWords;
         },
-        game: async (parent, { gameId }) => {
-            return Game.findOne({ _id: gameId })
+        game: async (parent, { gameName }) => {
+            return Game.findOne({ name: gameName })
                 .populate(
                     {
                         path: 'teamCat',
@@ -169,13 +169,29 @@ const resolvers = {
             if (teamDogId) args.teamDog = { _id: teamDogId };
             if (wordListId) args.wordList = { _id: wordListId };
             console.log(args);
-            return await Game.findOneAndUpdate(
+            await Game.findOneAndUpdate(
                 { _id: gameId },
                 {
                     $set: args,
                 },
                 { new: true }
             );
+        },
+
+        updateTeam: async (parent, { teamId, userId }) => {
+            const data = await Team.findOneAndUpdate(
+                { _id: teamId },
+                {
+                    "$push": { users: { _id: userId } }
+                },
+                { new: true }
+            );
+
+            return await Team.findOne({ _id: teamId })
+            .populate(
+                {
+                    path: 'users',
+                })
         },
 
         addClickMove: async (parent, { userId, gameId, wordId }) => {

@@ -77,6 +77,18 @@ export const UPDATE_GAME = gql`
   }
 `
 
+export const UPDATE_TEAM = gql`
+  mutation UpdateTeam($teamId: ID, $userId: ID) {
+    updateTeam(teamId: $teamId, userId: $userId) {
+      _id
+      users {
+        _id
+        username
+      }
+    }
+  }
+`
+
 export const LOGIN_USER = gql`
   mutation login($email: String!, $password: String!) {
     login(email: $email, password: $password) {
