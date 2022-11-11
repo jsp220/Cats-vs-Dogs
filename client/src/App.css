@@ -284,10 +284,10 @@
   
   }
   
-  .formCard{
+  /* .formCard{
     display: flex;
     justify-content: space-around;
-  }
+  } */
   
   .card-header{
     text-align: center;
@@ -295,4 +295,10 @@
   
   .backHome{
     padding-left: 20%;
+  }
+
+  .card-body{
+    max-width: 50%;
+    margin-left: 30%;
+    margin-top: 30%;
   }
