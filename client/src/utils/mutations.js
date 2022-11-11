@@ -44,9 +44,24 @@ export const ADD_GAME = gql`
   }
 `
 
+export const ADD_TEAMCAT = gql`
+  mutation addTeamCat($userIds: [ID]) {
+    addTeamCat(userIds: $userIds) {
+      _id
+    }
+  }
+`
+export const ADD_TEAMDOG = gql`
+  mutation addTeamDog($userIds: [ID]) {
+    addTeamDog(userIds: $userIds) {
+      _id
+    }
+  }
+`
+
 export const UPDATE_GAME = gql`
   mutation UpdateGame($gameId: ID, $teamCatId: ID, $teamDogId: ID, $wordListId: ID) {
-    updateGame(gameId: $id, teamCatId: $teamCatId, teamDogId: $teamDogId, wordListId: $wordListId) {
+    updateGame(gameId: $gameId, teamCatId: $teamCatId, teamDogId: $teamDogId, wordListId: $wordListId) {
       _id
       name
       teamCat {

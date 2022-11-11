@@ -99,7 +99,7 @@ const resolvers = {
         // ["636aec484933eeb2c7a668c3", "636aec484933eeb2c7a668c4", etc.]
         addWordList: async (parent, { wordIds }) => {
             const allWords = wordIds.map((wordId) => new Object({ _id: wordId }));
-            
+
             // this part may need to be moved to front end and
             // just send catWords, dogWords, etc as IDs
             const neutralWords = [...allWords];
@@ -131,30 +131,48 @@ const resolvers = {
         },
 
         addTeamCat: async (parent, { userIds }) => {
-            const users = userIds.map((userId) => new Object({ _id: userId }));
+            if (userIds) {
+                const users = userIds.map((userId) => new Object({ _id: userId }));
+                return Team.create(
+                    {
+                        isTeamCat: true,
+                        users: users
+                    });
+            }
             return Team.create(
                 {
-                    isTeamCat: true,
-                    users: users
-                });
+                    isTeamCat: true
+                }
+            )
         },
 
         addTeamDog: async (parent, { userIds }) => {
-            const users = userIds.map((userId) => new Object({ _id: userId }));
+            if (userIds) {
+                const users = userIds.map((userId) => new Object({ _id: userId }));
+                return Team.create(
+                    {
+                        isTeamCat: false,
+                        users: users
+                    }
+                );
+            };
             return Team.create(
                 {
-                    isTeamCat: false,
-                    users: users
-                });
+                    isTeamCat: false
+                }
+            )
         },
 
         updateGame: async (parent, { gameId, teamCatId, teamDogId, wordListId }) => {
+            let args = {};
+            if (teamCatId) args.teamCat = { _id: teamCatId };
+            if (teamDogId) args.teamDog = { _id: teamDogId };
+            if (wordListId) args.wordList = { _id: wordListId };
+            console.log(args);
             return await Game.findOneAndUpdate(
                 { _id: gameId },
                 {
-                    teamCat: { _id: teamCatId },
-                    teamDog: { _id: teamDogId },
-                    wordList: { _id: wordListId }
+                    $set: args,
                 },
                 { new: true }
             );
@@ -167,7 +185,7 @@ const resolvers = {
                 word: { _id: wordId }
             })
             // console.log(move);
-            
+
             // this part may need to be a separate mutation and have front end
             // call the mutation immediately after adding the move
             const game = await Game.findOneAndUpdate(

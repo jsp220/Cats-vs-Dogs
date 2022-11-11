@@ -20,8 +20,8 @@ export const App = () => (
     <Router>
       <Fragment>
         <Routes>
-          <Route exact path="/game" element={<PrivateRoute />}>
-            <Route exact path="/game" element={<Game />} />
+          <Route path="/game/:gameName" element={<PrivateRoute />}>
+            <Route path="/game/:gameName" element={<Game />} />
           </Route>
           <Route exact path="/" element={ <PrivateRoute />}>
             <Route exact path="/" element={<Home />} />
