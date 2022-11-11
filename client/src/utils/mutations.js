@@ -45,15 +45,16 @@ export const ADD_GAME = gql`
 `
 
 export const ADD_TEAMCAT = gql`
-  mutation addTeamCat($userIds: [ID]) {
-    addTeamCat(userIds: $userIds) {
+  mutation AddTeamCat($gameId: ID) {
+    addTeamCat(gameId: $gameId) {
       _id
     }
   }
 `
+
 export const ADD_TEAMDOG = gql`
-  mutation addTeamDog($userIds: [ID]) {
-    addTeamDog(userIds: $userIds) {
+  mutation AddTeamDog($gameId: ID) {
+    addTeamDog(gameId: $gameId) {
       _id
     }
   }

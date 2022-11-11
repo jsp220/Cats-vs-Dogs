@@ -124,7 +124,7 @@ function Board(props) {
 function CodeNames() {
   const firstPlayer = REVEALED_CLASSNAMES.red;
 
-  const [userJoined, setUserJoined] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const [startGame, setStartGame] = useState(false);
   const [cardColor, setCardColor] = useState(initializeCardRevealed(firstPlayer)); // css class: hidden-card, red, blue
   const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
@@ -149,45 +149,6 @@ function CodeNames() {
   // console.log(data, "abc");
   const words = data?.words.map((entry) => entry.name.toUpperCase()) || [];
   // console.log(words);
-
-  let users = [];
-
-  const init = async () => {
-    const profile = await Auth.getProfile();
-    const userId = profile.data._id;
-    let gameId = "";
-    let teamCatId = "";
-
-    const URL = document.URL;
-    const gameName = URL.slice(URL.lastIndexOf('/') + 1)
-    console.log(gameName)
-
-    try {
-      const { data } = await queryGame({ variables: { gameName } });
-      gameId = data.game._id;
-      teamCatId = data.game.teamCat._id;
-      console.log(teamCatId);
-      // users.push(data.game.teamCat.users);      
-    } catch (err) {
-      console.error(err);
-    }
-
-    try {
-      console.log(userId)
-      const { data } = await updateTeam({
-        variables:
-        {
-          teamId: teamCatId,
-          userId
-        }
-      });
-      console.log(data);
-      const usersFromBackend = data.updateTeam.users.map((user) => user.username);
-      socket.emit("send_users", usersFromBackend);
-    } catch (err) {
-      console.error(err);
-    }
-  }
 
   const isGameOver = () => {
     if (redRemaining === 0 || blueRemaining === 0) {
@@ -310,6 +271,42 @@ function CodeNames() {
     spyView = "gray-click";
   }
 
+  const init = async () => {
+    const profile = await Auth.getProfile();
+    const userId = profile.data._id;
+    let gameId = "";
+    let teamCatId = "";
+
+    const URL = document.URL;
+    const gameName = URL.slice(URL.lastIndexOf('/') + 1)
+    // console.log(gameName)
+
+    try {
+      const { data } = await queryGame({ variables: { gameName } });
+      console.log(data);
+      gameId = data.game._id;
+      teamCatId = data.game.teamCat._id;
+    } catch (err) {
+      console.error(err);
+    }
+
+    try {
+      // console.log(userId)
+      const { data } = await updateTeam({
+        variables:
+        {
+          teamId: teamCatId,
+          userId
+        }
+      });
+      // console.log(data);
+      const usersFromBackend = data.updateTeam.users.map((user) => user.username);
+      socket.emit("send_users", usersFromBackend);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   useEffect(() => {
     isGameOver();
   }, [redRemaining, blueRemaining])
@@ -319,10 +316,8 @@ function CodeNames() {
     init();
 
     socket.on("receive_users", (data) => {
-      setUserJoined(true);
-      users = [];
-      users.push(data);
-      console.log(users)
+      const uniqueUsers = [...new Set(data)];
+      setOnlineUsers(uniqueUsers);
     })
     socket.on("receive_clue", (data) => {
       setInputClue("");
@@ -482,10 +477,9 @@ function CodeNames() {
         <div className="info row col-12">
           <h3>Currently online:</h3>
           <ul>
-            {/* {users.length &&
-              users.map((user) => (
+            {onlineUsers.map((user) => (
                 <li key={user}>{user}</li>
-              ))} */}
+              ))}
           </ul>
           <button onClick={() => setStartGame(true)}>Start Game!</button>
         </div>

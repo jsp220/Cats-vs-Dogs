@@ -68,8 +68,8 @@ const typeDefs = gql`
         login(email: String!, password: String!): Auth
         addGame(name: String!): Game
         addWordList(wordIds: [ID]): WordList
-        addTeamCat(userIds: [ID]): Team
-        addTeamDog(userIds: [ID]): Team
+        addTeamCat(gameId: ID): Team
+        addTeamDog(gameId: ID): Team
         updateGame(gameId: ID, teamCatId: ID, teamDogId: ID, wordListId: ID): Game
         updateTeam(teamId: ID, userId: ID): Team
         addClickMove(userId: ID, gameId: ID, wordId: ID): Move

@@ -73,7 +73,7 @@ const Test = () => {
 
             const { data } = await addGame({ variables: { name: gameName } });
             gameId = data.addGame._id;
-            console.log(gameId);
+            // console.log(gameId);
         } catch (err) {
             console.error(err);
         }
@@ -81,15 +81,15 @@ const Test = () => {
         try {
             const { data } = await addWordList({ variables: { wordIds: wordIds } });
             wordListId = data.addWordList._id;
-            console.log(data.addWordList)
+            // console.log(data.addWordList)
             const catWordsIndex = data.addWordList.catWords.map(catWord => wordIds.indexOf(catWord._id))
-            console.log(catWordsIndex)
+            // console.log(catWordsIndex)
         } catch (err) {
             console.error(err);
         }
 
         try {
-            const { data } = await addTeamCat({ variables: { userIds: null } });
+            const { data } = await addTeamCat({variables: { gameId } });
             teamCatId = data.addTeamCat._id;
             console.log(teamCatId);
         } catch (err) {
@@ -97,7 +97,7 @@ const Test = () => {
         }
 
         try {
-            const { data } = await addTeamDog({ variables: { userIds: null } });
+            const { data } = await addTeamDog({variables: { gameId } });
             teamDogId = data.addTeamDog._id;
             console.log(teamDogId);
         } catch (err) {

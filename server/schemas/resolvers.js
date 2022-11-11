@@ -130,35 +130,20 @@ const resolvers = {
             return wordList;
         },
 
-        addTeamCat: async (parent, { userIds }) => {
-            if (userIds) {
-                const users = userIds.map((userId) => new Object({ _id: userId }));
-                return Team.create(
-                    {
-                        isTeamCat: true,
-                        users: users
-                    });
-            }
-            return Team.create(
+        addTeamCat: async (parent, { gameId }) => {
+            return await Team.create(
                 {
-                    isTeamCat: true
+                    isTeamCat: true,
+                    game: { _id: gameId }
                 }
             )
         },
 
-        addTeamDog: async (parent, { userIds }) => {
-            if (userIds) {
-                const users = userIds.map((userId) => new Object({ _id: userId }));
-                return Team.create(
-                    {
-                        isTeamCat: false,
-                        users: users
-                    }
-                );
-            };
-            return Team.create(
+        addTeamDog: async (parent, { gameId }) => {
+            return await Team.create(
                 {
-                    isTeamCat: false
+                    isTeamCat: false,
+                    game: { _id: gameId }
                 }
             )
         },
@@ -182,7 +167,7 @@ const resolvers = {
             const data = await Team.findOneAndUpdate(
                 { _id: teamId },
                 {
-                    "$push": { users: { _id: userId } }
+                    "$addToSet": { users: { _id: userId } }
                 },
                 { new: true }
             );
