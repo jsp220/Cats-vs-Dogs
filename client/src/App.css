@@ -1,5 +1,5 @@
 /* Changed border width. (BZ) */
-.teamDog{
+.teamCat{
   border: 3px solid green;
   width: 20%;
   height: 30%;
@@ -9,7 +9,7 @@
 }
 
 /* Changed border width. (BZ) */
-.teamCat{
+.teamDog{
   border: 3px solid green;
   width: 20%;
   height: 30%;

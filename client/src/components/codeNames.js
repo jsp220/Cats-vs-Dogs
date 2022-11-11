@@ -30,8 +30,8 @@ import cat3 from "../images/cat3.png";
 import cat4 from "../images/cat4.png";
 import cat5 from "../images/cat5.png";
 import nut1 from "../images/neutral1.png";
-import nut2 from "../images/neutral1.png";
-import nut3 from "../images/neutral1.png";
+import nut2 from "../images/neutral2.png";
+import nut3 from "../images/neutral3.png";
 import assassin from "../images/corgiAssassin.png"
 
 
@@ -47,7 +47,7 @@ import styled, { keyframes } from "styled-components";
 //   zoomIn,
 // } from "react-animations"; 
 // Adjusted for the used animation methods. (BZ)
-import { rollIn,  zoomIn } from "react-animations";
+import { rollIn, zoomIn } from "react-animations";
 
 import { REVEALED_CLASSNAMES, BASE_TURNS } from "../constants";
 import { pickRandomPlayer, initializeCardRevealed } from "../util_functions";
@@ -85,47 +85,27 @@ const COLUMNS = 5;
 
 function Card(props) {
 
-    /* Added card Images. (BZ) */
-    let idx = props.backgroundImage;
-    let image = null;
-    if (!props.word) {
-      if (idx == 1) image = dog1;
-      if (idx == 2) image = dog2;
-      if (idx == 3) image = dog3;
-      if (idx == 4) image = dog4;
-      if (idx == 5) image = dog5;
-      if (idx == 6) image = dog6;
-      if (idx == 7) image = dog7;
-      if (idx == 8) image = dog8;
-      if (idx == 9) image = dog9;
-      if (idx == 10) image = dog10;
-      if (idx == 11) image = dog11;
-      if (idx == 12) image = dog12;
-      if (idx == 13) image = dog13;
-      if (idx == 14) image = dog14;
-      if (idx == 15) image = dog15;
-      if (idx == 16) image = cat1;
-      if (idx == 17) image = cat2;
-      if (idx == 18) image = cat3;
-      if (idx == 19) image = cat4;
-      if (idx == 20) image = cat5;
-      if (idx == 21) image = nut1;
-      if (idx == 22) image = nut2;
-      if (idx == 23) image = nut3;
-      if (image == null) image = assassin;
-    } else
-      image = "";
-  
+  /* Added card Images. (BZ) */
+  let idx = props.backgroundImage;
+  let image = null;
+
+  if (!props.word) {
+    image = props.bgImg;
+  } else
+    image = "";
+
   return (
-    <ZoomIn key={props.word}>
-      <button style={
-        { backgroundImage: `url(${image})`, 
-          backgroundSize: "100% 100%" }} 
-          className={props.cardClass} 
-          onClick={props.onClick}>
-        {props.word}
-      </button>
-    </ZoomIn>
+    // <ZoomIn key={props.word}>
+    <button style={
+      {
+        backgroundImage: `url(${image})`,
+        backgroundSize: "100% 100%"
+      }}
+      className={props.cardClass}
+      onClick={props.onClick}>
+      {props.word}
+    </button>
+    // </ZoomIn>
   );
 }
 
@@ -166,6 +146,7 @@ function Board(props) {
         backgroundImage={i} // Added for card image. (BZ)
         word={props.cardWords[i].toUpperCase()}
         cardClass={props.cardClass[i]}
+        bgImg={props.bgImgs[i]}
         onClick={() => props.onClick(i)}
         className="card-body"
       />
@@ -214,11 +195,12 @@ function CodeNames() {
   const [inputClue, setInputClue] = useState("");
   const [statusMessage, setStatusMessage] = useState("Team Cat's Turn");
   const [isSpyMaster, setIsSpyMaster] = useState(false);
-  const [myUsername, setMyUsername] = useState("testing");
+  const [myUsername, setMyUsername] = useState("brian");
   const [teamCat, setTeamCat] = useState([]);
   const [teamDog, setTeamDog] = useState([]);
   const [catSpyMaster, setCatSpyMaster] = useState([]);
   const [dogSpyMaster, setDogSpyMaster] = useState([]);
+  const [bgImgs, setBgImgs] = useState([]);
 
   const [queryUser, { uLoading, uError, uData }] = useLazyQuery(QUERY_USER);
   const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME);
@@ -247,13 +229,18 @@ function CodeNames() {
     ) {
       return null; // disable clicking if spymaster
     }
+    if (isRedTurn) {
+      if (teamDog.includes(myUsername)) return null;
+    } else {
+      if (teamCat.includes(myUsername)) return null;
+    }
 
     // console.log(i);
     // Added for card flipping. (BZ)
     if (!cardFlipped[i]) {
       words[i] = "";
       cardFlipped[i] = true;
-    }    
+    }
 
     socket.emit("send_card_click", {
       i: i,
@@ -291,7 +278,7 @@ function CodeNames() {
   };
 
   const handleAgentClick = () => {
-    
+
     // when clicked, all text should bold and 'status' is used as font-color
   };
 
@@ -372,17 +359,36 @@ function CodeNames() {
       const neutralWords = wordList.neutralWords.map((word) => word.name);
       const deathWord = wordList.deathWord.name;
 
+      const catImgs = [cat1, cat2, cat3, cat4, cat5];
+      const dogImgs = [dog1, dog2, dog3, dog4, dog5, dog6, dog7, dog8, dog9, dog10, dog11, dog12, dog13, dog14, dog15];
+      const miscImgs = [nut1, nut2, nut3];
+
+      let imgs = [];
+
       const wordColors = allWords.map((word => {
-        if (catWords.includes(word)) return 'red';
-        if (dogWords.includes(word)) return 'blue';
-        if (neutralWords.includes(word)) return 'bystander';
-        if (deathWord === word) return 'assassin';
+        if (catWords.includes(word)) {
+          imgs.push(catImgs[Math.floor(Math.random() * catImgs.length)]);
+          return 'red';
+        }
+        if (dogWords.includes(word)) {
+          imgs.push(dogImgs[Math.floor(Math.random() * dogImgs.length)]);
+          return 'blue';
+        }
+        if (neutralWords.includes(word)) {
+          imgs.push(miscImgs[Math.floor(Math.random() * miscImgs.length)]);
+          return 'bystander';
+        }
+        if (deathWord === word) {
+          imgs.push(assassin);
+          return 'assassin';
+        }
       }))
 
       // console.log(wordColors);
 
       setWords(allWords);
       setCardColor(wordColors);
+      setBgImgs(imgs);
 
     } catch (err) {
       console.error(err);
@@ -485,7 +491,7 @@ function CodeNames() {
         setStatus(!data.isRedTurn ? "red-turn" : "blue-turn");
         setStatusMessage(!data.isRedTurn ? "Team Cat's Turn" : "Team Dog's Turn");
       } else if (data.cardColor[i] === "assassin") {
-        alert("You have chosen the assassin. Game Over.");
+        // alert("You have chosen the assassin. Game Over.");
         const status = "game-over-" + (data.isRedTurn ? "blue" : "red");
         setStatus(status);
         setShowEndTurn(false);
@@ -521,12 +527,13 @@ function CodeNames() {
             ? renderEndTurn()
             : null}
         </div>
-          <Board
-            cardFlipped={cardFlipped} // Added for card flip. (BZ)
-            cardWords={words}
-            cardClass={cardClass}
-            onClick={handleCardClick}
-          />
+        <Board
+          cardFlipped={cardFlipped} // Added for card flip. (BZ)
+          cardWords={words}
+          cardClass={cardClass}
+          bgImgs={bgImgs}
+          onClick={handleCardClick}
+        />
         <div className="info row col-12">
           {!isSpyMaster
             ? null
@@ -534,12 +541,12 @@ function CodeNames() {
               <div>
                 <h4>You are the Spymaster!</h4>
                 <form onSubmit={handleSubmit}>
-                <label className="clueInput">
-                  Clue:
-                  <input type="text" name="clue" className="formInput" />
-                </label>
-                <input type="submit" value="Submit" />
-              </form>
+                  <label className="clueInput">
+                    Clue:
+                    <input type="text" name="clue" className="formInput" />
+                  </label>
+                  <input type="submit" value="Submit" />
+                </form>
               </div>
             )}
           <button
@@ -555,25 +562,13 @@ function CodeNames() {
             Card Remaining:{" "}
             <span className="blue-turn">{blueRemaining}</span>
           </h3>
-          <h4>Team Member: </h4>
-          {/* <div>
-            <div className="dogAgent">
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={handleAgentClick}
-              >
-                Agent
-              </label>
-            </div>
-            <div className="catSpy">
-              <label
-                className={"btn btn-info btn-light " + spyView}
-                onClick={handleSpymasterClick}
-              >
-                Spymaster
-              </label>
-            </div>
-          </div> */}
+          <h4>Team Members: </h4>
+          {teamDog.map((user, index) => {
+            if (index == 0) return (
+              <h5>{user} - Spymaster</h5>
+            );
+            else return (<h5>{user}</h5>);
+          })}
         </div>
         <div className="teamCat">
           <h2 className="red-turn">Team Cat</h2>
@@ -581,25 +576,13 @@ function CodeNames() {
             Card Remaining:{" "}
             <span className="red-turn">{redRemaining}</span>
           </h3>
-          <h4>Team Member: </h4>
-          {/* <div>
-            <div className="catAgent">
-              <label
-                className={"btn btn-info btn-light " + agentView}
-                onClick={handleAgentClick}
-              >
-                Agent
-              </label>
-            </div>
-            <div className="catSpy">
-              <label
-                className={"btn btn-info btn-light " + spyView}
-                onClick={handleSpymasterClick}
-              >
-                Spymaster
-              </label>
-            </div>
-          </div> */}
+          <h4>Team Members:</h4>
+          {teamCat.map((user, index) => {
+            if (index == 0) return (
+              <h5>{user} - Spymaster</h5>
+            );
+            else return (<h5>{user}</h5>);
+          })}
         </div>
         <div className="rules">
           <h4>Rules</h4>

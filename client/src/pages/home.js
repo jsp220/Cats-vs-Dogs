@@ -13,11 +13,11 @@ import Auth from "../utils/auth";
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { QUERY_WORDS } from '../utils/queries';
 import {
-    ADD_WORDLIST,
-    ADD_GAME,
-    ADD_TEAMCAT,
-    ADD_TEAMDOG,
-    UPDATE_GAME
+  ADD_WORDLIST,
+  ADD_GAME,
+  ADD_TEAMCAT,
+  ADD_TEAMDOG,
+  UPDATE_GAME
 } from '../utils/mutations';
 
 
