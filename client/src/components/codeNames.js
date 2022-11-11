@@ -309,15 +309,15 @@ function CodeNames() {
     }
 
     // come back to this *******************************************************************************
-    try {
-      console.log(userId);
-      const { userData } = await queryUser({ variables: { userId } });
-      console.log(userData);
-      setMyUsername(userData.user.username);
+    // try {
+    //   console.log(userId);
+    //   const { userData } = await queryUser({ variables: { userId } });
+    //   console.log(userData);
+    //   setMyUsername(userData.user.username);
 
-    } catch (err) {
-      console.error(err);
-    }
+    // } catch (err) {
+    //   console.error(err);
+    // }
 
     try {
       // console.log(userId)
