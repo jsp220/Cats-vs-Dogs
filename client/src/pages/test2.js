@@ -10,6 +10,8 @@ import { useMutation } from "@apollo/client";
 import { ADD_USER } from '../utils/mutations';
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import { Link } from 'react-router-dom';
+
 
 const Test2 = () => {
     const [formState, setFormState] = useState({
@@ -59,6 +61,12 @@ const Test2 = () => {
               </AppBar>
             </Box>
           </Typography>
+          {data ? (
+              <p>
+                Success! You may now head{' '}
+                <Link to="/">back to the homepage.</Link>
+              </p>
+            ) : (
           <form onSubmit={handleFormSubmit} className="formCard">
           <Typography sx={{ mb: 1.5 }} color="text.secondary">
           <TextField fullWidth
@@ -105,6 +113,14 @@ const Test2 = () => {
             </Button>
           </Typography>
           </form>
+          )}
+          <a href='/login' rel='login'>Login Instead?</a>
+          <a href='/' rel='home' className='backHome'>Go back to homepage?</a>
+          {error && (
+            <div className="my-3 p-3 bg-danger text-white">
+              {error.message}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
