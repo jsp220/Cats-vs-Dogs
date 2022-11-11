@@ -17,8 +17,8 @@ const resolvers = {
             // console.log(chosenWords)
             return chosenWords;
         },
-        game: async (parent, { gameId }) => {
-            return Game.findOne({ _id: gameId })
+        game: async (parent, { gameName }) => {
+            return Game.findOne({ name: gameName })
                 .populate(
                     {
                         path: 'teamCat',
@@ -99,7 +99,7 @@ const resolvers = {
         // ["636aec484933eeb2c7a668c3", "636aec484933eeb2c7a668c4", etc.]
         addWordList: async (parent, { wordIds }) => {
             const allWords = wordIds.map((wordId) => new Object({ _id: wordId }));
-            
+
             // this part may need to be moved to front end and
             // just send catWords, dogWords, etc as IDs
             const neutralWords = [...allWords];
@@ -130,34 +130,53 @@ const resolvers = {
             return wordList;
         },
 
-        addTeamCat: async (parent, { userIds }) => {
-            const users = userIds.map((userId) => new Object({ _id: userId }));
-            return Team.create(
+        addTeamCat: async (parent, { gameId }) => {
+            return await Team.create(
                 {
                     isTeamCat: true,
-                    users: users
-                });
+                    game: { _id: gameId }
+                }
+            )
         },
 
-        addTeamDog: async (parent, { userIds }) => {
-            const users = userIds.map((userId) => new Object({ _id: userId }));
-            return Team.create(
+        addTeamDog: async (parent, { gameId }) => {
+            return await Team.create(
                 {
                     isTeamCat: false,
-                    users: users
-                });
+                    game: { _id: gameId }
+                }
+            )
         },
 
         updateGame: async (parent, { gameId, teamCatId, teamDogId, wordListId }) => {
-            return Game.findOneAndUpdate(
+            let args = {};
+            if (teamCatId) args.teamCat = { _id: teamCatId };
+            if (teamDogId) args.teamDog = { _id: teamDogId };
+            if (wordListId) args.wordList = { _id: wordListId };
+            console.log(args);
+            await Game.findOneAndUpdate(
                 { _id: gameId },
                 {
-                    teamCat: { _id: teamCatId },
-                    teamDog: { _id: teamDogId },
-                    wordList: { _id: wordListId }
+                    $set: args,
                 },
                 { new: true }
             );
+        },
+
+        updateTeam: async (parent, { teamId, userId }) => {
+            const data = await Team.findOneAndUpdate(
+                { _id: teamId },
+                {
+                    "$addToSet": { users: { _id: userId } }
+                },
+                { new: true }
+            );
+
+            return await Team.findOne({ _id: teamId })
+            .populate(
+                {
+                    path: 'users',
+                })
         },
 
         addClickMove: async (parent, { userId, gameId, wordId }) => {
@@ -167,7 +186,7 @@ const resolvers = {
                 word: { _id: wordId }
             })
             // console.log(move);
-            
+
             // this part may need to be a separate mutation and have front end
             // call the mutation immediately after adding the move
             const game = await Game.findOneAndUpdate(

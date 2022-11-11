@@ -2,8 +2,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "../CodeNames.css";
-import { useQuery } from '@apollo/client';
-import { QUERY_WORDS } from '../utils/queries';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { QUERY_WORDS, QUERY_USER, QUERY_GAME } from '../utils/queries';
+import { UPDATE_GAME, UPDATE_TEAM } from "../utils/mutations";
+
+import Auth from '../utils/auth';
 
 //import { CSSTransitionGroup } from 'react-transition-group'
 import "animate.css";
@@ -19,8 +22,8 @@ import {
 
 import { REVEALED_CLASSNAMES, BASE_TURNS } from "../constants";
 import { pickRandomPlayer, initializeCardRevealed } from "../util_functions";
-
 import io from "socket.io-client";
+
 const socket = io.connect("http://localhost:3000");
 
 const FlipInX = styled.div`
@@ -42,16 +45,15 @@ const ZoomIn = styled.div`
   animation: 2s ${keyframes`${zoomIn}`};
 `;
 
-// const CODENAMELIST = ["Hollywood", "Well", "Foot", "New", "York", "Spring", "Court", "Tube", "Point", "Tablet", "Slip", "Date", "Drill", "Lemon", "Bell", "Screen", "Fair", "Torch", "State", "Match", "Iron", "Block", "France", "Australia", "Limousine", "Stream", "Glove", "Nurse", "Leprechaun", "Play", "Tooth", "Arm", "Bermuda", "Diamond", "Whale", "Comic", "Mammoth", "Green", "Pass", "Missile", "Paste", "Drop", "Pheonix", "Marble", "Staff", "Figure", "Park", "Centaur", "Shadow", "Fish", "Cotton", "Egypt", "Theater", "Scale", "Fall", "Track", "Force", "Dinosaur", "Bill", "Mine", "Turkey", "March", "Contract", "Bridge", "Robin", "Line", "Plate", "Band", "Fire", "Bank", "Boom", "Cat", "Shot", "Suit", "Chocolate", "Roulette", "Mercury", "Moon", "Net", "Lawyer", "Satellite", "Angel", "Spider", "Germany", "Fork", "Pitch", "King", "Crane", "Trip", "Dog", "Conductor", "Part", "Bugle", "Witch", "Ketchup", "Press", "Spine", "Worm", "Alps", "Bond", "Pan", "Beijing", "Racket", "Cross", "Seal", "Aztec", "Maple", "Parachute", "Hotel", "Berry", "Soldier", "Ray", "Post", "Greece", "Square", "Mass", "Bat", "Wave", "Car", "Smuggler", "England", "Crash", "Tail", "Card", "Horn", "Capital", "Fence", "Deck", "Buffalo", "Microscope", "Jet", "Duck", "Ring", "Train", "Field", "Gold", "Tick", "Check", "Queen", "Strike", "Kangaroo", "Spike", "Scientist", "Engine", "Shakespeare", "Wind", "Kid", "Embassy", "Robot", "Note", "Ground", "Draft", "Ham", "War", "Mouse", "Center", "Chick", "China", "Bolt", "Spot", "Piano", "Pupil", "Plot", "Lion", "Police", "Head", "Litter", "Concert", "Mug", "Vacuum", "Atlantis", "Straw", "Switch", "Skyscraper", "Laser", "Scuba", "Diver", "Africa", "Plastic", "Dwarf", "Lap", "Life", "Honey", "Horseshoe", "Unicorn", "Spy", "Pants", "Wall", "Paper", "Sound", "Ice", "Tag", "Web", "Fan", "Orange", "Temple", "Canada", "Scorpion", "Undertaker", "Mail", "Europe", "Soul", "Apple", "Pole", "Tap", "Mouth", "Ambulance", "Dress", "Ice", "Cream", "Rabbit", "Buck", "Agent", "Sock", "Nut", "Boot", "Ghost", "Oil", "Superhero", "Code", "Kiwi", "Hospital", "Saturn", "Film", "Button", "Snowman", "Helicopter", "Loch", "Ness", "Log", "Princess", "Time", "Cook", "Revolution", "Shoe", "Mole", "Spell", "Grass", "Washer", "Game", "Beat", "Hole", "Horse", "Pirate", "Link", "Dance", "Fly", "Pit", "Server", "School", "Lock", "Brush", "Pool", "Star", "Jam", "Organ", "Berlin", "Face", "Luck", "Amazon", "Cast", "Gas", "Club", "Sink", "Water", "Chair", "Shark", "Jupiter", "Copper", "Jack", "Platypus", "Stick", "Olive", "Grace", "Bear", "Glass", "Row", "Pistol", "London", "Rock", "Van", "Vet", "Beach", "Charge", "Port", "Disease", "Palm", "Moscow", "Pin", "Washington", "Pyramid", "Opera", "Casino", "Pilot", "String", "Night", "Chest", "Yard", "Teacher", "Pumpkin", "Thief", "Bark", "Bug", "Mint", "Cycle", "Telescope", "Calf", "Air", "Box", "Mount", "Thumb", "Antarctica", "Trunk", "Snow", "Penguin", "Root", "Bar", "File", "Hawk", "Battery", "Compound", "Slug", "Octopus", "Whip", "America", "Ivory", "Pound", "Sub", "Cliff", "Lab", "Eagle", "Genius", "Ship", "Dice", "Hood", "Heart", "Novel", "Pipe", "Himalayas", "Crown", "Round", "India", "Needle", "Shop", "Watch", "Lead", "Tie", "Table", "Cell", "Cover", "Czech", "Back", "Bomb", "Ruler", "Forest", "Bottle", "Space", "Hook", "Doctor", "Ball", "Bow", "Degree", "Rome", "Plane", "Giant", "Nail", "Dragon", "Stadium", "Flute", "Carrot", "Wake", "Fighter", "Model", "Tokyo", "Eye", "Mexico", "Hand", "Swing", "Key", "Alien", "Tower", "Poison", "Cricket", "Cold", "Knife", "Church", "Board", "Cloak", "Ninja", "Olympus", "Belt", "Light", "Death", "Stock", "Millionaire", "Day", "Knight", "Pie", "Bed", "Circle", "Rose", "Change", "Cap", "Triangle"];
-
+// declare variables for setting up the game
 const HIDDEN_CLASSNAMES = new Array(25).fill("hidden-card");
-
 const ROWS = 5;
 const COLUMNS = 5;
 
+
 function Card(props) {
   return (
-    <ZoomIn>
+    <ZoomIn key={props.word}>
       <button className={props.cardClass} onClick={props.onClick}>
         {props.word}
       </button>
@@ -109,7 +111,7 @@ function Board(props) {
     const rows = [];
     for (let rowPosition = 0; rowPosition < ROWS; rowPosition++) {
       rows.push(
-        <div className="board-row">{renderColumns(rowPosition)}</div>
+        <div className="board-row" key={rowPosition}>{renderColumns(rowPosition)}</div>
       );
     }
     return rows;
@@ -119,22 +121,29 @@ function Board(props) {
 }
 
 function CodeNames() {
-  const firstPlayer = pickRandomPlayer();
+  const firstPlayer = "red";
 
-  // const [cardWords, setCardWords] = useState("");
-  const [cardColor, setCardColor] = useState(initializeCardRevealed(firstPlayer)); // css class: hidden-card, red, blue
+  const [words, setWords] = useState([]);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [startGame, setStartGame] = useState(false);
+  const [cardColor, setCardColor] = useState([]); // css class: hidden-card, red, blue
   const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
   const [clue, setClue] = useState("");
-  const [isRedTurn, setIsRedTurn] = useState(firstPlayer === REVEALED_CLASSNAMES.red);
+  const [isRedTurn, setIsRedTurn] = useState(true);
   const [isClueTurn, setIsClueTurn] = useState(true);
-  const [status, setStatus] = useState(firstPlayer === REVEALED_CLASSNAMES.red ? "red-turn" : "blue-turn");
-  const [blueRemaining, setBlueRemaining] = useState(firstPlayer === REVEALED_CLASSNAMES.blue ? BASE_TURNS + 1 : BASE_TURNS);
-  const [redRemaining, setRedRemaining] = useState(firstPlayer === REVEALED_CLASSNAMES.red ? BASE_TURNS + 1 : BASE_TURNS);
+  const [status, setStatus] = useState("red-turn");
+  const [blueRemaining, setBlueRemaining] = useState(8);
+  const [redRemaining, setRedRemaining] = useState(9);
   const [showEndTurn, setShowEndTurn] = useState(true);
   const [view, setView] = useState("agent");
   const [winner, setWinner] = useState("");
   const [inputClue, setInputClue] = useState("");
-  const [statusMessage, setStatusMessage] = useState(firstPlayer === REVEALED_CLASSNAMES.red ? "Team Cat's Turn" : "Team Dog's Turn")
+  const [statusMessage, setStatusMessage] = useState("Team Cat's Turn")
+
+  const [queryUser, { uLoading, uError, uData }] = useLazyQuery(QUERY_USER)
+  const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME)
+  const [updateGame, { gErr }] = useMutation(UPDATE_GAME);
+  const [updateTeam, { uErr }] = useMutation(UPDATE_TEAM);
 
   const isGameOver = () => {
     if (redRemaining === 0 || blueRemaining === 0) {
@@ -151,11 +160,6 @@ function CodeNames() {
     if (clue) return <div>Team {isRedTurn ? "Cat" : "Dog"}'s spymaster gives a clue: {clue}.</div>
   }
 
-  const { loading, data } = useQuery(QUERY_WORDS);
-  // console.log(data, "abc");
-  const words = data?.words.map((entry) => entry.name.toUpperCase()) || [];
-  // console.log(words);
-
   const handleCardClick = (i) => {
     if (
       status.includes("game-over") ||
@@ -166,12 +170,13 @@ function CodeNames() {
 
     // console.log(i);
 
-    socket.emit("send_card_click", { 
-      i: i, 
-      isRedTurn: isRedTurn, 
-      cardClass: cardClass, 
-      blueRemaining: blueRemaining, 
-      redRemaining: redRemaining 
+    socket.emit("send_card_click", {
+      i: i,
+      isRedTurn: isRedTurn,
+      cardClass: cardClass,
+      cardColor: cardColor,
+      blueRemaining: blueRemaining,
+      redRemaining: redRemaining
     })
 
   };
@@ -241,33 +246,102 @@ function CodeNames() {
     }
   }
 
-  function renderEndTurn() {
-    return (
-      <button
-        className="btn btn-info btn-light"
-        onClick={handleEndTurnClick}
-      >
-        End Turn
-      </button>
-    );
+  const gameStart = () => {
+    socket.emit("send_game_start");
   }
 
   // check for game end every time either teams remaining cards changes 
+
+  let agentView;
+  let spyView;
+  if (view === "agent") {
+    agentView = "gray-click";
+  } else {
+    spyView = "gray-click";
+  }
+
+  const init = async () => {
+    const profile = await Auth.getProfile();
+    const userId = profile.data._id;
+    let gameId = "";
+    let teamCatId = "";
+
+    const URL = document.URL;
+    const gameName = URL.slice(URL.lastIndexOf('/') + 1)
+    // console.log(gameName)
+
+    try {
+      const { data } = await queryGame({ variables: { gameName } });
+      // console.log(data);
+      gameId = data.game._id;
+      teamCatId = data.game.teamCat._id;
+
+      const wordList = data.game.wordList;
+
+      const allWords = wordList.allWords.map((word) => word.name);
+      const catWords = wordList.catWords.map((word) => word.name);
+      const dogWords = wordList.dogWords.map((word) => word.name);
+      const neutralWords = wordList.neutralWords.map((word) => word.name);
+      const deathWord = wordList.deathWord.name;
+
+      const wordColors = allWords.map((word => {
+        if (catWords.includes(word)) return 'red';
+        if (dogWords.includes(word)) return 'blue';
+        if (neutralWords.includes(word)) return 'bystander';
+        if (deathWord === word) return 'assassin';
+      }))
+
+      // console.log(wordColors);
+
+      setWords(allWords);
+      setCardColor(wordColors);
+
+    } catch (err) {
+      console.error(err);
+    }
+
+    try {
+      // console.log(userId)
+      const { data } = await updateTeam({
+        variables:
+        {
+          teamId: teamCatId,
+          userId
+        }
+      });
+      // console.log(data);
+      const usersFromBackend = data.updateTeam.users.map((user) => user.username);
+      socket.emit("send_users", usersFromBackend);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   useEffect(() => {
     isGameOver();
   }, [redRemaining, blueRemaining])
 
   // useEffect for all socket functions
   useEffect(() => {
+    init();
+
+    socket.on("receive_users", (data) => {
+      const uniqueUsers = [...new Set(data)];
+      setOnlineUsers(uniqueUsers);
+    })
+
+    socket.on("receive_game_start", () => {
+      setStartGame(true);
+    })
     socket.on("receive_clue", (data) => {
       setInputClue("");
       setClue(data.clue);
       setIsClueTurn(false);
-      console.log(data.clue);
+      // console.log(data.clue);
     })
 
     socket.on("receive_end_turn", (data) => {
-      console.log(isRedTurn, "is not changing");
+      // console.log(isRedTurn, "is not changing");
       setIsRedTurn(!data.turn);
       setStatus(!data.turn ? "red-turn" : "blue-turn");
       setStatusMessage(!data.turn ? "Team Cat's Turn" : "Team Dog's Turn")
@@ -278,17 +352,17 @@ function CodeNames() {
       const i = data.i;
       const classOfCards = data.cardClass;
       updateScore(data);
-      classOfCards[i] = cardColor[i]; // switch css classNames
+      classOfCards[i] = data.cardColor[i]; // switch css classNames
 
       if (
-        cardColor[i] === "bystander" ||
-        (data.isRedTurn === true && cardColor[i] === "blue") ||
-        (data.isRedTurn === false && cardColor[i] === "red")
+        data.cardColor[i] === "bystander" ||
+        (data.isRedTurn === true && data.cardColor[i] === "blue") ||
+        (data.isRedTurn === false && data.cardColor[i] === "red")
       ) {
         setIsRedTurn(!data.isRedTurn)
         setStatus(!data.isRedTurn ? "red-turn" : "blue-turn");
         setStatusMessage(!data.isRedTurn ? "Team Cat's Turn" : "Team Dog's Turn");
-      } else if (cardColor[i] === "assassin") {
+      } else if (data.cardColor[i] === "assassin") {
         alert("You have chosen the assassin. Game Over.");
         const status = "game-over-" + (data.isRedTurn ? "blue" : "red");
         setStatus(status);
@@ -302,117 +376,144 @@ function CodeNames() {
     })
   }, [])
 
-  let agentView;
-  let spyView;
-  if (view === "agent") {
-    agentView = "gray-click";
-  } else {
-    spyView = "gray-click";
+  function renderEndTurn() {
+    return (
+      <button
+        className="btn btn-info btn-light"
+        onClick={handleEndTurnClick}
+      >
+        End Turn
+      </button>
+    );
+  }
+
+  const renderGame = () => {
+    return (
+      <div className="game" >
+        <div className="title col-12">CATS VS. DOGS</div>
+        <div className="info row col-12">
+          <h3 className={"turn col " + status}>{statusMessage}</h3>
+          {/* display end turn and show winner based on state */}
+          {showEndTurn
+            ? renderEndTurn()
+            : null}
+        </div>
+          <Board
+            cardWords={words}
+            cardClass={cardClass}
+            onClick={handleCardClick}
+          />
+        <div className="info row col-12">
+          {view == "agent"
+            ? null
+            : (
+              <form onSubmit={handleSubmit}>
+                <label className="clueInput">
+                  Clue:
+                  <input type="text" name="clue" className="formInput" />
+                </label>
+                <input type="submit" value="Submit" />
+              </form>
+            )}
+          <button
+            className="btn btn-info btn-light new-game"
+            onClick={(i) => newGame(i)}
+          >
+            New Game
+          </button>
+        </div>
+        <div className="teamDog">
+          <h2 className="blue-turn">Team Dog</h2>
+          <h3>
+            Card Remaining:{" "}
+            <span className="blue-turn">{blueRemaining}</span>
+          </h3>
+          <h4>Team Member: </h4>
+          <div>
+            <div className="dogAgent">
+              <label
+                className={"btn btn-info btn-light " + agentView}
+                onClick={handleAgentClick}
+              >
+                Agent
+              </label>
+            </div>
+            <div className="catSpy">
+              <label
+                className={"btn btn-info btn-light " + spyView}
+                onClick={handleSpymasterClick}
+              >
+                Spymaster
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="teamCat">
+          <h2 className="red-turn">Team Cat</h2>
+          <h3>
+            Card Remaining:{" "}
+            <span className="red-turn">{redRemaining}</span>
+          </h3>
+          <h4>Team Member: </h4>
+          <div>
+            <div className="catAgent">
+              <label
+                className={"btn btn-info btn-light " + agentView}
+                onClick={handleAgentClick}
+              >
+                Agent
+              </label>
+            </div>
+            <div className="catSpy">
+              <label
+                className={"btn btn-info btn-light " + spyView}
+                onClick={handleSpymasterClick}
+              >
+                Spymaster
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className="rules">
+          <h4>Rules</h4>
+          <Gear onClick={handleGearClick} />
+          <div
+            className="btn-group btn-group-toggle"
+            data-toggle="buttons"
+          ></div>
+        </div>
+        <div className="gameLog">
+          <h4>Game Log</h4>
+          {renderLog()}
+        </div>
+      </div>
+    )
+  }
+
+  const renderWaitingRoom = () => {
+    return (
+      <div className="game" >
+        <div className="title col-12">CATS VS. DOGS</div>
+        <div className="info row col-12">
+          <h3>Currently online:</h3>
+          <ul>
+            {onlineUsers.map((user) => (
+                <li key={user}>{user}</li>
+              ))}
+          </ul>
+          <button onClick={gameStart}>Start Game!</button>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="game">
-      <div className="title col-12">CATS VS. DOGS</div>
-      <div className="info row col-12">
-        <h3 className={"turn col " + status}>{statusMessage}</h3>
-        {/* display end turn and show winner based on state */}
-        {showEndTurn
-          ? renderEndTurn()
-          : null}
-      </div>
-      {loading ? (
-        <div>Loading...</div>
-      ) : (
-        <Board
-          cardWords={words}
-          cardClass={cardClass}
-          onClick={handleCardClick}
-        />
-      )}
-      <div className="info row col-12">
-        {view == "agent"
-          ? null
-          : (
-            <form onSubmit={handleSubmit}>
-              <label className="clueInput">
-                Clue:
-                <input type="text" name="clue" className="formInput" />
-              </label>
-              <input type="submit" value="Submit" />
-            </form>
-          )}
-        <button
-          className="btn btn-info btn-light new-game"
-          onClick={(i) => newGame(i)}
-        >
-          New Game
-        </button>
-      </div>
-      <div className="teamDog">
-        <h2 className="blue-turn">Team Dog</h2>
-        <h3>
-          Card Remaining:{" "}
-          <span className="blue-turn">{blueRemaining}</span>
-        </h3>
-        <h4>Team Member: </h4>
-        <div>
-          <div className="dogAgent">
-            <label
-              className={"btn btn-info btn-light " + agentView}
-              onClick={handleAgentClick}
-            >
-              Agent
-            </label>
-          </div>
-          <div className="catSpy">
-            <label
-              className={"btn btn-info btn-light " + spyView}
-              onClick={handleSpymasterClick}
-            >
-              Spymaster
-            </label>
-          </div>
-        </div>
-      </div>
-      <div className="teamCat">
-        <h2 className="red-turn">Team Cat</h2>
-        <h3>
-          Card Remaining:{" "}
-          <span className="red-turn">{redRemaining}</span>
-        </h3>
-        <h4>Team Member: </h4>
-        <div>
-          <div className="catAgent">
-            <label
-              className={"btn btn-info btn-light " + agentView}
-              onClick={handleAgentClick}
-            >
-              Agent
-            </label>
-          </div>
-          <div className="catSpy">
-            <label
-              className={"btn btn-info btn-light " + spyView}
-              onClick={handleSpymasterClick}
-            >
-              Spymaster
-            </label>
-          </div>
-        </div>
-      </div>
-      <div className="rules">
-        <h4>Rules</h4>
-        <Gear onClick={handleGearClick} />
-        <div
-          className="btn-group btn-group-toggle"
-          data-toggle="buttons"
-        ></div>
-      </div>
-      <div className="gameLog">
-        <h4>Game Log</h4>
-        {renderLog()}
-      </div>
-    </div>
+    <>
+      {startGame
+        ? renderGame()
+        : renderWaitingRoom()
+      }
+    </>
   );
 
 }
