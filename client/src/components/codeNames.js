@@ -54,9 +54,9 @@ import { pickRandomPlayer, initializeCardRevealed } from "../util_functions";
 import io from "socket.io-client";
 
 const ROOT_URL = 'https://myherokudomain.herokuapp.com';
-const socket = io.connect(ROOT_URL);
+// const socket = io.connect(ROOT_URL);
 
-// const socket = io.connect("http://localhost:3000");
+const socket = io.connect("http://localhost:3000");
 
 // Removed, not used... (BZ)
 // const FlipInX = styled.div`
@@ -209,7 +209,7 @@ function CodeNames() {
   const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME);
   const [updateGame, { gErr }] = useMutation(UPDATE_GAME);
   const [updateTeam, { uErr }] = useMutation(UPDATE_TEAM);
-
+  
   const isGameOver = () => {
     if (redRemaining === 0 || blueRemaining === 0) {
       const status = "game-over-" + (isRedTurn ? "red" : "blue");
@@ -217,7 +217,6 @@ function CodeNames() {
       setShowEndTurn(false);
       setWinner(isRedTurn ? "Red" : "Blue");
       setStatusMessage(isRedTurn ? "TEAM CAT WINS!" : "TEAM DOG WINS!")
-
     }
   };
 
@@ -313,7 +312,7 @@ function CodeNames() {
     let teamCat = [];
     const teamCatSize = Math.ceil(teamDog.length / 2);
 
-    console.log(myUsername)
+    console.log(myUsername);
 
     for (let i = 0; i < teamCatSize; i++) {
 
@@ -343,6 +342,8 @@ function CodeNames() {
   const init = async () => {
     const profile = await Auth.getProfile();
     const userId = profile.data._id;
+
+    // await Username(userId);
     let gameId = "";
     let teamCatId = "";
 
@@ -352,7 +353,7 @@ function CodeNames() {
 
     try {
       const { data } = await queryGame({ variables: { gameName } });
-      // console.log(data);
+      console.log(data);
       gameId = data.game._id;
       teamCatId = data.game.teamCat._id;
 
@@ -399,16 +400,14 @@ function CodeNames() {
       console.error(err);
     }
 
-    // come back to this *******************************************************************************
-    // try {
-    //   console.log(userId);
-    //   const { userData } = await queryUser({ variables: { userId } });
-    //   console.log(userData);
-    //   setMyUsername(userData.user.username);
-
-    // } catch (err) {
-    //   console.error(err);
-    // }
+    try {
+      console.log(userId); // "636e8...."
+      const { data: userData } = await queryUser({ variables: { userId } });
+      console.log(userData);
+      setMyUsername(userData.user.username);
+    } catch (err) {
+      console.error(err);
+    }
 
     try {
       // console.log(userId)
