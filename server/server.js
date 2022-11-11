@@ -66,9 +66,9 @@ io.on('connection', (socket) => {
     io.emit("receive_users", data);
   })
 
-  socket.on("send_game_start", () => {
+  socket.on("send_game_start", (data) => {
     console.log("game is starting");
-    io.emit("receive_game_start");
+    io.emit("receive_game_start", data);
   })
 
   socket.on('send_message', (message) => {
