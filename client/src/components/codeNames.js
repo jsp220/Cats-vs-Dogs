@@ -2,8 +2,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "../CodeNames.css";
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { QUERY_WORDS, QUERY_USER, QUERY_GAME } from '../utils/queries';
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { QUERY_USER, QUERY_GAME } from '../utils/queries';
 import { UPDATE_GAME, UPDATE_TEAM } from "../utils/mutations";
 
 import Auth from '../utils/auth';
@@ -138,7 +138,9 @@ function CodeNames() {
   const [view, setView] = useState("agent");
   const [winner, setWinner] = useState("");
   const [inputClue, setInputClue] = useState("");
-  const [statusMessage, setStatusMessage] = useState("Team Cat's Turn")
+  const [statusMessage, setStatusMessage] = useState("Team Cat's Turn");
+  const [isSpyMaster, setIsSpyMaster] = useState(false);
+  const [myUsername, setMyUsername] = useState("");
 
   const [queryUser, { uLoading, uError, uData }] = useLazyQuery(QUERY_USER)
   const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME)
@@ -182,17 +184,18 @@ function CodeNames() {
   };
 
   function updateScore(data) {
+    
     // only update score if card has not been revealed already
-    if (cardClass[data.i] !== "hidden-card") {
+    if (data.cardClass[data.i] !== "hidden-card") {
       return null;
     }
 
     // update red or blue team's score
     // ensure game over is checked only after remaining
-    if (cardColor[data.i] === "red") {
+    if (data.cardColor[data.i] === "red") {
       setRedRemaining(data.redRemaining - 1);
     }
-    else if (cardColor[data.i] === "blue") {
+    else if (data.cardColor[data.i] === "blue") {
       setBlueRemaining(data.blueRemaining - 1);
     }
   }
@@ -247,6 +250,20 @@ function CodeNames() {
   }
 
   const gameStart = () => {
+    let teamDog = [...onlineUsers];
+    let teamCat = [];
+    const teamCatSize = Math.ceil(teamDog.length/2);
+
+    console.log(myUsername)
+
+    for (let i=0; i < teamCatSize; i++) {
+      
+      teamCat.push(teamDog.splice(Math.floor(Math.random()*teamDog.length), 1)[0]);
+    }
+
+    console.log(teamCat)
+    console.log(teamDog)
+    
     socket.emit("send_game_start");
   }
 
@@ -272,7 +289,7 @@ function CodeNames() {
 
     try {
       const { data } = await queryGame({ variables: { gameName } });
-      // console.log(data);
+      console.log(data);
       gameId = data.game._id;
       teamCatId = data.game.teamCat._id;
 
@@ -295,6 +312,15 @@ function CodeNames() {
 
       setWords(allWords);
       setCardColor(wordColors);
+
+    } catch (err) {
+      console.error(err);
+    }
+
+    try {
+      console.log(userId);
+      const { userData } = await queryUser({ variables: { userId: userId }});
+      console.log(userData);
 
     } catch (err) {
       console.error(err);
