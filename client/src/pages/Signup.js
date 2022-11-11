@@ -1,103 +1,129 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Auth from "../utils/auth";
+import { useMutation } from "@apollo/client";
+import { ADD_USER } from '../utils/mutations';
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
 import { Link } from 'react-router-dom';
 
-import { useMutation } from '@apollo/client';
-import { ADD_USER } from '../utils/mutations';
 
-import Auth from '../utils/auth';
-
-const Signup = () => {
-  const [formState, setFormState] = useState({
-    username: '',
-    email: '',
-    password: '',
-  });
-  const [addUser, { error, data }] = useMutation(ADD_USER);
-
-  // update state based on form input changes
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setFormState({
-      ...formState,
-      [name]: value,
-    });
-  };
-
-  // submit form
-  const handleFormSubmit = async (event) => {
-    event.preventDefault();
-    console.log(formState);
-
-    try {
-      const { data } = await addUser({
-        variables: { ...formState },
+const Test2 = () => {
+    const [formState, setFormState] = useState({
+        username: '',
+        email: '',
+        password: '',
       });
-
-      Auth.login(data.addUser.token);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
+      const [addUser, { error, data }] = useMutation(ADD_USER);
+    
+      // update state based on form input changes
+      const handleChange = (event) => {
+        const { name, value } = event.target;
+    
+        setFormState({
+          ...formState,
+          [name]: value,
+        });
+      };
+    
+      // submit form
+      const handleFormSubmit = async (event) => {
+        event.preventDefault();
+        console.log(formState);
+    
+        try {
+          const { data } = await addUser({
+            variables: { ...formState },
+          });
+    
+          Auth.login(data.addUser.token);
+        } catch (e) {
+          console.error(e);
+        }
+      };
   return (
-    <main className="flex-row justify-center mb-4">
-      <div className="col-12 col-lg-10">
-        <div className="card">
-          <h4 className="card-header bg-dark text-light p-2">Sign Up</h4>
-          <div className="card-body">
-            {data ? (
+    <div>
+      <Card sx={{ minWidth: 275 }} className="card-body">
+        <CardContent>
+          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+            <Box sx={{ flexGrow: 1 }}>
+              <AppBar position="static">
+                <Toolbar variant="dense">
+                  <Typography variant="h6" color="inherit" component="div">
+                    Sign Up
+                  </Typography>
+                </Toolbar>
+              </AppBar>
+            </Box>
+          </Typography>
+          {data ? (
               <p>
                 Success! You may now head{' '}
                 <Link to="/">back to the homepage.</Link>
               </p>
             ) : (
-              <form onSubmit={handleFormSubmit} className="formCard">
-                <input
-                  className="form-input"
-                  placeholder="Your username"
-                  name="username"
-                  type="text"
-                  value={formState.name}
-                  onChange={handleChange}
-                />
-                <input
-                  className="form-input"
-                  placeholder="Your email"
-                  name="email"
-                  type="email"
-                  value={formState.email}
-                  onChange={handleChange}
-                />
-                <input
-                  className="form-input"
-                  placeholder="******"
-                  name="password"
-                  type="password"
-                  value={formState.password}
-                  onChange={handleChange}
-                />
-                <button
-                  className="btn btn-block btn-info"
-                  style={{ cursor: 'pointer' }}
-                  type="submit"
-                >
-                  Submit
-                </button>
-              </form>
-            )}
-            <a href='/login' rel='login'>Login Instead?</a>
-            <a href='/' rel='home' className='backHome'>Go back to homepage?</a>
-            {error && (
-              <div className="my-3 p-3 bg-danger text-white">
-                {error.message}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </main>
+          <form onSubmit={handleFormSubmit} className="formCard">
+          <Typography sx={{ mb: 1.5 }} color="text.secondary">
+          <TextField fullWidth
+              id="username"
+              label="User Name"
+              variant="outlined"
+              placeholder="Your username"
+              name="username"
+              type="text"
+              value={formState.name}
+              onChange={handleChange}
+            />
+          </Typography>
+          <Typography variant="h5" component="div">
+            <TextField fullWidth
+              id="email"
+              label="Email"
+              variant="outlined"
+              name="email"
+              type="email"
+              value={formState.email}
+              onChange={handleChange}
+            />
+          </Typography>
+          <Typography sx={{ mb: 1.5 }} color="text.secondary">
+          <TextField fullWidth
+              id="password"
+              label="Password"
+              type="password"
+              variant="outlined"
+              name="password"
+              value={formState.password}
+              onChange={handleChange}
+            />
+          </Typography>
+          <Typography variant="body2">
+          <Button
+           variant="contained"
+           className="btn btn-block btn-info"
+           style={{ cursor: 'pointer' }}
+           type="submit"
+           >
+            Sign Up
+            </Button>
+          </Typography>
+          </form>
+          )}
+          <a href='/login' rel='login'>Login Instead?</a>
+          {error && (
+            <div className="my-3 p-3 bg-danger text-white">
+              {error.message}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
-export default Signup;
+export default Test2;

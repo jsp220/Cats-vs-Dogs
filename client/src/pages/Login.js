@@ -1,11 +1,18 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import Auth from "../utils/auth";
 import { useMutation } from "@apollo/client";
 import { LOGIN_USER } from "../utils/mutations";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import { Link } from "react-router-dom";
 
-import Auth from "../utils/auth";
-
-const Login = (props) => {
+const Test3 = () => {
   const [formState, setFormState] = useState({ email: "", password: "" });
   const [login, { error, data }] = useMutation(LOGIN_USER);
 
@@ -39,61 +46,76 @@ const Login = (props) => {
       password: "",
     });
   };
-
   return (
-    <main className="flex-row justify-center mb-4">
-      <div className="col-12 col-lg-10">
-        <div className="card">
-          <h4 className="card-header bg-dark text-light p-2">Login</h4>
-          <div className="card-body">
-            {data ? (
-              <p>
-                Success! You may now head{" "}
-                <Link to="/">back to the homepage.</Link>
-              </p>
-            ) : (
-              <form onSubmit={handleFormSubmit} className="formCard">
-                <input
-                  className="form-input emailInput"
-                  placeholder="Your email"
+    <div>
+      <Card sx={{ minWidth: 275 }} className="card-body">
+        <CardContent>
+          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+            <Box sx={{ flexGrow: 1 }}>
+              <AppBar position="static">
+                <Toolbar variant="dense">
+                  <Typography variant="h6" color="inherit" component="span">
+                    Log In
+                  </Typography>
+                </Toolbar>
+              </AppBar>
+            </Box>
+          </Typography>
+          {data ? (
+            <p>
+              Success! You may now head{" "}
+              <Link to="/">back to the homepage.</Link>
+            </p>
+          ) : (
+            <form onSubmit={handleFormSubmit} className="formCard">
+              <Typography variant="h5" component="span">
+                <TextField
+                  fullWidth
+                  id="email"
+                  label="Email"
+                  variant="outlined"
+                  component="span"
                   name="email"
                   type="email"
                   value={formState.email}
                   onChange={handleChange}
                 />
-                <input
-                  className="form-input passwordInput"
-                  placeholder="******"
-                  name="password"
+              </Typography>
+              <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                <TextField
+                  fullWidth
+                  id="password"
+                  component="span"
+                  label="Password"
                   type="password"
+                  variant="outlined"
+                  name="password"
                   value={formState.password}
                   onChange={handleChange}
                 />
-                <button
+              </Typography>
+              <Typography variant="body2">
+                <Button
+                  variant="contained"
                   className="btn btn-block btn-info"
                   style={{ cursor: "pointer" }}
                   type="submit"
                 >
-                  Submit
-                </button>
-              </form>
-            )}
-            <a href="/signup" rel="signup">
-              Sign Up Instead?
-            </a>
-            <a href="/" rel="home" className="backHome">
-              Go back to homepage?
-            </a>
-            {error && (
-              <div className="my-3 p-3 bg-danger text-white">
-                {error.message}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </main>
+                  Log In
+                </Button>
+              </Typography>
+            </form>
+          )}
+          <a href="/signup" rel="signup">
+            Sign Up Instead?
+          </a>
+          {error && (
+            <div className="my-3 p-3 bg-danger text-white">{error.message}</div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
-export default Login;
+export default Test3;
