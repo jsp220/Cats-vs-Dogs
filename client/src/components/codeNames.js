@@ -2,8 +2,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import "../CodeNames.css";
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { QUERY_WORDS, QUERY_USER, QUERY_GAME } from '../utils/queries';
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { QUERY_USER, QUERY_GAME } from '../utils/queries';
 import { UPDATE_GAME, UPDATE_TEAM } from "../utils/mutations";
 
 import Auth from '../utils/auth';
@@ -209,13 +209,19 @@ function CodeNames() {
   const [blueRemaining, setBlueRemaining] = useState(8);
   const [redRemaining, setRedRemaining] = useState(9);
   const [showEndTurn, setShowEndTurn] = useState(true);
-  const [view, setView] = useState("agent");
+  // const [view, setView] = useState("agent");
   const [winner, setWinner] = useState("");
   const [inputClue, setInputClue] = useState("");
-  const [statusMessage, setStatusMessage] = useState("Team Cat's Turn")
+  const [statusMessage, setStatusMessage] = useState("Team Cat's Turn");
+  const [isSpyMaster, setIsSpyMaster] = useState(false);
+  const [myUsername, setMyUsername] = useState("testing");
+  const [teamCat, setTeamCat] = useState([]);
+  const [teamDog, setTeamDog] = useState([]);
+  const [catSpyMaster, setCatSpyMaster] = useState([]);
+  const [dogSpyMaster, setDogSpyMaster] = useState([]);
 
-  const [queryUser, { uLoading, uError, uData }] = useLazyQuery(QUERY_USER)
-  const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME)
+  const [queryUser, { uLoading, uError, uData }] = useLazyQuery(QUERY_USER);
+  const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME);
   const [updateGame, { gErr }] = useMutation(UPDATE_GAME);
   const [updateTeam, { uErr }] = useMutation(UPDATE_TEAM);
 
@@ -237,7 +243,7 @@ function CodeNames() {
   const handleCardClick = (i) => {
     if (
       status.includes("game-over") ||
-      view === "spymaster"
+      isSpyMaster
     ) {
       return null; // disable clicking if spymaster
     }
@@ -262,17 +268,18 @@ function CodeNames() {
   };
 
   function updateScore(data) {
+
     // only update score if card has not been revealed already
-    if (cardClass[data.i] !== "hidden-card") {
+    if (data.cardClass[data.i] !== "hidden-card") {
       return null;
     }
 
     // update red or blue team's score
     // ensure game over is checked only after remaining
-    if (cardColor[data.i] === "red") {
+    if (data.cardColor[data.i] === "red") {
       setRedRemaining(data.redRemaining - 1);
     }
-    else if (cardColor[data.i] === "blue") {
+    else if (data.cardColor[data.i] === "blue") {
       setBlueRemaining(data.blueRemaining - 1);
     }
   }
@@ -283,24 +290,8 @@ function CodeNames() {
     // console.log(isRedTurn, "sending end")
   };
 
-  const handleSpymasterClick = () => {
-    // do not map cards that aren't "hiddencard" for class
-    const spymasterCardNames = cardClass.map((card, i) => {
-      if (card === "hidden-card") {
-        return "spymaster-" + cardColor[i];
-      } else {
-        return card;
-      }
-    });
-
-    setCardClass(spymasterCardNames);
-    setView("spymaster");
-    // when clicked, all text should bold and 'status' is used as font-color
-  };
-
   const handleAgentClick = () => {
-    setCardClass(HIDDEN_CLASSNAMES);
-    setView("agent");
+    
     // when clicked, all text should bold and 'status' is used as font-color
   };
 
@@ -327,18 +318,35 @@ function CodeNames() {
   }
 
   const gameStart = () => {
-    socket.emit("send_game_start");
+    let teamDog = [...onlineUsers];
+    let teamCat = [];
+    const teamCatSize = Math.ceil(teamDog.length / 2);
+
+    console.log(myUsername)
+
+    for (let i = 0; i < teamCatSize; i++) {
+
+      teamCat.push(teamDog.splice(Math.floor(Math.random() * teamDog.length), 1)[0]);
+    }
+
+    // console.log(teamCat);
+    // console.log(teamDog);
+
+    const catSpyMaster = teamCat[0];
+    const dogSpyMaster = teamDog[0];
+
+    socket.emit("send_game_start", { catSpyMaster, dogSpyMaster, teamDog, teamCat, cardClass, cardColor });
   }
 
   // check for game end every time either teams remaining cards changes 
 
-  let agentView;
-  let spyView;
-  if (view === "agent") {
-    agentView = "gray-click";
-  } else {
-    spyView = "gray-click";
-  }
+  // let agentView;
+  // let spyView;
+  // if (view === "agent") {
+  //   agentView = "gray-click";
+  // } else {
+  //   spyView = "gray-click";
+  // }
 
   const init = async () => {
     const profile = await Auth.getProfile();
@@ -352,7 +360,7 @@ function CodeNames() {
 
     try {
       const { data } = await queryGame({ variables: { gameName } });
-      // console.log(data);
+      console.log(data);
       gameId = data.game._id;
       teamCatId = data.game.teamCat._id;
 
@@ -380,6 +388,17 @@ function CodeNames() {
       console.error(err);
     }
 
+    // come back to this *******************************************************************************
+    // try {
+    //   console.log(userId);
+    //   const { userData } = await queryUser({ variables: { userId } });
+    //   console.log(userData);
+    //   setMyUsername(userData.user.username);
+
+    // } catch (err) {
+    //   console.error(err);
+    // }
+
     try {
       // console.log(userId)
       const { data } = await updateTeam({
@@ -398,6 +417,22 @@ function CodeNames() {
   }
 
   useEffect(() => {
+    if ([catSpyMaster, dogSpyMaster].includes(myUsername)) {
+      const spymasterCardNames = cardClass.map((card, i) => {
+        return "spymaster-" + cardColor[i];
+      }
+      );
+
+      setCardClass(spymasterCardNames);
+      setIsSpyMaster(true);
+    }
+    else {
+      setCardClass(HIDDEN_CLASSNAMES);
+      setIsSpyMaster(false);
+    }
+  }, [catSpyMaster, dogSpyMaster]);
+
+  useEffect(() => {
     isGameOver();
   }, [redRemaining, blueRemaining])
 
@@ -410,9 +445,15 @@ function CodeNames() {
       setOnlineUsers(uniqueUsers);
     })
 
-    socket.on("receive_game_start", () => {
+    socket.on("receive_game_start", (data) => {
+      setTeamCat(data.teamCat);
+      setTeamDog(data.teamDog);
+      setCatSpyMaster(data.catSpyMaster);
+      setDogSpyMaster(data.dogSpyMaster);
+
       setStartGame(true);
-    })
+    });
+
     socket.on("receive_clue", (data) => {
       setInputClue("");
       setClue(data.clue);
@@ -487,16 +528,19 @@ function CodeNames() {
             onClick={handleCardClick}
           />
         <div className="info row col-12">
-          {view == "agent"
+          {!isSpyMaster
             ? null
             : (
-              <form onSubmit={handleSubmit}>
+              <div>
+                <h4>You are the Spymaster!</h4>
+                <form onSubmit={handleSubmit}>
                 <label className="clueInput">
                   Clue:
                   <input type="text" name="clue" className="formInput" />
                 </label>
                 <input type="submit" value="Submit" />
               </form>
+              </div>
             )}
           <button
             className="btn btn-info btn-light new-game"
@@ -512,7 +556,7 @@ function CodeNames() {
             <span className="blue-turn">{blueRemaining}</span>
           </h3>
           <h4>Team Member: </h4>
-          <div>
+          {/* <div>
             <div className="dogAgent">
               <label
                 className={"btn btn-info btn-light " + agentView}
@@ -529,7 +573,7 @@ function CodeNames() {
                 Spymaster
               </label>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="teamCat">
           <h2 className="red-turn">Team Cat</h2>
@@ -538,7 +582,7 @@ function CodeNames() {
             <span className="red-turn">{redRemaining}</span>
           </h3>
           <h4>Team Member: </h4>
-          <div>
+          {/* <div>
             <div className="catAgent">
               <label
                 className={"btn btn-info btn-light " + agentView}
@@ -555,7 +599,7 @@ function CodeNames() {
                 Spymaster
               </label>
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="rules">
           <h4>Rules</h4>
@@ -581,8 +625,8 @@ function CodeNames() {
           <h3>Currently online:</h3>
           <ul>
             {onlineUsers.map((user) => (
-                <li key={user}>{user}</li>
-              ))}
+              <li key={user}>{user}</li>
+            ))}
           </ul>
           <button onClick={gameStart}>Start Game!</button>
         </div>
