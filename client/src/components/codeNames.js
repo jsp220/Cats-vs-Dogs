@@ -1,10 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 // import ReactDOM from "react-dom";
 import "../CodeNames.css";
-import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { useLazyQuery, useMutation } from '@apollo/client';
 import { QUERY_USER, QUERY_GAME } from '../utils/queries';
-import { UPDATE_GAME, UPDATE_TEAM } from "../utils/mutations";
+import { UPDATE_TEAM } from "../utils/mutations";
 
 import Auth from '../utils/auth';
 
@@ -62,7 +62,31 @@ const RollIn = styled.div`
 const HIDDEN_CLASSNAMES = new Array(25).fill("hidden-card");
 const ROWS = 5;
 const COLUMNS = 5;
+let renderNumber = 0;
 
+function Gear(props) {
+  return (
+    <RollIn>
+      <div className="gear" onClick={props.onClick}>
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 35 35"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M22.3344 4.86447L24.31 8.23766C21.9171 9.80387 21.1402 12.9586 22.5981 15.4479C23.038 16.1989 23.6332 16.8067 24.3204 17.2543L22.2714 20.7527C20.6682 19.9354 18.6888 19.9151 17.0088 20.8712C15.3443 21.8185 14.3731 23.4973 14.2734 25.2596H10.3693C10.3241 24.4368 10.087 23.612 9.64099 22.8504C8.16283 20.3266 4.93593 19.4239 2.34593 20.7661L0.342913 17.3461C2.85907 15.8175 3.70246 12.5796 2.21287 10.0362C1.74415 9.23595 1.09909 8.59835 0.354399 8.14386L2.34677 4.74208C3.95677 5.5788 5.95446 5.60726 7.64791 4.64346C9.31398 3.69524 10.2854 2.0141 10.3836 0.25H14.267C14.2917 1.11932 14.5297 1.99505 15.0012 2.80013C16.4866 5.33635 19.738 6.23549 22.3344 4.86447ZM15.0038 17.3703C17.6265 15.8776 18.5279 12.5685 17.0114 9.97937C15.4963 7.39236 12.1437 6.50866 9.52304 8.00013C6.90036 9.4928 5.99896 12.8019 7.5154 15.391C9.03058 17.978 12.3832 18.8617 15.0038 17.3703Z"
+            transform="translate(12.7548) rotate(30)"
+            fill="#EEE"
+            stroke="#BBB"
+            strokeWidth="0.5"
+          ></path>
+        </svg>
+      </div>
+    </RollIn>
+  );
+}
 
 function Card(props) {
 
@@ -90,29 +114,6 @@ function Card(props) {
   );
 }
 
-function Gear(props) {
-  return (
-    <RollIn>
-      <div className="gear" onClick={props.onClick}>
-        <svg
-          width="30"
-          height="30"
-          viewBox="0 0 35 35"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M22.3344 4.86447L24.31 8.23766C21.9171 9.80387 21.1402 12.9586 22.5981 15.4479C23.038 16.1989 23.6332 16.8067 24.3204 17.2543L22.2714 20.7527C20.6682 19.9354 18.6888 19.9151 17.0088 20.8712C15.3443 21.8185 14.3731 23.4973 14.2734 25.2596H10.3693C10.3241 24.4368 10.087 23.612 9.64099 22.8504C8.16283 20.3266 4.93593 19.4239 2.34593 20.7661L0.342913 17.3461C2.85907 15.8175 3.70246 12.5796 2.21287 10.0362C1.74415 9.23595 1.09909 8.59835 0.354399 8.14386L2.34677 4.74208C3.95677 5.5788 5.95446 5.60726 7.64791 4.64346C9.31398 3.69524 10.2854 2.0141 10.3836 0.25H14.267C14.2917 1.11932 14.5297 1.99505 15.0012 2.80013C16.4866 5.33635 19.738 6.23549 22.3344 4.86447ZM15.0038 17.3703C17.6265 15.8776 18.5279 12.5685 17.0114 9.97937C15.4963 7.39236 12.1437 6.50866 9.52304 8.00013C6.90036 9.4928 5.99896 12.8019 7.5154 15.391C9.03058 17.978 12.3832 18.8617 15.0038 17.3703Z"
-            transform="translate(12.7548) rotate(30)"
-            fill="#EEE"
-            stroke="#BBB"
-            strokeWidth="0.5"
-          ></path>
-        </svg>
-      </div>
-    </RollIn>
-  );
-}
 
 function Board(props) {
   function renderCard(i) {
@@ -158,175 +159,35 @@ function Board(props) {
 }
 
 function CodeNames() {
-  const firstPlayer = "red";
-
   const [cardFlipped, setCardFlipped] = useState(new Array(25).fill(false)); // Added for card flip. (BZ)
   const [words, setWords] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [startGame, setStartGame] = useState(false);
   const [cardColor, setCardColor] = useState([]); // css class: hidden-card, red, blue
-  const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
+  // const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
+  const cardClass = useRef(HIDDEN_CLASSNAMES);
   const [clue, setClue] = useState("");
   const [isRedTurn, setIsRedTurn] = useState(true);
   const [isClueTurn, setIsClueTurn] = useState(true);
   const [status, setStatus] = useState("red-turn");
-  const [blueRemaining, setBlueRemaining] = useState(8);
-  const [redRemaining, setRedRemaining] = useState(9);
+  // const [blueRemaining, setBlueRemaining] = useState(8);
+  const blueRemaining = useRef(8);
+  // const [redRemaining, setRedRemaining] = useState(9);
+  const redRemaining = useRef(9);
   const [showEndTurn, setShowEndTurn] = useState(true);
-  // const [view, setView] = useState("agent");
-  const [winner, setWinner] = useState("");
-  // const [inputClue, setInputClue] = useState("");
-  const [statusMessage, setStatusMessage] = useState("Team Cat's Turn");
+  const [winner, setWinner] = useState(null);
+  const [statusMessage, setStatusMessage] = useState("Team Cat's turn to give a clue!");
   const [isSpyMaster, setIsSpyMaster] = useState(false);
   const [teamCat, setTeamCat] = useState([]);
   const [teamDog, setTeamDog] = useState([]);
   const [catSpyMaster, setCatSpyMaster] = useState([]);
   const [dogSpyMaster, setDogSpyMaster] = useState([]);
   const [bgImgs, setBgImgs] = useState([]);
+  const [myUsername, setMyUsername] = useState("");
 
   const [queryUser, { uLoading, uError, uData }] = useLazyQuery(QUERY_USER);
   const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME);
-  // const [updateGame, { gErr }] = useMutation(UPDATE_GAME);
   const [updateTeam, { uErr }] = useMutation(UPDATE_TEAM);
-
-  const [myUsername, setMyUsername] = useState("");
-
-  const isGameOver = () => {
-    if (redRemaining === 0 || blueRemaining === 0) {
-      const status = "game-over-" + (isRedTurn ? "red" : "blue");
-      setStatus(status);
-      setShowEndTurn(false);
-      setWinner(isRedTurn ? "Red" : "Blue");
-      setStatusMessage(isRedTurn ? "TEAM CAT WINS!" : "TEAM DOG WINS!")
-    }
-  };
-
-  const renderLog = () => {
-    if (clue) return <div>Team {isRedTurn ? "Cat" : "Dog"}'s spymaster gives a clue: {clue}.</div>
-  }
-
-  const handleCardClick = (i) => {
-    if (
-      status.includes("game-over") ||
-      isSpyMaster
-    ) {
-      return null; // disable clicking if spymaster
-    }
-    if (isRedTurn) {
-      if (teamDog.includes(myUsername)) return null;
-    } else {
-      if (teamCat.includes(myUsername)) return null;
-    }
-
-    // Added for card flipping. (BZ)
-    if (!cardFlipped[i]) {
-      words[i] = "";
-      cardFlipped[i] = true;
-    }
-
-    socket.emit("send_card_click", {
-      i: i,
-      isRedTurn: isRedTurn,
-      cardFlipped: cardFlipped, // Added updated array to socket. (BZ)
-      cardClass: cardClass,
-      cardColor: cardColor,
-      blueRemaining: blueRemaining,
-      redRemaining: redRemaining
-    })
-
-  };
-
-  function updateScore(data) {
-
-    // only update score if card has not been revealed already
-    if (cardClass[data.i] !== "hidden-card") {
-      return null;
-    }
-
-    // update red or blue team's score
-    // ensure game over is checked only after remaining
-    if (cardColor[data.i] === "red") {
-      setRedRemaining(data.redRemaining - 1);
-    }
-    else if (cardColor[data.i] === "blue") {
-      setBlueRemaining(data.blueRemaining - 1);
-    }
-  }
-
-  const handleEndTurnClick = () => {
-    if (isRedTurn) {
-      if (teamDog.includes(myUsername)) return null;
-    } else {
-      if (teamCat.includes(myUsername)) return null;
-    }
-    socket.emit("send_end_turn", { turn: isRedTurn });
-  };
-
-  const handleAgentClick = () => {
-
-    // when clicked, all text should bold and 'status' is used as font-color
-  };
-
-  const handleGearClick = () => {
-    alert("How to play codenames: https://www.youtube.com/watch?v=zQVHkl8oQEU");
-  };
-
-  function newGame(i) {
-    window.location.reload(false);
-  }
-
-  // toggle only clue/guess on Change
-  function handleClueSubmit(e) {
-    // prevent refresh of game on each submit
-    e.preventDefault();
-
-    const clue = e.target[0].value;
-    const firstBlank = clue.indexOf(" ");
-    const secondBlank = clue.indexOf(" ", firstBlank + 1);
-    const number = parseInt(clue.slice(firstBlank + 1));
-
-
-    if (!isClueTurn) {
-      alert("You can only give one clue at at time.")
-      return;
-    }
-    if (
-      firstBlank === -1 ||
-      secondBlank !== -1 ||
-      (!number && number !== 0)
-    ) {
-      alert(`Please enter a valid clue. A valid clue consists of "<word> <number>". For example: "fruit 2"`)
-      return;
-    }
-
-    socket.emit("send_clue", { clue });
-
-    e.target[0].value = "";
-  }
-
-  // when start game button is clicked
-  const gameStart = () => {
-
-    // put all users who joined to team dog, and then...
-    let teamDog = [...onlineUsers];
-    let teamCat = [];
-    const teamCatSize = Math.ceil(teamDog.length / 2);
-
-    // move half (rounded up) into team cat
-    for (let i = 0; i < teamCatSize; i++) {
-
-      teamCat.push(teamDog.splice(Math.floor(Math.random() * teamDog.length), 1)[0]);
-    }
-
-    //set 0th index members of each team to be spymaster
-    const catSpyMaster = teamCat[0];
-    const dogSpyMaster = teamDog[0];
-
-    //send all states and team cat/dog info via socket
-    socket.emit("send_game_start", { catSpyMaster, dogSpyMaster, teamDog, teamCat, cardClass, cardColor });
-  }
-
-  // check for game end every time either teams remaining cards changes 
 
   const init = async () => {
     const profile = await Auth.getProfile();
@@ -407,69 +268,160 @@ function CodeNames() {
     }
   }
 
-  useEffect(() => {
-    isGameOver();
-  }, [redRemaining, blueRemaining])
+  const newGame = (i) => {
+    window.location.reload(false);
+  }
 
-  useEffect(() => {
-    if ([catSpyMaster, dogSpyMaster].includes(myUsername)) {
-      const spymasterCardNames = cardClass.map((card, i) => {
-        return "spymaster-" + cardColor[i];
-      }
-      );
+  const handleGearClick = () => {
+    alert("How to play codenames: https://www.youtube.com/watch?v=zQVHkl8oQEU");
+  };
 
-      setCardClass(spymasterCardNames);
-      setIsSpyMaster(true);
-    }
-  }, [catSpyMaster, dogSpyMaster]);
-
-  // useEffect for all socket functions and initial load
-  useEffect(() => {
-    init();
-  }, [])
-
-  socket.on("receive_users", (data) => {
+  const receiveUsers = (data) => {
     const uniqueUsers = [...new Set(data)];
     setOnlineUsers(uniqueUsers);
-  })
+  }
 
-  socket.on("receive_game_start", (data) => {
+  // when start game button is clicked
+  const gameStart = () => {
+
+    // put all users who joined to team dog, and then...
+    let teamDog = [...onlineUsers];
+    let teamCat = [];
+    const teamCatSize = Math.ceil(teamDog.length / 2);
+
+    // move half (rounded up) into team cat
+    for (let i = 0; i < teamCatSize; i++) {
+
+      teamCat.push(teamDog.splice(Math.floor(Math.random() * teamDog.length), 1)[0]);
+    }
+
+    //set 0th index members of each team to be spymaster
+    const catSpyMaster = teamCat[0];
+    const dogSpyMaster = teamDog[0];
+
+    //send all states and team cat/dog info via socket
+    socket.emit("send_game_start", { catSpyMaster, dogSpyMaster, teamDog, teamCat });
+  }
+
+  const receiveGameStart = (data) => {
     setTeamCat(data.teamCat);
     setTeamDog(data.teamDog);
     setCatSpyMaster(data.catSpyMaster);
     setDogSpyMaster(data.dogSpyMaster);
     setStartGame(true);
-  });
+  }
 
-  socket.on("receive_clue", (data) => {
-    // setInputClue("");
-    setClue(data.clue);
-    setIsClueTurn(false);
-  })
+  function handleClueSubmit(e) {
+    // prevent refresh of game on each submit
+    e.preventDefault();
 
-  socket.on("receive_end_turn", (data) => {
-    setIsRedTurn(!data.turn);
-    setStatus(!data.turn ? "red-turn" : "blue-turn");
-    setStatusMessage(!data.turn ? "Team Cat's Turn" : "Team Dog's Turn")
-    setIsClueTurn(true);
-  })
-
-  socket.on("receive_card_click", (data) => {
-    const i = data.i;
-    const cardFlipped = data.cardFlipped; // Added for socket IO. (BZ)
-    const classOfCards = data.cardClass;
-    updateScore(data);
-    classOfCards[i] = data.cardColor[i]; // switch css classNames
+    const clue = e.target[0].value;
+    const firstBlank = clue.indexOf(" ");
+    const secondBlank = clue.indexOf(" ", firstBlank + 1);
+    const number = parseInt(clue.slice(firstBlank + 1));
 
     if (
-      data.cardColor[i] === "bystander" ||
-      (data.isRedTurn === true && data.cardColor[i] === "blue") ||
-      (data.isRedTurn === false && data.cardColor[i] === "red")
+      (isRedTurn && teamDog.includes(myUsername))
+      || (!isRedTurn && teamCat.includes(myUsername))
     ) {
-      setIsRedTurn(!data.isRedTurn)
-      setStatus(!data.isRedTurn ? "red-turn" : "blue-turn");
-      setStatusMessage(!data.isRedTurn ? "Team Cat's Turn" : "Team Dog's Turn");
-    } else if (data.cardColor[i] === "assassin") {
+      alert("It's not your turn!")
+      return;
+    }
+    if (!isClueTurn) {
+      alert("You can only give one clue at at time.")
+      return;
+    }
+    if (
+      firstBlank === -1 ||
+      secondBlank !== -1 ||
+      (!number && number !== 0)
+    ) {
+      alert(`Please enter a valid clue. A valid clue consists of "<word> <number>". For example: "fruit 2"`)
+      return;
+    }
+
+    socket.emit("send_clue", { clue, isRedTurn });
+
+    e.target[0].value = "";
+  }
+
+  const receiveClue = (data) => {
+    setClue(data.clue);
+    setIsClueTurn(false);
+    setStatusMessage(data.isRedTurn ? "Team Cat's turn to guess!" : "Team Dog's turn to guess!")
+  }
+
+  const renderLog = () => {
+    if (clue) return <div>Team {isRedTurn ? "Cat" : "Dog"}'s spymaster gives a clue: {clue}.</div>
+  }
+
+  const handleEndTurnClick = () => {
+    if (isRedTurn) {
+      if (teamDog.includes(myUsername)) return;
+    } else {
+      if (teamCat.includes(myUsername)) return;
+    }
+    if (isClueTurn) {
+      console.log("abc");
+      return;
+    }
+    socket.emit("send_end_turn", { isRedTurn });
+  };
+
+  const receiveEndTurn = (data) => {
+    setIsRedTurn(!data.isRedTurn);
+    setStatus(data.isRedTurn ? "blue-turn" : "red-turn");
+    setStatusMessage(data.isRedTurn ? "Team Dog's turn to give a clue!" : "Team Cat's turn to give a clue!")
+    setIsClueTurn(true);
+  }
+
+  const handleCardClick = (i) => {
+    // disable clicking if game over, for spy master, or if time for clue
+    // console.log(isSpyMaster);
+    if (
+      status.includes("game-over") ||
+      isSpyMaster ||
+      isClueTurn ||
+      cardFlipped[i]
+    ) return;
+
+    // disable clicking if not my turn
+    if (isRedTurn) {
+      if (teamDog.includes(myUsername)) return null;
+    } else {
+      if (teamCat.includes(myUsername)) return null;
+    }
+
+    socket.emit("send_card_click", { i, cardFlipped, isRedTurn })
+  };
+
+  const receiveCardClick = (data) => {
+    const i = data.i;
+    let flippedCards = [...data.cardFlipped]; // Added for socket IO. (BZ)
+    let classOfCards = [...cardClass.current];
+    let colorOfCards = [...cardColor];
+
+    classOfCards[i] = colorOfCards[i]; // switch css classNames
+
+    // console.log(classOfCards);
+
+    // Added for card flipping. (BZ)
+    words[i] = " ";
+    flippedCards[i] = true;
+
+    if (
+      colorOfCards[i] === "bystander" ||
+      (data.isRedTurn === true && cardColor[i] === "blue") ||
+      (data.isRedTurn === false && cardColor[i] === "red")
+    ) {
+      setIsRedTurn(!data.isRedTurn);
+      setIsClueTurn(true);
+      setStatus(data.isRedTurn ? "blue-turn" : "red-turn");
+      setStatusMessage(!data.isRedTurn
+        ? "Team Cat's turn to give a clue!"
+        : "Team Dog's turn to give a clue!"
+      );
+    } else if (colorOfCards[i] === "assassin") {
       // alert("You have chosen the assassin. Game Over.");
       const status = "game-over-" + (data.isRedTurn ? "blue" : "red");
       setStatus(status);
@@ -478,12 +430,70 @@ function CodeNames() {
       setStatusMessage(data.isRedTurn ? "TEAM DOG WINS!" : "TEAM CAT WINS!")
     }
 
-    setCardFlipped(cardFlipped); // Added for Socket IO. (BZ)
-    setIsClueTurn(true);
-    if (!isSpyMaster) {
-      setCardClass(classOfCards);
-    };
-  });
+    // setCardClass(classOfCards);
+    cardClass.current = classOfCards;
+    updateScore(data);
+    setCardFlipped(flippedCards); // Added for Socket IO. (BZ)
+  }
+
+  const updateScore = (data) => {
+    // update red or blue team's score
+    // ensure game over is checked only after remaining
+    console.log(cardColor);
+    if (cardColor[data.i] === "red") {
+      // setRedRemaining(redRemaining - 1);
+      redRemaining.current = redRemaining.current - 1;
+    }
+    else if (cardColor[data.i] === "blue") {
+      // setBlueRemaining(blueRemaining - 1);
+      blueRemaining.current = blueRemaining.current - 1;
+    }
+  }
+
+  const isGameOver = () => {
+    // if (redRemaining === 0 || blueRemaining === 0) {
+    if (redRemaining.current === 0 || blueRemaining.current === 0) {
+      const status = "game-over-" + (isRedTurn ? "red" : "blue");
+      setStatus(status);
+      setShowEndTurn(false);
+      setWinner(isRedTurn ? "Red" : "Blue");
+      setStatusMessage(isRedTurn ? "TEAM CAT WINS!" : "TEAM DOG WINS!");
+    }
+  };
+
+  useEffect(() => {
+    isGameOver();
+  }, [redRemaining.current, blueRemaining.current])
+
+  useEffect(() => {
+    if ([catSpyMaster, dogSpyMaster].includes(myUsername)) {
+      const spymasterCardNames = cardClass.current.map((card, i) => {
+        return "spymaster-" + cardColor[i];
+      }
+      );
+      // setCardClass(spymasterCardNames);
+      cardClass.current = spymasterCardNames;
+      setIsSpyMaster(true);
+    }
+  }, [catSpyMaster, dogSpyMaster]);
+
+  useEffect(() => {
+    // handle all socket emits received by calling respective functions
+    socket.on("receive_clue", (data) => receiveClue(data));
+    socket.on("receive_end_turn", (data) => receiveEndTurn(data));
+  }, [startGame])
+
+  useEffect(() => {
+    // handle all socket emits received by calling respective functions
+    socket.on("receive_card_click", (data) => receiveCardClick(data));
+  }, [startGame])
+
+  // useEffect for initial load
+  useEffect(() => {
+    init();
+    socket.on("receive_users", (data) => receiveUsers(data));
+    socket.on("receive_game_start", (data) => receiveGameStart(data));
+  }, [])
 
   function renderEndTurn() {
     return (
@@ -510,7 +520,7 @@ function CodeNames() {
         <Board
           cardFlipped={cardFlipped} // Added for card flip. (BZ)
           cardWords={words}
-          cardClass={cardClass}
+          cardClass={cardClass.current}
           bgImgs={bgImgs}
           onClick={handleCardClick}
         />
@@ -519,7 +529,10 @@ function CodeNames() {
             {isSpyMaster
               ? (
                 <>
-                  <h4>You are the Spymaster!</h4>
+                  {teamCat.includes(myUsername)
+                    ? <h4 className="red-turn">You are Team Cat's Spymaster!</h4>
+                    : <h4 className="blue-turn">You are Team Dog's Spymaster!</h4>
+                  }
                   <form onSubmit={handleClueSubmit}>
                     <label className="clueInput">
                       Clue:
@@ -531,22 +544,22 @@ function CodeNames() {
               ) : null
             }
           </div>
-            {!startGame
-              ? (
-                <button
-                  className="btn btn-info btn-light new-game"
-                  onClick={(i) => newGame(i)}
-                >
-                  New Game
-                </button>
-              ) : null
-            }
+          {winner
+            ? (
+              <button
+                className="btn btn-info btn-light new-game"
+                onClick={(i) => newGame(i)}
+              >
+                New Game
+              </button>
+            ) : null
+          }
         </div>
         <div className="teamDog">
           <h2 className="blue-turn">Team Dog</h2>
           <h3>
             Card Remaining:{" "}
-            <span className="blue-turn">{blueRemaining}</span>
+            <span className="blue-turn">{blueRemaining.current}</span>
           </h3>
           <h4>Team Members: </h4>
           {teamDog.map((user, index) => {
@@ -560,7 +573,7 @@ function CodeNames() {
           <h2 className="red-turn">Team Cat</h2>
           <h3>
             Card Remaining:{" "}
-            <span className="red-turn">{redRemaining}</span>
+            <span className="red-turn">{redRemaining.current}</span>
           </h3>
           <h4>Team Members:</h4>
           {teamCat.map((user, index) => {
@@ -609,6 +622,8 @@ function CodeNames() {
 
   // on load, startGame is false so "renderWaitingRoom" runs. 
   // when game is started, renderGame runs
+  renderNumber++;
+  console.log(renderNumber);
   return (
     <>
       {startGame
