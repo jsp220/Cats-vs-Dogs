@@ -17,6 +17,10 @@ ol, ul {
   padding: 2%;
 }
 
+.list-group {
+  padding-right: 0px;
+}
+
 .bg-image {
   /* Background Image */
   background-image: url("./images/GameNight.jpg");

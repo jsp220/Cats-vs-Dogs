@@ -1,9 +1,9 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
+// import ReactDOM from "react-dom";
 import "../CodeNames.css";
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
-import { QUERY_WORDS, QUERY_USER, QUERY_GAME } from '../utils/queries';
+import { QUERY_USER, QUERY_GAME } from '../utils/queries';
 import { UPDATE_GAME, UPDATE_TEAM } from "../utils/mutations";
 
 import Auth from '../utils/auth';
@@ -34,7 +34,6 @@ import nut2 from "../images/neutral2.png";
 import nut3 from "../images/neutral3.png";
 import assassin from "../images/corgiAssassin.png"
 
-
 //import { CSSTransitionGroup } from 'react-transition-group'
 import "animate.css";
 import styled, { keyframes } from "styled-components";
@@ -48,15 +47,12 @@ import styled, { keyframes } from "styled-components";
 // } from "react-animations"; 
 // Adjusted for the used animation methods. (BZ)
 import { rollIn, zoomIn } from "react-animations";
-
-import { REVEALED_CLASSNAMES, BASE_TURNS } from "../constants";
-import { pickRandomPlayer, initializeCardRevealed } from "../util_functions";
 import io from "socket.io-client";
 
 const ROOT_URL = 'https://mysterious-hollows-84029.herokuapp.com';
-const socket = io.connect(ROOT_URL);
+// const socket = io.connect(ROOT_URL);
 
-// const socket = io.connect("http://localhost:3000");
+const socket = io.connect("http://localhost:3000");
 
 const RollIn = styled.div`
   animation: 2s ${keyframes`${rollIn}`};
@@ -118,8 +114,6 @@ function Gear(props) {
   );
 }
 
-
-
 function Board(props) {
   function renderCard(i) {
 
@@ -156,7 +150,11 @@ function Board(props) {
     return rows;
   }
 
-  return <div> {renderRows()} </div>
+  return (
+    <div>
+      {renderRows()}
+    </div>
+  );
 }
 
 function CodeNames() {
@@ -177,10 +175,9 @@ function CodeNames() {
   const [showEndTurn, setShowEndTurn] = useState(true);
   // const [view, setView] = useState("agent");
   const [winner, setWinner] = useState("");
-  const [inputClue, setInputClue] = useState("");
+  // const [inputClue, setInputClue] = useState("");
   const [statusMessage, setStatusMessage] = useState("Team Cat's Turn");
   const [isSpyMaster, setIsSpyMaster] = useState(false);
-  const [myUsername, setMyUsername] = useState("");
   const [teamCat, setTeamCat] = useState([]);
   const [teamDog, setTeamDog] = useState([]);
   const [catSpyMaster, setCatSpyMaster] = useState([]);
@@ -189,9 +186,11 @@ function CodeNames() {
 
   const [queryUser, { uLoading, uError, uData }] = useLazyQuery(QUERY_USER);
   const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME);
-  const [updateGame, { gErr }] = useMutation(UPDATE_GAME);
+  // const [updateGame, { gErr }] = useMutation(UPDATE_GAME);
   const [updateTeam, { uErr }] = useMutation(UPDATE_TEAM);
-  
+
+  const [myUsername, setMyUsername] = useState("");
+
   const isGameOver = () => {
     if (redRemaining === 0 || blueRemaining === 0) {
       const status = "game-over-" + (isRedTurn ? "red" : "blue");
@@ -219,7 +218,6 @@ function CodeNames() {
       if (teamCat.includes(myUsername)) return null;
     }
 
-    // console.log(i);
     // Added for card flipping. (BZ)
     if (!cardFlipped[i]) {
       words[i] = "";
@@ -256,9 +254,12 @@ function CodeNames() {
   }
 
   const handleEndTurnClick = () => {
-    // console.log("end turn");
+    if (isRedTurn) {
+      if (teamDog.includes(myUsername)) return null;
+    } else {
+      if (teamCat.includes(myUsername)) return null;
+    }
     socket.emit("send_end_turn", { turn: isRedTurn });
-    // console.log(isRedTurn, "sending end")
   };
 
   const handleAgentClick = () => {
@@ -275,37 +276,54 @@ function CodeNames() {
   }
 
   // toggle only clue/guess on Change
-  function handleSubmit(e) {
+  function handleClueSubmit(e) {
     // prevent refresh of game on each submit
     e.preventDefault();
 
-    if (!isClueTurn) alert("You can only give one clue at at time.")
-    else {
-      // console.log("hi");
-      socket.emit("send_clue", { clue: e.target[0].value });
-      // clear input box after setting state with clue
-      e.target[0].value = "";
+    const clue = e.target[0].value;
+    const firstBlank = clue.indexOf(" ");
+    const secondBlank = clue.indexOf(" ", firstBlank + 1);
+    const number = parseInt(clue.slice(firstBlank + 1));
+
+
+    if (!isClueTurn) {
+      alert("You can only give one clue at at time.")
+      return;
     }
+    if (
+      firstBlank === -1 ||
+      secondBlank !== -1 ||
+      (!number && number !== 0)
+    ) {
+      alert(`Please enter a valid clue. A valid clue consists of "<word> <number>". For example: "fruit 2"`)
+      return;
+    }
+
+    socket.emit("send_clue", { clue });
+
+    e.target[0].value = "";
   }
 
+  // when start game button is clicked
   const gameStart = () => {
 
+    // put all users who joined to team dog, and then...
     let teamDog = [...onlineUsers];
     let teamCat = [];
     const teamCatSize = Math.ceil(teamDog.length / 2);
 
-    console.log(myUsername);
-
+    // move half (rounded up) into team cat
     for (let i = 0; i < teamCatSize; i++) {
 
       teamCat.push(teamDog.splice(Math.floor(Math.random() * teamDog.length), 1)[0]);
     }
 
+    //set 0th index members of each team to be spymaster
     const catSpyMaster = teamCat[0];
     const dogSpyMaster = teamDog[0];
 
+    //send all states and team cat/dog info via socket
     socket.emit("send_game_start", { catSpyMaster, dogSpyMaster, teamDog, teamCat, cardClass, cardColor });
-
   }
 
   // check for game end every time either teams remaining cards changes 
@@ -320,11 +338,9 @@ function CodeNames() {
 
     const URL = document.URL;
     const gameName = URL.slice(URL.lastIndexOf('/') + 1)
-    // console.log(gameName)
 
     try {
       const { data } = await queryGame({ variables: { gameName } });
-      console.log(data);
       gameId = data.game._id;
       teamCatId = data.game.teamCat._id;
 
@@ -370,16 +386,13 @@ function CodeNames() {
     }
 
     try {
-      console.log(userId); // "636e8...."
       const { data: userData } = await queryUser({ variables: { userId } });
-      console.log(userData);
       setMyUsername(userData.user.username);
     } catch (err) {
       console.error(err);
     }
 
     try {
-      // console.log(userId)
       const { data } = await updateTeam({
         variables:
         {
@@ -387,13 +400,16 @@ function CodeNames() {
           userId
         }
       });
-      // console.log(data);
       const usersFromBackend = data.updateTeam.users.map((user) => user.username);
       socket.emit("send_users", usersFromBackend);
     } catch (err) {
       console.error(err);
     }
   }
+
+  useEffect(() => {
+    isGameOver();
+  }, [redRemaining, blueRemaining])
 
   useEffect(() => {
     if ([catSpyMaster, dogSpyMaster].includes(myUsername)) {
@@ -405,76 +421,69 @@ function CodeNames() {
       setCardClass(spymasterCardNames);
       setIsSpyMaster(true);
     }
-    else {
-      setCardClass(HIDDEN_CLASSNAMES);
-      setIsSpyMaster(false);
-    }
   }, [catSpyMaster, dogSpyMaster]);
 
-  useEffect(() => {
-    isGameOver();
-  }, [redRemaining, blueRemaining])
-
-  // useEffect for all socket functions
+  // useEffect for all socket functions and initial load
   useEffect(() => {
     init();
-
-    socket.on("receive_users", (data) => {
-      const uniqueUsers = [...new Set(data)];
-      setOnlineUsers(uniqueUsers);
-    })
-
-    socket.on("receive_game_start", (data) => {
-      setTeamCat(data.teamCat);
-      setTeamDog(data.teamDog);
-      setCatSpyMaster(data.catSpyMaster);
-      setDogSpyMaster(data.dogSpyMaster);
-
-      setStartGame(true);
-    });
-
-    socket.on("receive_clue", (data) => {
-      setInputClue("");
-      setClue(data.clue);
-      setIsClueTurn(false);
-    })
-
-    socket.on("receive_end_turn", (data) => {
-      setIsRedTurn(!data.turn);
-      setStatus(!data.turn ? "red-turn" : "blue-turn");
-      setStatusMessage(!data.turn ? "Team Cat's Turn" : "Team Dog's Turn")
-      setIsClueTurn(true);
-    })
-
-    socket.on("receive_card_click", (data) => {
-      const i = data.i;
-      const cardFlipped = data.cardFlipped; // Added for socket IO. (BZ)
-      const classOfCards = data.cardClass;
-      updateScore(data);
-      classOfCards[i] = data.cardColor[i]; // switch css classNames
-
-      if (
-        data.cardColor[i] === "bystander" ||
-        (data.isRedTurn === true && data.cardColor[i] === "blue") ||
-        (data.isRedTurn === false && data.cardColor[i] === "red")
-      ) {
-        setIsRedTurn(!data.isRedTurn)
-        setStatus(!data.isRedTurn ? "red-turn" : "blue-turn");
-        setStatusMessage(!data.isRedTurn ? "Team Cat's Turn" : "Team Dog's Turn");
-      } else if (data.cardColor[i] === "assassin") {
-        // alert("You have chosen the assassin. Game Over.");
-        const status = "game-over-" + (data.isRedTurn ? "blue" : "red");
-        setStatus(status);
-        setShowEndTurn(false);
-        setWinner(data.isRedTurn ? "TEAM DOG" : "TEAM CAT");
-        setStatusMessage(data.isRedTurn ? "TEAM DOG WINS!" : "TEAM CAT WINS!")
-      }
-
-      setCardFlipped(cardFlipped); // Added for Socket IO. (BZ)
-      setCardClass(classOfCards);
-      setIsClueTurn(true);
-    })
   }, [])
+
+  socket.on("receive_users", (data) => {
+    const uniqueUsers = [...new Set(data)];
+    setOnlineUsers(uniqueUsers);
+  })
+
+  socket.on("receive_game_start", (data) => {
+    setTeamCat(data.teamCat);
+    setTeamDog(data.teamDog);
+    setCatSpyMaster(data.catSpyMaster);
+    setDogSpyMaster(data.dogSpyMaster);
+    setStartGame(true);
+  });
+
+  socket.on("receive_clue", (data) => {
+    // setInputClue("");
+    setClue(data.clue);
+    setIsClueTurn(false);
+  })
+
+  socket.on("receive_end_turn", (data) => {
+    setIsRedTurn(!data.turn);
+    setStatus(!data.turn ? "red-turn" : "blue-turn");
+    setStatusMessage(!data.turn ? "Team Cat's Turn" : "Team Dog's Turn")
+    setIsClueTurn(true);
+  })
+
+  socket.on("receive_card_click", (data) => {
+    const i = data.i;
+    const cardFlipped = data.cardFlipped; // Added for socket IO. (BZ)
+    const classOfCards = data.cardClass;
+    updateScore(data);
+    classOfCards[i] = data.cardColor[i]; // switch css classNames
+
+    if (
+      data.cardColor[i] === "bystander" ||
+      (data.isRedTurn === true && data.cardColor[i] === "blue") ||
+      (data.isRedTurn === false && data.cardColor[i] === "red")
+    ) {
+      setIsRedTurn(!data.isRedTurn)
+      setStatus(!data.isRedTurn ? "red-turn" : "blue-turn");
+      setStatusMessage(!data.isRedTurn ? "Team Cat's Turn" : "Team Dog's Turn");
+    } else if (data.cardColor[i] === "assassin") {
+      // alert("You have chosen the assassin. Game Over.");
+      const status = "game-over-" + (data.isRedTurn ? "blue" : "red");
+      setStatus(status);
+      setShowEndTurn(false);
+      setWinner(data.isRedTurn ? "TEAM DOG" : "TEAM CAT");
+      setStatusMessage(data.isRedTurn ? "TEAM DOG WINS!" : "TEAM CAT WINS!")
+    }
+
+    setCardFlipped(cardFlipped); // Added for Socket IO. (BZ)
+    setIsClueTurn(true);
+    if (!isSpyMaster) {
+      setCardClass(classOfCards);
+    };
+  });
 
   function renderEndTurn() {
     return (
@@ -494,7 +503,7 @@ function CodeNames() {
         <div className="info row col-12">
           <h3 className={"turn col " + status}>{statusMessage}</h3>
           {/* display end turn and show winner based on state */}
-          {showEndTurn
+          {showEndTurn && !isSpyMaster
             ? renderEndTurn()
             : null}
         </div>
@@ -506,26 +515,32 @@ function CodeNames() {
           onClick={handleCardClick}
         />
         <div className="info row col-12">
-          {!isSpyMaster
-            ? null
-            : (
-              <div>
-                <h4>You are the Spymaster!</h4>
-                <form onSubmit={handleSubmit}>
-                  <label className="clueInput">
-                    Clue:
-                    <input type="text" name="clue" className="formInput" />
-                  </label>
-                  <input type="submit" value="Submit" />
-                </form>
-              </div>
-            )}
-          <button
-            className="btn btn-info btn-light new-game"
-            onClick={(i) => newGame(i)}
-          >
-            New Game
-          </button>
+          <div>
+            {isSpyMaster
+              ? (
+                <>
+                  <h4>You are the Spymaster!</h4>
+                  <form onSubmit={handleClueSubmit}>
+                    <label className="clueInput">
+                      Clue:
+                      <input type="text" name="clue" className="formInput" />
+                    </label>
+                    <input type="submit" value="Submit" />
+                  </form>
+                </>
+              ) : null
+            }
+          </div>
+            {!startGame
+              ? (
+                <button
+                  className="btn btn-info btn-light new-game"
+                  onClick={(i) => newGame(i)}
+                >
+                  New Game
+                </button>
+              ) : null
+            }
         </div>
         <div className="teamDog">
           <h2 className="blue-turn">Team Dog</h2>
@@ -565,29 +580,35 @@ function CodeNames() {
         </div>
         <div className="gameLog">
           <h4>Game Log</h4>
-          {renderLog()}
+          {!isClueTurn
+            ? renderLog()
+            : null
+          }
         </div>
       </div>
     )
   }
 
+  // waiting room shows who has joined the room so far
   const renderWaitingRoom = () => {
     return (
       <div className="game" >
-        <div className="title col-12">CATS VS. DOGS</div>
-        <div className="info row col-12">
-          <h3>Currently online:</h3>
-          <ul>
+        <div className="title col-12 mx-0">CATS VS. DOGS</div>
+        <div className="info row col-12 mx-0">
+          <ul className="list-group px-0">
+            <li className="h4 list-group-item active text-center">Currently online:</li>
             {onlineUsers.map((user) => (
-              <li key={user}>{user}</li>
+              <li className="list-group-item text-center" key={user}>{user}</li>
             ))}
           </ul>
-          <button onClick={gameStart}>Start Game!</button>
+          <button className="m-2" onClick={gameStart}>Start Game!</button>
         </div>
       </div>
     )
   }
 
+  // on load, startGame is false so "renderWaitingRoom" runs. 
+  // when game is started, renderGame runs
   return (
     <>
       {startGame
