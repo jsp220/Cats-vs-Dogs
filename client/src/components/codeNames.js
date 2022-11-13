@@ -1,11 +1,20 @@
-import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useState, useEffect, useRef } from "react";
 // import ReactDOM from "react-dom";
+
+// import CSS
+import "bootstrap/dist/css/bootstrap.min.css";
 import "../CodeNames.css";
+
+// import components
+import Gear from "./Gear";
+import Board from "./Board";
+
+// import apollo queries/mutations
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { QUERY_USER, QUERY_GAME } from '../utils/queries';
 import { UPDATE_TEAM } from "../utils/mutations";
 
+// import auth.js for login/authorization
 import Auth from '../utils/auth';
 
 // Added for card images... (BZ)
@@ -36,136 +45,33 @@ import assassin from "../images/corgiAssassin.png"
 
 //import { CSSTransitionGroup } from 'react-transition-group'
 import "animate.css";
-import styled, { keyframes } from "styled-components";
-// import {
-//   bounce,
-//   flipInX,
-//   rollIn,
-//   rollOut,
-//   hinge,
-//   zoomIn,
-// } from "react-animations"; 
+// import styled, { keyframes } from "styled-components";
+
 // Adjusted for the used animation methods. (BZ)
-import { rollIn, zoomIn } from "react-animations";
+// import { rollIn, zoomIn } from "react-animations";
 import io from "socket.io-client";
 
 const ROOT_URL = 'https://mysterious-hollows-84029.herokuapp.com';
-// const socket = io.connect(ROOT_URL);
 
+// const socket = io.connect(ROOT_URL);
 const socket = io.connect("http://localhost:3000");
 
-const RollIn = styled.div`
-  animation: 2s ${keyframes`${rollIn}`};
-`;
-
 // declare variables for setting up the game
-const HIDDEN_CLASSNAMES = new Array(25).fill("hidden-card");
-const ROWS = 5;
-const COLUMNS = 5;
+const hiddenClasses = new Array(25).fill("hidden-card");
 let renderNumber = 0;
 
-function Gear(props) {
-  return (
-    <RollIn>
-      <div className="gear" onClick={props.onClick}>
-        <svg
-          width="30"
-          height="30"
-          viewBox="0 0 35 35"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M22.3344 4.86447L24.31 8.23766C21.9171 9.80387 21.1402 12.9586 22.5981 15.4479C23.038 16.1989 23.6332 16.8067 24.3204 17.2543L22.2714 20.7527C20.6682 19.9354 18.6888 19.9151 17.0088 20.8712C15.3443 21.8185 14.3731 23.4973 14.2734 25.2596H10.3693C10.3241 24.4368 10.087 23.612 9.64099 22.8504C8.16283 20.3266 4.93593 19.4239 2.34593 20.7661L0.342913 17.3461C2.85907 15.8175 3.70246 12.5796 2.21287 10.0362C1.74415 9.23595 1.09909 8.59835 0.354399 8.14386L2.34677 4.74208C3.95677 5.5788 5.95446 5.60726 7.64791 4.64346C9.31398 3.69524 10.2854 2.0141 10.3836 0.25H14.267C14.2917 1.11932 14.5297 1.99505 15.0012 2.80013C16.4866 5.33635 19.738 6.23549 22.3344 4.86447ZM15.0038 17.3703C17.6265 15.8776 18.5279 12.5685 17.0114 9.97937C15.4963 7.39236 12.1437 6.50866 9.52304 8.00013C6.90036 9.4928 5.99896 12.8019 7.5154 15.391C9.03058 17.978 12.3832 18.8617 15.0038 17.3703Z"
-            transform="translate(12.7548) rotate(30)"
-            fill="#EEE"
-            stroke="#BBB"
-            strokeWidth="0.5"
-          ></path>
-        </svg>
-      </div>
-    </RollIn>
-  );
-}
-
-function Card(props) {
-
-  /* Added card Images. (BZ) */
-  let idx = props.backgroundImage;
-  let image = null;
-
-  if (!props.word) {
-    image = props.bgImg;
-  } else
-    image = "";
-
-  return (
-    // <ZoomIn key={props.word}>
-    <button style={
-      {
-        backgroundImage: `url(${image})`,
-        backgroundSize: "100% 100%"
-      }}
-      className={props.cardClass}
-      onClick={props.onClick}>
-      {props.word}
-    </button>
-    // </ZoomIn>
-  );
-}
-
-
-function Board(props) {
-  function renderCard(i) {
-
-    // Clear word with card has been flipped. (BZ)
-    if (props.cardFlipped[i]) props.cardWords[i] = "";
-
-    return (
-      <Card
-        backgroundImage={i} // Added for card image. (BZ)
-        word={props.cardWords[i].toUpperCase()}
-        cardClass={props.cardClass[i]}
-        bgImg={props.bgImgs[i]}
-        onClick={() => props.onClick(i)}
-        className="card-body"
-      />
-    );
-  }
-
-  function renderColumns(rowPosition) {
-    const columns = [];
-    for (let columnPosition = 0; columnPosition < COLUMNS; columnPosition++) {
-      columns.push(renderCard(columnPosition + rowPosition * ROWS));
-    }
-    return columns;
-  }
-
-  function renderRows() {
-    const rows = [];
-    for (let rowPosition = 0; rowPosition < ROWS; rowPosition++) {
-      rows.push(
-        <div className="board-row" key={rowPosition}>{renderColumns(rowPosition)}</div>
-      );
-    }
-    return rows;
-  }
-
-  return (
-    <div>
-      {renderRows()}
-    </div>
-  );
-}
-
+// main react component
 function CodeNames() {
+  // define states and refs to be used
+
   const [cardFlipped, setCardFlipped] = useState(new Array(25).fill(false)); // Added for card flip. (BZ)
-  const [words, setWords] = useState([]);
+  // const [words, setWords] = useState([]);
+  const words = useRef([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [startGame, setStartGame] = useState(false);
   const [cardColor, setCardColor] = useState([]); // css class: hidden-card, red, blue
-  // const [cardClass, setCardClass] = useState(HIDDEN_CLASSNAMES); // initial classNames are 'hidden-card'
-  const cardClass = useRef(HIDDEN_CLASSNAMES);
+  // const [cardClass, setCardClass] = useState(hiddenClasses); // initial classNames are 'hidden-card'
+  const cardClass = useRef(hiddenClasses);
   const [clue, setClue] = useState("");
   const [isRedTurn, setIsRedTurn] = useState(true);
   const [isClueTurn, setIsClueTurn] = useState(true);
@@ -185,24 +91,25 @@ function CodeNames() {
   const [bgImgs, setBgImgs] = useState([]);
   const [myUsername, setMyUsername] = useState("");
 
-  const [queryUser, { uLoading, uError, uData }] = useLazyQuery(QUERY_USER);
-  const [queryGame, { gLoading, gError, gData }] = useLazyQuery(QUERY_GAME);
-  const [updateTeam, { uErr }] = useMutation(UPDATE_TEAM);
+  // define async queries/mutations to be used
+  const [queryUser] = useLazyQuery(QUERY_USER);
+  const [queryGame] = useLazyQuery(QUERY_GAME);
+  const [updateTeam] = useMutation(UPDATE_TEAM);
 
+  // function to be executed at page load via useEffect
   const init = async () => {
     const profile = await Auth.getProfile();
     const userId = profile.data._id;
 
     // await Username(userId);
-    let gameId = "";
+    // let gameId = "";
     let teamCatId = "";
-
     const URL = document.URL;
     const gameName = URL.slice(URL.lastIndexOf('/') + 1)
 
     try {
       const { data } = await queryGame({ variables: { gameName } });
-      gameId = data.game._id;
+      // gameId = data.game._id;
       teamCatId = data.game.teamCat._id;
 
       const wordList = data.game.wordList;
@@ -236,12 +143,12 @@ function CodeNames() {
           imgs.push(assassin);
           return 'assassin';
         }
+        return null;
       }))
 
-      setWords(allWords);
+      words.current = allWords;
       setCardColor(wordColors);
       setBgImgs(imgs);
-
     } catch (err) {
       console.error(err);
     }
@@ -362,7 +269,7 @@ function CodeNames() {
       if (teamCat.includes(myUsername)) return;
     }
     if (isClueTurn) {
-      console.log("abc");
+      // console.log("abc");
       return;
     }
     socket.emit("send_end_turn", { isRedTurn });
@@ -406,7 +313,7 @@ function CodeNames() {
     // console.log(classOfCards);
 
     // Added for card flipping. (BZ)
-    words[i] = " ";
+    words.current[i] = " ";
     flippedCards[i] = true;
 
     if (
@@ -439,7 +346,7 @@ function CodeNames() {
   const updateScore = (data) => {
     // update red or blue team's score
     // ensure game over is checked only after remaining
-    console.log(cardColor);
+    // console.log(cardColor);
     if (cardColor[data.i] === "red") {
       // setRedRemaining(redRemaining - 1);
       redRemaining.current = redRemaining.current - 1;
@@ -519,7 +426,7 @@ function CodeNames() {
         </div>
         <Board
           cardFlipped={cardFlipped} // Added for card flip. (BZ)
-          cardWords={words}
+          cardWords={words.current}
           cardClass={cardClass.current}
           bgImgs={bgImgs}
           onClick={handleCardClick}
