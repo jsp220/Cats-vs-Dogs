@@ -1,5 +1,5 @@
 import React from "react";
-import CodeNames from "../components/codeNames";
+import CodeNames from "../components/CodeNames";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";

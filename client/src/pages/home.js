@@ -42,7 +42,6 @@ export const Home = () => {
   const [addTeamCat] = useMutation(ADD_TEAMCAT);
   const [addTeamDog] = useMutation(ADD_TEAMDOG);
   const [updateGame] = useMutation(UPDATE_GAME);
-  // to here
 
   const startGame = async () => {
     let words = [];
