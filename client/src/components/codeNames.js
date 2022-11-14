@@ -98,20 +98,20 @@ function CodeNames() {
 
   // function to be executed at page load via useEffect
   const init = async () => {
+    // load profile using Auth (token)
     const profile = await Auth.getProfile();
     const userId = profile.data._id;
 
-    // await Username(userId);
-    // let gameId = "";
     let teamCatId = "";
     const URL = document.URL;
     const gameName = URL.slice(URL.lastIndexOf('/') + 1)
 
+    // query the Game data to assign words and images
     try {
       const { data } = await queryGame({ variables: { gameName } });
-      // gameId = data.game._id;
       teamCatId = data.game.teamCat._id;
 
+      // get the wordlist data
       const wordList = data.game.wordList;
 
       const allWords = wordList.allWords.map((word) => word.name);
@@ -120,12 +120,14 @@ function CodeNames() {
       const neutralWords = wordList.neutralWords.map((word) => word.name);
       const deathWord = wordList.deathWord.name;
 
+      // put images into arrays to assign to each word
       const catImgs = [cat1, cat2, cat3, cat4, cat5];
       const dogImgs = [dog1, dog2, dog3, dog4, dog5, dog6, dog7, dog8, dog9, dog10, dog11, dog12, dog13, dog14, dog15];
       const miscImgs = [nut1, nut2, nut3];
 
       let imgs = [];
 
+      // map through all words and assign colors (red, blue, bystander, assassin) and images
       const wordColors = allWords.map((word => {
         if (catWords.includes(word)) {
           imgs.push(catImgs[Math.floor(Math.random() * catImgs.length)]);
@@ -146,6 +148,7 @@ function CodeNames() {
         return null;
       }))
 
+      // update refs and states
       words.current = allWords;
       setCardColor(wordColors);
       setBgImgs(imgs);
@@ -153,6 +156,7 @@ function CodeNames() {
       console.error(err);
     }
 
+    // get username from database
     try {
       const { data: userData } = await queryUser({ variables: { userId } });
       setMyUsername(userData.user.username);
@@ -160,6 +164,7 @@ function CodeNames() {
       console.error(err);
     }
 
+    // insert username to temporary database list of online users
     try {
       const { data } = await updateTeam({
         variables:
@@ -169,23 +174,18 @@ function CodeNames() {
         }
       });
       const usersFromBackend = data.updateTeam.users.map((user) => user.username);
+
+      // send user list via socket to update everyone
       socket.emit("send_users", usersFromBackend);
     } catch (err) {
       console.error(err);
     }
   }
 
-  const newGame = (i) => {
-    window.location.reload(false);
-  }
-
-  const handleGearClick = () => {
-    alert("How to play codenames: https://www.youtube.com/watch?v=zQVHkl8oQEU");
-  };
-
+  // set state of onlineusers to the latest received data from socket
   const receiveUsers = (data) => {
-    const uniqueUsers = [...new Set(data)];
-    setOnlineUsers(uniqueUsers);
+    // const uniqueUsers = [...new Set(data)];
+    setOnlineUsers(data);
   }
 
   // when start game button is clicked
@@ -198,7 +198,6 @@ function CodeNames() {
 
     // move half (rounded up) into team cat
     for (let i = 0; i < teamCatSize; i++) {
-
       teamCat.push(teamDog.splice(Math.floor(Math.random() * teamDog.length), 1)[0]);
     }
 
@@ -210,6 +209,7 @@ function CodeNames() {
     socket.emit("send_game_start", { catSpyMaster, dogSpyMaster, teamDog, teamCat });
   }
 
+  // receive data via socket and update state variables
   const receiveGameStart = (data) => {
     setTeamCat(data.teamCat);
     setTeamDog(data.teamDog);
@@ -218,15 +218,18 @@ function CodeNames() {
     setStartGame(true);
   }
 
+  // when a clue is submitted
   function handleClueSubmit(e) {
-    // prevent refresh of game on each submit
+    // prevent refresh
     e.preventDefault();
 
+    // process the clue
     const clue = e.target[0].value;
     const firstBlank = clue.indexOf(" ");
     const secondBlank = clue.indexOf(" ", firstBlank + 1);
     const number = parseInt(clue.slice(firstBlank + 1));
 
+    // process errors
     if (
       (isRedTurn && teamDog.includes(myUsername))
       || (!isRedTurn && teamCat.includes(myUsername))
@@ -247,21 +250,26 @@ function CodeNames() {
       return;
     }
 
+    // send the clue and whose turn it is via socket
     socket.emit("send_clue", { clue, isRedTurn });
 
+    // reset the clue field
     e.target[0].value = "";
   }
 
+  // update state variables with data received via socket
   const receiveClue = (data) => {
     setClue(data.clue);
     setIsClueTurn(false);
     setStatusMessage(data.isRedTurn ? "Team Cat's turn to guess!" : "Team Dog's turn to guess!")
   }
 
+  // populate the clue on the screen
   const renderLog = () => {
     if (clue) return <div>Team {isRedTurn ? "Cat" : "Dog"}'s spymaster gives a clue: {clue}.</div>
   }
 
+  // when the end turn button is clicked
   const handleEndTurnClick = () => {
     if (isRedTurn) {
       if (teamDog.includes(myUsername)) return;
@@ -272,9 +280,12 @@ function CodeNames() {
       // console.log("abc");
       return;
     }
+
+    // send current turn via socket
     socket.emit("send_end_turn", { isRedTurn });
   };
 
+  // update turn related state variables via socket
   const receiveEndTurn = (data) => {
     setIsRedTurn(!data.isRedTurn);
     setStatus(data.isRedTurn ? "blue-turn" : "red-turn");
@@ -282,6 +293,7 @@ function CodeNames() {
     setIsClueTurn(true);
   }
 
+  // when a card is clicked
   const handleCardClick = (i) => {
     // disable clicking if game over, for spy master, or if time for clue
     // console.log(isSpyMaster);
@@ -299,23 +311,24 @@ function CodeNames() {
       if (teamCat.includes(myUsername)) return null;
     }
 
+    // send data via socket
     socket.emit("send_card_click", { i, cardFlipped, isRedTurn })
   };
 
+  // handle card click via socket
   const receiveCardClick = (data) => {
     const i = data.i;
     let flippedCards = [...data.cardFlipped]; // Added for socket IO. (BZ)
     let classOfCards = [...cardClass.current];
     let colorOfCards = [...cardColor];
 
-    classOfCards[i] = colorOfCards[i]; // switch css classNames
-
-    // console.log(classOfCards);
+    classOfCards[i] = colorOfCards[i]; // switch css classNames for the clicked card
 
     // Added for card flipping. (BZ)
     words.current[i] = " ";
     flippedCards[i] = true;
 
+    // when the wrong card is clicked (except assassin)
     if (
       colorOfCards[i] === "bystander" ||
       (data.isRedTurn === true && cardColor[i] === "blue") ||
@@ -328,7 +341,9 @@ function CodeNames() {
         ? "Team Cat's turn to give a clue!"
         : "Team Dog's turn to give a clue!"
       );
-    } else if (colorOfCards[i] === "assassin") {
+    }
+    // when the assassin is clicked 
+    else if (colorOfCards[i] === "assassin") {
       // alert("You have chosen the assassin. Game Over.");
       const status = "game-over-" + (data.isRedTurn ? "blue" : "red");
       setStatus(status);
@@ -343,10 +358,9 @@ function CodeNames() {
     setCardFlipped(flippedCards); // Added for Socket IO. (BZ)
   }
 
+  // update scores
   const updateScore = (data) => {
     // update red or blue team's score
-    // ensure game over is checked only after remaining
-    // console.log(cardColor);
     if (cardColor[data.i] === "red") {
       // setRedRemaining(redRemaining - 1);
       redRemaining.current = redRemaining.current - 1;
@@ -357,6 +371,7 @@ function CodeNames() {
     }
   }
 
+  // function to check if game is over
   const isGameOver = () => {
     // if (redRemaining === 0 || blueRemaining === 0) {
     if (redRemaining.current === 0 || blueRemaining.current === 0) {
@@ -368,10 +383,14 @@ function CodeNames() {
     }
   };
 
+  // useEffect for initial load and sockets for before starting game
   useEffect(() => {
-    isGameOver();
-  }, [redRemaining.current, blueRemaining.current])
+    init();
+    socket.on("receive_users", (data) => receiveUsers(data));
+    socket.on("receive_game_start", (data) => receiveGameStart(data));
+  }, [])
 
+  // useEffect for checking if SpyMaster
   useEffect(() => {
     if ([catSpyMaster, dogSpyMaster].includes(myUsername)) {
       const spymasterCardNames = cardClass.current.map((card, i) => {
@@ -384,24 +403,32 @@ function CodeNames() {
     }
   }, [catSpyMaster, dogSpyMaster]);
 
+  // sockets for during the game
   useEffect(() => {
     // handle all socket emits received by calling respective functions
     socket.on("receive_clue", (data) => receiveClue(data));
     socket.on("receive_end_turn", (data) => receiveEndTurn(data));
-  }, [startGame])
-
-  useEffect(() => {
-    // handle all socket emits received by calling respective functions
     socket.on("receive_card_click", (data) => receiveCardClick(data));
   }, [startGame])
 
-  // useEffect for initial load
+  // check if game over every time red/blue remaining changes
   useEffect(() => {
-    init();
-    socket.on("receive_users", (data) => receiveUsers(data));
-    socket.on("receive_game_start", (data) => receiveGameStart(data));
-  }, [])
+    isGameOver();
+  }, [])  
+  // }, [redRemaining.current, blueRemaining.current])
 
+  // TODO: include logic here to create a new game
+  const newGame = (i) => {
+    // window.location.reload(false);
+    return;
+  }
+
+  // when gear clicked
+  const handleGearClick = () => {
+    alert("How to play codenames: https://www.youtube.com/watch?v=zQVHkl8oQEU");
+  };
+
+  // end turn button
   function renderEndTurn() {
     return (
       <button
@@ -413,14 +440,20 @@ function CodeNames() {
     );
   }
 
+  // when game starts
   const renderGame = () => {
     return (
       <div className="game" >
         <div className="title col-12">CATS VS. DOGS</div>
-        <div className="info row col-12">
+        <div className="info row col-12 mx-0">
           <h3 className={"turn col " + status}>{statusMessage}</h3>
           {/* display end turn and show winner based on state */}
-          {showEndTurn && !isSpyMaster
+          {showEndTurn
+            && !isSpyMaster
+            && !isClueTurn
+            && (
+              (isRedTurn && teamCat.includes(myUsername))
+              || (!isRedTurn && teamDog.includes(myUsername)))
             ? renderEndTurn()
             : null}
         </div>
@@ -431,7 +464,7 @@ function CodeNames() {
           bgImgs={bgImgs}
           onClick={handleCardClick}
         />
-        <div className="info row col-12">
+        <div className="info row col-12 mx-0">
           <div>
             {isSpyMaster
               ? (
@@ -440,13 +473,23 @@ function CodeNames() {
                     ? <h4 className="red-turn">You are Team Cat's Spymaster!</h4>
                     : <h4 className="blue-turn">You are Team Dog's Spymaster!</h4>
                   }
-                  <form onSubmit={handleClueSubmit}>
-                    <label className="clueInput">
-                      Clue:
-                      <input type="text" name="clue" className="formInput" />
-                    </label>
-                    <input type="submit" value="Submit" />
-                  </form>
+                  {!winner
+                    && (
+                      (isRedTurn && teamCat.includes(myUsername))
+                      || (!isRedTurn && teamDog.includes(myUsername))
+                    )
+                    ? (
+                      <>
+                        <form onSubmit={handleClueSubmit}>
+                          <label className="clueInput">
+                            Clue:
+                            <input type="text" name="clue" className="formInput" />
+                          </label>
+                          <input type="submit" value="Submit" />
+                        </form>
+                      </>
+                    ) : null
+                  }
                 </>
               ) : null
             }
@@ -509,7 +552,7 @@ function CodeNames() {
     )
   }
 
-  // waiting room shows who has joined the room so far
+  // waiting room shows who has joined the room so far, before game starts
   const renderWaitingRoom = () => {
     return (
       <div className="game" >
@@ -527,10 +570,10 @@ function CodeNames() {
     )
   }
 
-  // on load, startGame is false so "renderWaitingRoom" runs. 
-  // when game is started, renderGame runs
   renderNumber++;
   console.log(renderNumber);
+  
+  // on load, startGame is false so "renderWaitingRoom" runs. 
   return (
     <>
       {startGame
