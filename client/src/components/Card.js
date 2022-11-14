@@ -21,15 +21,17 @@ function Card(props) {
 
     return (
         <ZoomIn>
-            <button style={
-                {
-                    backgroundImage: `url(${image})`,
-                    backgroundSize: "100% 100%"
-                }}
-                className={props.cardClass}
-                onClick={props.onClick}>
-                {props.word}
-            </button>
+            <h4>
+                <button style={
+                    {
+                        backgroundImage: `url(${image})`,
+                        backgroundSize: "100% 100%"
+                    }}
+                    className={props.cardClass}
+                    onClick={props.onClick}>
+                    {props.word}
+                </button>
+            </h4>
         </ZoomIn>
     );
 }
