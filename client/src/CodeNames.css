@@ -8,8 +8,20 @@ ul {
   padding-left: 30px;
 }
 
+h3 {
+  font-size: 1.75rem !important;
+}
+
+h4 {
+  font-size: 1.5rem !important;
+}
+
 .create-game {
   cursor: pointer;
+}
+
+.submit-button {
+  max-width: 100px;
 }
 
 .title {
@@ -326,7 +338,7 @@ ul {
   }
 
   h4 {
-    font-size: 2vw !important;
+    font-size: 2.5vw !important;
   }
 }
 
@@ -334,30 +346,6 @@ ul {
   .game {
     margin-left: 1%;
     margin-right: 1%;
-  }
-
-  .hidden-card,
-  .red,
-  .blue,
-  .bystander,
-  .assassin,
-  .spymaster-assassin,
-  .spymaster-blue,
-  .spymaster-bystander,
-  .spymaster-red {
-    font-size: 2vw !important;
-  }
-
-  h2 {
-    font-size: 4vw !important;
-  }
-
-  h3 {
-    font-size: 3vw !important;
-  }
-
-  h4 {
-    font-size: 2vw !important;
   }
 }
 
