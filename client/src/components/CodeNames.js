@@ -6,7 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../CodeNames.css";
 
 // import components
-import Rules from "../components/rules";
+import Rules from "./rules";
 import Gear from "./Gear";
 import Board from "./Board";
 
@@ -450,7 +450,7 @@ function CodeNames() {
         </div>
         <div className="row">
           <div className="info col-12 mx-0">
-            <h4 className={"turn col " + status}>{statusMessage}</h4>
+            <h3 className={"turn col " + status}>{statusMessage}</h3>
             {/* display end turn and show winner based on state */}
             {showEndTurn
               && !isSpyMaster
@@ -464,17 +464,17 @@ function CodeNames() {
         </div>
         <div className="row justify-content-center">
           <div className="teamCat col-4 col-lg-2 border">
-            <h2 className="red-turn fw-bolder">Team Cat</h2>
-            <h3>
+            <h3 className="red-turn fw-bolder">Team Cat</h3>
+            <h4>
               Card Remaining:{" "}
               <span className="red-turn">{redRemaining.current}</span>
-            </h3>
-            <h3>Team Members:</h3>
+            </h4>
+            <h4>Team Members:</h4>
             {teamCat.map((user, index) => {
               if (index == 0) return (
-                <h3>{user} - Spymaster</h3>
+                <h4>{user} - Spymaster</h4>
               );
-              else return (<h3>{user}</h3>);
+              else return (<h4>{user}</h4>);
             })}
           </div>
           <Board
@@ -485,17 +485,17 @@ function CodeNames() {
             onClick={handleCardClick}
           />
           <div className="teamDog col-4 col-lg-2 border">
-            <h2 className="blue-turn fw-bolder">Team Dog</h2>
-            <h3>
+            <h3 className="blue-turn fw-bolder">Team Dog</h3>
+            <h4>
               Card Remaining:{" "}
               <span className="blue-turn">{blueRemaining.current}</span>
-            </h3>
-            <h3>Team Members: </h3>
+            </h4>
+            <h4>Team Members: </h4>
             {teamDog.map((user, index) => {
               if (index == 0) return (
-                <h3>{user} - Spymaster</h3>
+                <h4>{user} - Spymaster</h4>
               );
-              else return (<h3>{user}</h3>);
+              else return (<h4>{user}</h4>);
             })}
           </div>
           <div className="info col-12 mx-0">
@@ -514,11 +514,11 @@ function CodeNames() {
                     ? (
                       <>
                         <form className="row justify-content-center" onSubmit={handleClueSubmit}>
-                          <label className="clueInput col-8 p-0">
+                          <label className="clueInput col-8 col-md-6 col-lg-4 col-xl-2 p-0">
                             <input type="text" name="clue" placeholder="Clue" className="formInput" />
                           </label>
                           <div className="row justify-content-center">
-                            <input className="col-4" type="submit" value="Submit" />
+                            <input className="col-2 col-md-1" type="submit" value="Submit" />
                           </div>
                         </form>
                       </>
@@ -540,7 +540,7 @@ function CodeNames() {
           }
 
           <div className="gameLog col-4 border">
-            <h2 className="fw-bolder">Game Log</h2>
+            <h3 className="fw-bolder">Game Log</h3>
             {!isClueTurn
               ? renderLog()
               : null
