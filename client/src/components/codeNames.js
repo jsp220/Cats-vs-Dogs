@@ -53,8 +53,8 @@ import io from "socket.io-client";
 
 const ROOT_URL = 'https://mysterious-hollows-84029.herokuapp.com';
 
-// const socket = io.connect(ROOT_URL);
-const socket = io.connect("http://localhost:3000");
+const socket = io.connect(ROOT_URL); // for deployment
+// const socket = io.connect("http://localhost:3000"); // for development
 
 // declare variables for setting up the game
 const hiddenClasses = new Array(25).fill("hidden-card");
@@ -414,8 +414,8 @@ function CodeNames() {
   // check if game over every time red/blue remaining changes
   useEffect(() => {
     isGameOver();
-  }, [])  
-  // }, [redRemaining.current, blueRemaining.current])
+  // }, [])  
+  }, [redRemaining.current, blueRemaining.current])
 
   // TODO: include logic here to create a new game
   const newGame = (i) => {
