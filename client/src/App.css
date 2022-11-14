@@ -1,8 +1,15 @@
-main{
-  height: 100vh !important;
+main {
+  min-height: 100vh !important;
 }
 
-.teamCat{
+.bg-game {
+  min-height: 100vh;
+  height: 100%;
+  background-image: linear-gradient(to bottom right, lightgrey, grey);
+}
+
+
+/* .teamCat{
   border: 3px solid green;
   background-color: white;
   width: 20%;
@@ -10,245 +17,246 @@ main{
   position: absolute;
   left: 1%;
   top:10%;
-}
+} */
 
 /* Changed border width. (BZ) */
-.teamDog{
+/* .teamDog {
   border: 3px solid green;
   background-color: white;
   width: 20%;
   height: 30%;
   position: absolute;
   right: 1%;
-  top:10%;
-}
+  top: 10%;
+} */
 
 /* Changed border width. (BZ) */
-.rules{
+/* .rules {
   border: 3px solid green;
   background-color: white;
   width: 20%;
   height: 40%;
   position: absolute;
   left: 1%;
-  top:45%;
-}
+  top: 45%;
+} */
 
 /* Changed border width. (BZ) */
-.gameLog{
+/* .gameLog {
   border: 3px solid green;
   background-color: white;
   width: 20%;
   height: 40%;
   position: absolute;
   right: 1%;
-  top:45%;
-}
+  top: 45%;
+} */
 
 /* Changed border width. (BZ) */
-.cardContainer{
+.cardContainer {
   border: 3px solid green;
   justify-content: center;
 }
 
-.clueInput{
+/* .clueInput{
   margin-left: 20%;
   width: 50%;
+} */
+
+.formInput {
+  width: 100%;
+
 }
 
-.formInput{
-  width: 86%;
-  margin-left: 1%;
-}
 
-
-@media only screen and (max-device-width: 950px) and (orientation: portrait){
-  .clueInput{
+@media only screen and (max-device-width: 950px) and (orientation: portrait) {
+  /* .clueInput{
     width: 60%;
     margin-left: 20%;
-  }
+  } */
 
-  .formInput{
+  /* .formInput{
     width: 80%;
-  }
+  } */
 
-  .dogAgent{
-    margin-top: -10%;
-    scale: 70%;
-  }
-  
-  .dogSpy{
+  .dogAgent {
     margin-top: -10%;
     scale: 70%;
   }
 
-  .catAgent{
+  .dogSpy {
     margin-top: -10%;
     scale: 70%;
   }
-  
-  .catSpy{
+
+  .catAgent {
+    margin-top: -10%;
+    scale: 70%;
+  }
+
+  .catSpy {
     margin-top: -10%;
     scale: 70%;
   }
 }
 
-@media only screen and (max-device-width: 500px) and (orientation: portrait){
-  body{
-    height: 100vh;
+@media only screen and (max-device-width: 500px) {
+  body {
+    min-height: 100vh;
   }
 
-  .clueInput{
+  /* .clueInput{
     width: 70%;
-  }
+  } */
 
-  .formInput{
+  /* .formInput{
     width: 80%;
-  }
+  } */
 
-  .teamDog{
+  /* .teamDog {
     border: 10px solid red;
     margin-left: 5%;
     width: 40%;
     height: 25%;
     position: absolute;
-    left: 1%;
-    top:56%;
-  }
+    right: 1%;
+    top: 56%;
+  } */
 
-  .rules{
+  /* .rules {
     border: 10px solid red;
     margin-left: 5%;
     width: 40%;
     height: 20%;
     position: absolute;
     left: 1%;
-    top:80%;
-  }  
+    top: 80%;
+  } */
 
-  .teamCat{
+  /* .teamCat{
     border: 10px solid red;
     margin-right: 5%;
     width: 40%;
     height: 25%;
     position: absolute;
-    right: 1%;
+    left: 1%;
     top:56%;
-  }
+  } */
 
-  .gameLog{
+  /* .gameLog {
     border: 10px solid red;
     margin-right: 5%;
     width: 40%;
     height: 20%;
     position: absolute;
     right: 1%;
-    top:80%;
-  }
-  .dogAgent{
-    margin-top: -10%;
-    scale: 70%;
-  }
-  
-  .dogSpy{
+    top: 80%;
+  } */
+
+  .dogAgent {
     margin-top: -10%;
     scale: 70%;
   }
 
-  .catAgent{
+  .dogSpy {
     margin-top: -10%;
     scale: 70%;
   }
-  
-  .catSpy{
+
+  .catAgent {
     margin-top: -10%;
     scale: 70%;
   }
+
+  .catSpy {
+    margin-top: -10%;
+    scale: 70%;
   }
+}
 
-  @media only screen and (max-device-height: 800px) and (orientation: portrait){
-    .gameLog{
-      border: 10px solid blue;
-      margin-right: 5%;
-      width: 33%;
-      height: 30%;
-      position: absolute;
-      right: 28%;
-      top:60%;
-    }
+@media only screen and (max-device-height: 800px) {
+  /* .gameLog {
+    border: 10px solid blue;
+    margin-right: 5%;
+    width: 33%;
+    height: 30%;
+    position: absolute;
+    right: 28%;
+    top: 60%;
+  } */
 
-    .teamDog{
-      border: 10px solid blue;
-      margin-left: 0.5%;
-      width: 33%;
-      height: 30%;
-      position: absolute;
-      left: 1%;
-      top:60%;
-    }
+  /* .teamDog {
+    border: 10px solid blue;
+    margin-left: 0.5%;
+    width: 33%;
+    height: 30%;
+    position: absolute;
+    right: 1%;
+    top: 60%;
+  } */
 
-    .teamCat{
+  /* .teamCat{
       border: 10px solid blue;
       margin-right: 0.5%;
       width: 33%;
       height: 30%;
       position: absolute;
-      right: 1%;
+      left: 1%;
       top:60%;
-    }
+    } */
 
-    .rules{
-      border: 10px solid blue;
-      width: 80%;
-      height: 10%;
-      position: absolute;
-      left: 5%;
-      top: 90%;
-    }  
+  /* .rules {
+    border: 10px solid blue;
+    width: 80%;
+    height: 10%;
+    position: absolute;
+    left: 5%;
+    top: 90%;
+  } */
 
-    .dogAgent{
-      margin-top: -10%;
-      scale: 80%;
-    }
-    
-    .dogSpy{
-      margin-top: -20%;
-      scale: 80%;
-    }
-
-    .catAgent{
-      margin-top: -10%;
-      scale: 80%;
-    }
-    
-    .catSpy{
-      margin-top: -20%;
-      scale: 80%;
-    }
+  .dogAgent {
+    margin-top: -10%;
+    scale: 80%;
   }
 
-  @media only screen and (max-device-height: 700px) and (orientation: portrait){
-    .gameLog{
-      border: 10px solid yellow;
-      margin-right: 5%;
-      width: 33%;
-      height: 25%;
-      position: absolute;
-      right: 28%;
-      top:70%;
-    }
+  .dogSpy {
+    margin-top: -20%;
+    scale: 80%;
+  }
 
-    .teamDog{
-      border: 10px solid yellow;
-      margin-left: 0.5%;
-      width: 33%;
-      height: 25%;
-      position: absolute;
-      left: 1%;
-      top:70%;
-    }
+  .catAgent {
+    margin-top: -10%;
+    scale: 80%;
+  }
 
-    .teamCat{
+  .catSpy {
+    margin-top: -20%;
+    scale: 80%;
+  }
+}
+
+@media only screen and (max-device-height: 700px) {
+  /* .gameLog {
+    border: 10px solid yellow;
+    margin-right: 5%;
+    width: 33%;
+    height: 25%;
+    position: absolute;
+    right: 28%;
+    top: 70%;
+  } */
+
+  /* .teamDog {
+    border: 10px solid yellow;
+    margin-left: 0.5%;
+    width: 33%;
+    height: 25%;
+    position: absolute;
+    right: 1%;
+    top: 70%;
+  } */
+
+  /* .teamCat{
       border: 10px solid yellow;
       margin-right: 0.5%;
       width: 33%;
@@ -256,94 +264,114 @@ main{
       position: absolute;
       right: 1%;
       top:70%;
-    }
+    } */
 
-    .rules{
-      border: 10px solid yellow;
-      width: 90%;
-      height: 5%;
-      position: absolute;
-      left: 0.5%;
-      top:95%;
-    }  
-    
-    .dogAgent{
-      margin-top: -20%;
-      scale: 50%;
-    }
-    
-    .dogSpy{
-      margin-top: -25%;
-      scale: 50%;
-    }
+  /* .rules {
+    border: 10px solid yellow;
+    width: 90%;
+    height: 5%;
+    position: absolute;
+    left: 0.5%;
+    top: 95%;
+  } */
 
-    .catAgent{
-      margin-top: -20%;
-      scale: 50%;
-    }
-    
-    .catSpy{
-      margin-top: -25%;
-      scale: 50%;
-    }
+  .dogAgent {
+    margin-top: -20%;
+    scale: 50%;
   }
 
-  .card{
-    margin-top: 30vh;
-    margin-left: 30%;
-    width: 60vw;
-    max-width: 2000px;
-  
+  .dogSpy {
+    margin-top: -25%;
+    scale: 50%;
   }
-  
-  /* .formCard{
+
+  .catAgent {
+    margin-top: -20%;
+    scale: 50%;
+  }
+
+  .catSpy {
+    margin-top: -25%;
+    scale: 50%;
+  }
+}
+
+.card {
+  margin-top: 30vh;
+  margin-left: 30%;
+  width: 60vw;
+  max-width: 2000px;
+
+}
+
+/* .formCard{
     display: flex;
     justify-content: space-around;
   } */
-  
-  .card-header{
-    text-align: center;
-  }
-  
-  .backHome{
-    padding-left: 20%;
-  }
 
-  .card-body{
-    max-width: 50%;
-    margin-top: 40%;
-  }
+.card-header {
+  text-align: center;
+}
 
-  .loginCard{
-    display: flex;
-    justify-content: center;
-  }
+.backHome {
+  padding-left: 20%;
+}
 
-  .MuiTypography-root{
-    margin-bottom: 3% !important;
-    margin-top: 3% !important;
-  }
+.card-body {
+  max-width: 50%;
+  margin-top: 40%;
+}
 
-  .rulesBox{
-    display: flex;
-    justify-content: end;
-    margin-right: 1%;
-  }
+.loginCard {
+  display: flex;
+  justify-content: center;
+}
 
-  .MuiCollapse-wrapperInner{
-    background-color:  #FAF9F6;
-  }
+.MuiTypography-root {
+  margin-bottom: 1% !important;
+  margin-top: 1% !important;
+}
 
-  .MuiFormControlLabel-root{
-    display: flex !important;
-    justify-content: end !important;
-  }
+.rulesBox {
+  display: flex;
+  justify-content: end;
+  margin-right: 1%;
+}
 
-  .rulesTitle{
-    display: flex;
-    justify-content: center;
-  }
+.MuiCollapse-wrapperInner {
+  background-color: #FAF9F6;
+  z-index: 1;
+  border: 5px solid green;
+}
 
-  .MuiCollapse-wrapperInner{
-    border: 5px solid green;
-  }
+.MuiFormControlLabel-root {
+  display: flex !important;
+  justify-content: end !important;
+}
+
+
+.rulesTitle {
+  display: flex;
+  justify-content: center;
+}
+
+.gameCard {
+  display: flex;
+  justify-content: center;
+}
+
+.MuiTypography-body1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.css-qxh7fn {
+  display: flex;
+  justify-content: end;
+  margin-right: 2%;
+}
+
+.rulesCard {
+  height: auto !important;
+}

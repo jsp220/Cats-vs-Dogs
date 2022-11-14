@@ -39,7 +39,7 @@ function Board(props) {
     }
 
     return (
-        <div>
+        <div className="col-12 col-lg-6 ">
             {renderRows()}
         </div>
     );

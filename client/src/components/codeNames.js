@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../CodeNames.css";
 
 // import components
+import Rules from "../components/rules";
 import Gear from "./Gear";
 import Board from "./Board";
 
@@ -414,7 +415,7 @@ function CodeNames() {
   // check if game over every time red/blue remaining changes
   useEffect(() => {
     isGameOver();
-  // }, [])  
+    // }, [])  
   }, [redRemaining.current, blueRemaining.current])
 
   // TODO: include logic here to create a new game
@@ -443,35 +444,67 @@ function CodeNames() {
   // when game starts
   const renderGame = () => {
     return (
-      <div className="game" >
-        <div className="title col-12">CATS VS. DOGS</div>
-        <div className="info row col-12 mx-0">
-          <h3 className={"turn col " + status}>{statusMessage}</h3>
-          {/* display end turn and show winner based on state */}
-          {showEndTurn
-            && !isSpyMaster
-            && !isClueTurn
-            && (
-              (isRedTurn && teamCat.includes(myUsername))
-              || (!isRedTurn && teamDog.includes(myUsername)))
-            ? renderEndTurn()
-            : null}
+      <div className="game container-fluid p-2">
+        <div className="row">
+          <div className="title col-12">CATS VS. DOGS</div>
         </div>
-        <Board
-          cardFlipped={cardFlipped} // Added for card flip. (BZ)
-          cardWords={words.current}
-          cardClass={cardClass.current}
-          bgImgs={bgImgs}
-          onClick={handleCardClick}
-        />
-        <div className="info row col-12 mx-0">
-          <div>
+        <div className="row">
+          <div className="info col-12 mx-0">
+            <h4 className={"turn col " + status}>{statusMessage}</h4>
+            {/* display end turn and show winner based on state */}
+            {showEndTurn
+              && !isSpyMaster
+              && !isClueTurn
+              && (
+                (isRedTurn && teamCat.includes(myUsername))
+                || (!isRedTurn && teamDog.includes(myUsername)))
+              ? renderEndTurn()
+              : null}
+          </div>
+        </div>
+        <div className="row justify-content-center">
+          <div className="teamCat col-4 col-lg-2 border">
+            <h2 className="red-turn fw-bolder">Team Cat</h2>
+            <h3>
+              Card Remaining:{" "}
+              <span className="red-turn">{redRemaining.current}</span>
+            </h3>
+            <h3>Team Members:</h3>
+            {teamCat.map((user, index) => {
+              if (index == 0) return (
+                <h3>{user} - Spymaster</h3>
+              );
+              else return (<h3>{user}</h3>);
+            })}
+          </div>
+          <Board
+            cardFlipped={cardFlipped} // Added for card flip. (BZ)
+            cardWords={words.current}
+            cardClass={cardClass.current}
+            bgImgs={bgImgs}
+            onClick={handleCardClick}
+          />
+          <div className="teamDog col-4 col-lg-2 border">
+            <h2 className="blue-turn fw-bolder">Team Dog</h2>
+            <h3>
+              Card Remaining:{" "}
+              <span className="blue-turn">{blueRemaining.current}</span>
+            </h3>
+            <h3>Team Members: </h3>
+            {teamDog.map((user, index) => {
+              if (index == 0) return (
+                <h3>{user} - Spymaster</h3>
+              );
+              else return (<h3>{user}</h3>);
+            })}
+          </div>
+          <div className="info col-12 mx-0">
             {isSpyMaster
               ? (
                 <>
                   {teamCat.includes(myUsername)
-                    ? <h4 className="red-turn">You are Team Cat's Spymaster!</h4>
-                    : <h4 className="blue-turn">You are Team Dog's Spymaster!</h4>
+                    ? <h3 className="red-turn text-center">You are Team Cat's Spymaster!</h3>
+                    : <h3 className="blue-turn text-center">You are Team Dog's Spymaster!</h3>
                   }
                   {!winner
                     && (
@@ -480,12 +513,13 @@ function CodeNames() {
                     )
                     ? (
                       <>
-                        <form onSubmit={handleClueSubmit}>
-                          <label className="clueInput">
-                            Clue:
-                            <input type="text" name="clue" className="formInput" />
+                        <form className="row justify-content-center" onSubmit={handleClueSubmit}>
+                          <label className="clueInput col-8 p-0">
+                            <input type="text" name="clue" placeholder="Clue" className="formInput" />
                           </label>
-                          <input type="submit" value="Submit" />
+                          <div className="row justify-content-center">
+                            <input className="col-4" type="submit" value="Submit" />
+                          </div>
                         </form>
                       </>
                     ) : null
@@ -504,49 +538,14 @@ function CodeNames() {
               </button>
             ) : null
           }
-        </div>
-        <div className="teamDog">
-          <h2 className="blue-turn">Team Dog</h2>
-          <h3>
-            Card Remaining:{" "}
-            <span className="blue-turn">{blueRemaining.current}</span>
-          </h3>
-          <h4>Team Members: </h4>
-          {teamDog.map((user, index) => {
-            if (index == 0) return (
-              <h5>{user} - Spymaster</h5>
-            );
-            else return (<h5>{user}</h5>);
-          })}
-        </div>
-        <div className="teamCat">
-          <h2 className="red-turn">Team Cat</h2>
-          <h3>
-            Card Remaining:{" "}
-            <span className="red-turn">{redRemaining.current}</span>
-          </h3>
-          <h4>Team Members:</h4>
-          {teamCat.map((user, index) => {
-            if (index == 0) return (
-              <h5>{user} - Spymaster</h5>
-            );
-            else return (<h5>{user}</h5>);
-          })}
-        </div>
-        <div className="rules">
-          <h4>Rules</h4>
-          <Gear onClick={handleGearClick} />
-          <div
-            className="btn-group btn-group-toggle"
-            data-toggle="buttons"
-          ></div>
-        </div>
-        <div className="gameLog">
-          <h4>Game Log</h4>
-          {!isClueTurn
-            ? renderLog()
-            : null
-          }
+
+          <div className="gameLog col-4 border">
+            <h2 className="fw-bolder">Game Log</h2>
+            {!isClueTurn
+              ? renderLog()
+              : null
+            }
+          </div>
         </div>
       </div>
     )
@@ -555,11 +554,12 @@ function CodeNames() {
   // waiting room shows who has joined the room so far, before game starts
   const renderWaitingRoom = () => {
     return (
-      <div className="game" >
+      <div className="game container" >
         <div className="title col-12 mx-0">CATS VS. DOGS</div>
+        <div className="">Game Code: {document.URL.slice(document.URL.lastIndexOf('/') + 1)}</div>
         <div className="info row col-12 mx-0">
           <ul className="list-group px-0">
-            <li className="h4 list-group-item active text-center">Currently online:</li>
+            <li className="h4 currently-online list-group-item active text-center">Currently online:</li>
             {onlineUsers.map((user) => (
               <li className="list-group-item text-center" key={user}>{user}</li>
             ))}
@@ -572,7 +572,7 @@ function CodeNames() {
 
   renderNumber++;
   console.log(renderNumber);
-  
+
   // on load, startGame is false so "renderWaitingRoom" runs. 
   return (
     <>
@@ -580,6 +580,7 @@ function CodeNames() {
         ? renderGame()
         : renderWaitingRoom()
       }
+      <Rules />
     </>
   );
 
