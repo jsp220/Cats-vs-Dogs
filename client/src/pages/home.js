@@ -10,6 +10,9 @@ export const Home = () => {
   return (
     <div>
       <LogoutBtn />
+      <div className="row">
+        <div className="title text-center col-12">CATS VS. DOGS</div>
+      </div>
       <Rules />
       <div className="container-fluid">
         <div className="gameCard row">

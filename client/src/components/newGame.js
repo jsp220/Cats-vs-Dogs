@@ -97,7 +97,7 @@ export const NewGame = () => {
 
   return (
     <div className="col-12 col-md-6 m-1">
-        <Card sx={{ minWidth: 275 }}>
+        <Card className="create-game" onClick={startGame} sx={{ minWidth: 275 }}>
           <CardContent>
             <Typography
               sx={{ fontSize: 16 }}

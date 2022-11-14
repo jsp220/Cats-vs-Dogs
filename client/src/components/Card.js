@@ -21,7 +21,6 @@ function Card(props) {
 
     return (
         <ZoomIn>
-            <h4>
                 <button style={
                     {
                         backgroundImage: `url(${image})`,
@@ -31,7 +30,6 @@ function Card(props) {
                     onClick={props.onClick}>
                     {props.word}
                 </button>
-            </h4>
         </ZoomIn>
     );
 }

@@ -22,7 +22,7 @@ class JoinGame extends React.Component {
     return (
       <div className="col-12 col-md-6 m-1">
         <Card sx={{ minWidth: 275 }}>
-          <CardContent>
+          <CardContent className="col-12">
             <Typography
               sx={{ fontSize: 16 }}
               color="text.secondary"
@@ -46,11 +46,12 @@ class JoinGame extends React.Component {
 
                 <Link to={`/game/${this.state.value}`}>
                   <BottomNavigationAction
-                   className="btn btn-primary"
+                  //  className="btn btn-primary"
                    type="submit"
                    for="code"
                    label="game"
                    icon={<AddCircleIcon sx={{ fontSize: 60 }} />}
+                  
                    >
                     Search
                   </BottomNavigationAction>

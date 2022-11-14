@@ -1,6 +1,13 @@
 main {
-  height: 100vh !important;
+  min-height: 100vh !important;
 }
+
+.bg-game {
+  min-height: 100vh;
+  height: 100%;
+  background-image: linear-gradient(to bottom right, lightgrey, grey);
+}
+
 
 /* .teamCat{
   border: 3px solid green;
@@ -93,9 +100,9 @@ main {
   }
 }
 
-@media only screen and (max-device-width: 500px) and (orientation: portrait) {
+@media only screen and (max-device-width: 500px) {
   body {
-    height: 100vh;
+    min-height: 100vh;
   }
 
   /* .clueInput{
@@ -167,7 +174,7 @@ main {
   }
 }
 
-@media only screen and (max-device-height: 800px) and (orientation: portrait) {
+@media only screen and (max-device-height: 800px) {
   /* .gameLog {
     border: 10px solid blue;
     margin-right: 5%;
@@ -228,7 +235,7 @@ main {
   }
 }
 
-@media only screen and (max-device-height: 700px) and (orientation: portrait) {
+@media only screen and (max-device-height: 700px) {
   /* .gameLog {
     border: 10px solid yellow;
     margin-right: 5%;
@@ -321,8 +328,8 @@ main {
 }
 
 .MuiTypography-root {
-  margin-bottom: 3% !important;
-  margin-top: 3% !important;
+  margin-bottom: 1% !important;
+  margin-top: 1% !important;
 }
 
 .rulesBox {
@@ -341,6 +348,7 @@ main {
   display: flex !important;
   justify-content: end !important;
 }
+
 
 .rulesTitle {
   display: flex;
@@ -362,4 +370,8 @@ main {
   display: flex;
   justify-content: end;
   margin-right: 2%;
+}
+
+.rulesCard {
+  height: auto !important;
 }

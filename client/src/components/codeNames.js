@@ -444,13 +444,13 @@ function CodeNames() {
   // when game starts
   const renderGame = () => {
     return (
-      <div className="game container-fluid p-2" >
+      <div className="game container-fluid p-2">
         <div className="row">
           <div className="title col-12">CATS VS. DOGS</div>
         </div>
         <div className="row">
           <div className="info col-12 mx-0">
-            <h3 className={"turn col " + status}>{statusMessage}</h3>
+            <h4 className={"turn col " + status}>{statusMessage}</h4>
             {/* display end turn and show winner based on state */}
             {showEndTurn
               && !isSpyMaster
@@ -490,12 +490,12 @@ function CodeNames() {
               Card Remaining:{" "}
               <span className="blue-turn">{blueRemaining.current}</span>
             </h3>
-            <h4>Team Members: </h4>
+            <h3>Team Members: </h3>
             {teamDog.map((user, index) => {
               if (index == 0) return (
-                <h5>{user} - Spymaster</h5>
+                <h3>{user} - Spymaster</h3>
               );
-              else return (<h5>{user}</h5>);
+              else return (<h3>{user}</h3>);
             })}
           </div>
           <div className="info col-12 mx-0">
