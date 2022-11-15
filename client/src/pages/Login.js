@@ -11,6 +11,7 @@ import { LOGIN_USER } from "../utils/mutations";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { Link } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const Test3 = () => {
   const [formState, setFormState] = useState({ email: "", password: "" });
@@ -47,10 +48,10 @@ const Test3 = () => {
     });
   };
   return (
-    <div className="loginCard">
-      <Card sx={{ minWidth: 275 }} className="card-body">
+    <div className="login-card">
+      <Card sx={{ minWidth: 200, maxWidth: 375 }} className="card-body col-3">
         <CardContent>
-          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+          <Typography sx={{ fontSize: 12 }} color="text.secondary" gutterBottom>
             <Box sx={{ flexGrow: 1 }}>
               <AppBar position="static">
                 <Toolbar variant="dense">

@@ -54,8 +54,8 @@ import io from "socket.io-client";
 
 const ROOT_URL = 'https://mysterious-hollows-84029.herokuapp.com';
 
-const socket = io.connect(ROOT_URL); // for deployment
-// const socket = io.connect("http://localhost:3000"); // for development
+// const socket = io.connect(ROOT_URL); // for deployment
+const socket = io.connect("http://localhost:3000"); // for development
 
 // declare variables for setting up the game
 const hiddenClasses = new Array(25).fill("hidden-card");

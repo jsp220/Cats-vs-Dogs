@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import PrivateRouteNoToken from "./components/PrivateRouteNoToken";
 import PrivateRouteWithToken from "./components/PrivateRouteWithToken";
+import Navbar from "./components/Navbar";
 import Game from "./pages/game";
 import Home from "./pages/home";
 import Signup from "./pages/Signup";
@@ -17,6 +18,7 @@ const client = new ApolloClient({
 export const App = () => (
   <ApolloProvider client={client}>
     <Router>
+      <Navbar />
       <Fragment>
         <Routes>
           <Route exact path="/game/:gameName" element={<PrivateRouteNoToken />}>
