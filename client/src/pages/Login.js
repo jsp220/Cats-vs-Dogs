@@ -13,7 +13,7 @@ import Button from "@mui/material/Button";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const Test3 = () => {
+const Login = () => {
   const [formState, setFormState] = useState({ email: "", password: "" });
   const [login, { error, data }] = useMutation(LOGIN_USER);
 
@@ -119,4 +119,4 @@ const Test3 = () => {
   );
 };
 
-export default Test3;
+export default Login;
