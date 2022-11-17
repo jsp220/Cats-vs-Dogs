@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-// import ReactDOM from "react-dom";
 
 // import CSS
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -7,8 +6,8 @@ import "../CodeNames.css";
 
 // import components
 import Rules from "./rules";
-import Gear from "./Gear";
 import Board from "./Board";
+// import Gear from "./Gear";
 
 // import apollo queries/mutations
 import { useLazyQuery, useMutation } from '@apollo/client';
@@ -50,8 +49,9 @@ import "animate.css";
 
 // Adjusted for the used animation methods. (BZ)
 // import { rollIn, zoomIn } from "react-animations";
-import io from "socket.io-client";
 
+// socket connection
+import io from "socket.io-client";
 const ROOT_URL = 'https://mysterious-hollows-84029.herokuapp.com';
 
 const socket = io.connect(ROOT_URL); // for deployment
@@ -59,7 +59,7 @@ const socket = io.connect(ROOT_URL); // for deployment
 
 // declare variables for setting up the game
 const hiddenClasses = new Array(25).fill("hidden-card");
-let renderNumber = 0;
+// let renderNumber = 0;
 
 // main react component
 function CodeNames() {
@@ -446,9 +446,6 @@ function CodeNames() {
     return (
       <div className="game container-fluid p-2">
         <div className="row">
-          <div className="title col-12">CATS VS. DOGS</div>
-        </div>
-        <div className="row">
           <div className="info col-12 mx-0">
             <h3 className={"turn col " + status}>{statusMessage}</h3>
             {/* display end turn and show winner based on state */}
@@ -555,8 +552,7 @@ function CodeNames() {
   const renderWaitingRoom = () => {
     return (
       <div className="game container" >
-        <div className="title col-12 mx-0">CATS VS. DOGS</div>
-        <div className="">Game Code: {document.URL.slice(document.URL.lastIndexOf('/') + 1)}</div>
+        <div className="mt-2">Game Code: {document.URL.slice(document.URL.lastIndexOf('/') + 1)}</div>
         <div className="info row col-12 mx-0">
           <ul className="list-group px-0">
             <li className="h4 currently-online list-group-item active text-center">Currently online:</li>
@@ -570,8 +566,8 @@ function CodeNames() {
     )
   }
 
-  renderNumber++;
-  console.log(renderNumber);
+  // renderNumber++;
+  // console.log(renderNumber);
 
   // on load, startGame is false so "renderWaitingRoom" runs. 
   return (

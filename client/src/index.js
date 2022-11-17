@@ -5,7 +5,7 @@ import App from './App';
 
 ReactDOM.render(
   <React.StrictMode>
-    <div class="bg-game">
+    <div class="bg-game container-fluid">
       <App />
     </div>
   </React.StrictMode>,

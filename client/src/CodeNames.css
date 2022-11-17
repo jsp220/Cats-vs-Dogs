@@ -38,24 +38,6 @@ h4 {
   padding-right: 0px;
 }
 
-/* .bg-image { */
-/* Background Image */
-/* background-image: url("./images/GameNight.jpg"); */
-/* height: auto; */
-
-/* Background image placement. */
-/* background-position: center; */
-/* background-repeat: no-repeat; */
-/* background-size: 600px/; */
-/* animation: fadeIn; Commented BZ */
-/* animation-duration: 8s; */
-/* } */
-
-/* .bg-game{
-  height: auto;
-  animation-duration: 4s;
-} */
-
 .board-row {
   font-size: 1vw;
 }

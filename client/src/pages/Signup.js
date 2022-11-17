@@ -13,7 +13,7 @@ import Button from "@mui/material/Button";
 import { Link } from 'react-router-dom';
 
 
-const Test2 = () => {
+const Signup = () => {
     const [formState, setFormState] = useState({
         username: '',
         email: '',
@@ -47,8 +47,8 @@ const Test2 = () => {
         }
       };
   return (
-    <div className="loginCard">
-      <Card sx={{ minWidth: 275 }} className="card-body">
+    <div className="login-card">
+      <Card sx={{ minWidth: 200, maxWidth: 375 }} className="card-body">
         <CardContent>
           <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
             <Box sx={{ flexGrow: 1 }}>
@@ -126,4 +126,4 @@ const Test2 = () => {
   );
 };
 
-export default Test2;
+export default Signup;
