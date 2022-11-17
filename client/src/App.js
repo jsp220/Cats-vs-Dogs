@@ -6,7 +6,7 @@ import PrivateRouteNoToken from "./components/PrivateRouteNoToken";
 import PrivateRouteWithToken from "./components/PrivateRouteWithToken";
 import Navbar from "./components/Navbar";
 import Game from "./pages/game";
-import Home from "./pages/Home";
+import Home from "./pages/home";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 
