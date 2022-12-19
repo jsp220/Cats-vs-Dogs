@@ -52,7 +52,7 @@ import "animate.css";
 
 // socket connection
 import io from "socket.io-client";
-const ROOT_URL = 'https://mysterious-hollows-84029.herokuapp.com';
+const ROOT_URL = 'https://young-bayou-37103.herokuapp.com/';
 
 const socket = io.connect(ROOT_URL); // for deployment
 // const socket = io.connect("http://localhost:3000"); // for development
