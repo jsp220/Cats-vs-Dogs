@@ -10,7 +10,7 @@ Copyright(c) 2022 Team Bubble Butt
 
 ## Deployed Application
 
-https://mysterious-hollows-84029.herokuapp.com/
+https://young-bayou-37103.herokuapp.com/
 
 ## Technology Used
 * React JS
